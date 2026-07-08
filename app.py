@@ -1,20 +1,25 @@
+import json
+from pathlib import Path
+from datetime import date, timedelta
+
 import streamlit as st
 import requests
 import pandas as pd
-from datetime import date, timedelta
 
 st.set_page_config(page_title="Claude Pricing Dashboard", layout="wide")
 
-# ---------- 1. Read the API key from Streamlit secrets ----------
+# ---------- Cloudbeds setup ----------
 API_KEY = st.secrets["CLOUDBEDS_API_KEY"]
-
-# ---------- 2. Base setup for every Cloudbeds request ----------
 BASE_URL = "https://api.cloudbeds.com/api/v1.2"
 HEADERS = {"x-api-key": API_KEY}
+DATA_DIR = Path(__file__).parent / "data"
+
+OCC_TARGET = 0.85          # below this, recommend discounting
+SOFT_DISCOUNT = 0.90       # 10% cut when occupancy < 85%
+HIGH_OCC_PREMIUM = 1.05    # small lift when nearly full
 
 
 def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
-    """Call a Cloudbeds endpoint and return its 'data' payload."""
     r = requests.get(f"{BASE_URL}/{endpoint}", headers=HEADERS, params=params)
     r.raise_for_status()
     body = r.json()
@@ -24,28 +29,28 @@ def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
     return body.get("data", [])
 
 
-# ---------- 3. Fetch data (cached 5 min to respect rate limits) ----------
+@st.cache_data
+def load_json(name: str):
+    p = DATA_DIR / name
+    if not p.exists():
+        return {}
+    return json.loads(p.read_text())
+
+
+PRICING = load_json("pricing.json")
+COMPETITORS = load_json("competitors.json")
+COMP_RATES = load_json("comp_rates.json")
+EVENTS = load_json("events.json").get("events", [])
+
+
+# ---------- Cloudbeds data (cached 5 min) ----------
 @st.cache_data(ttl=300)
 def get_properties() -> dict:
-    """Return {property name: property ID} for all properties on this API key."""
     hotels = cloudbeds_get("getHotels")
     if isinstance(hotels, dict):
         hotels = [hotels]
-    props = {}
-    for h in hotels or []:
-        pid = str(h.get("propertyID", ""))
-        name = h.get("propertyName") or h.get("hotelName") or f"Property {pid}"
-        if pid:
-            props[name] = pid
-    return props
-
-
-@st.cache_data(ttl=300)
-def get_reservations(property_id: str, start: str, end: str):
-    return cloudbeds_get(
-        "getReservations",
-        {"propertyID": property_id, "checkInFrom": start, "checkInTo": end},
-    )
+    return {h.get("propertyName", f"Property {h.get('propertyID')}"): str(h.get("propertyID"))
+            for h in hotels or [] if h.get("propertyID")}
 
 
 @st.cache_data(ttl=300)
@@ -54,97 +59,233 @@ def get_rooms(property_id: str):
 
 
 @st.cache_data(ttl=300)
-def get_today_dashboard(property_id: str):
-    return cloudbeds_get("getDashboard", {"propertyID": property_id})
-
-
-@st.cache_data(ttl=300)
-def occupancy_by_night(property_id: str, start: str, end: str, total_rooms: int):
-    """Count occupied rooms per night from reservations."""
-    res = cloudbeds_get(
+def get_reservations_range(property_id: str, end: str):
+    return cloudbeds_get(
         "getReservations",
         {"propertyID": property_id, "checkInFrom": "2000-01-01", "checkInTo": end,
          "status": "checked_in,checked_out,confirmed,not_confirmed"},
     )
-    nights = pd.date_range(start, end)
-    counts = {n.date(): 0 for n in nights}
+
+
+@st.cache_data(ttl=300)
+def availability_by_type(property_id: str, day: str):
+    """Rooms available per room type for one night."""
+    d = date.fromisoformat(day)
+    data = cloudbeds_get("getAvailableRoomTypes", {
+        "propertyIDs": property_id,
+        "startDate": day,
+        "endDate": str(d + timedelta(days=1)),
+        "adults": 1, "rooms": 1,
+    })
+    out = {}
+    for prop in data if isinstance(data, list) else [data]:
+        for rt in prop.get("propertyRooms", []):
+            out[rt.get("roomTypeName", "?")] = int(rt.get("roomsAvailable", 0))
+    return out
+
+
+def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int) -> dict:
+    """Occupied-room count per night from reservations."""
+    if not days:
+        return {}
+    res = get_reservations_range(property_id, str(max(days)))
+    counts = {d: 0 for d in days}
     for r in res:
         try:
             ci = pd.to_datetime(r["startDate"]).date()
             co = pd.to_datetime(r["endDate"]).date()
         except (KeyError, ValueError):
             continue
-        for n in counts:
-            if ci <= n < co:  # guest occupies the night if checked in on/before, out after
-                counts[n] += 1
-    df = pd.DataFrame({"night": list(counts.keys()), "occupied": list(counts.values())})
-    if total_rooms:
-        df["occupancy %"] = (df["occupied"] / total_rooms * 100).round(1)
-    return df
+        for d in counts:
+            if ci <= d < co:
+                counts[d] += 1
+    return counts
 
 
-# ---------- 4. Build the dashboard page ----------
+# ---------- Pricing logic ----------
+def ladder_rate(rates: dict, days_out: int) -> float:
+    """Rate from the booking-window ladder. IA = ideal base rate."""
+    if days_out > 10:
+        return rates["ia"]
+    if days_out >= 7:
+        return rates["d7_10"]
+    if days_out >= 4:
+        return rates["d4_7"]
+    return rates["d4_7"]  # 0-3 days: start from the 4-7 rate; floor protects downside
+
+
+def event_for(d: date):
+    for ev in EVENTS:
+        ds = ev.get("dates", "")
+        try:
+            if "to" in ds:
+                a, b = [x.strip() for x in ds.split("to")]
+                if date.fromisoformat(a) <= d <= date.fromisoformat(b):
+                    return ev
+            elif ds and ds != "":
+                if ds.startswith(str(d.year)) and str(d) in ds:
+                    return ev
+        except ValueError:
+            continue
+    return None
+
+
+def recommend(rates: dict, days_out: int, occ: float | None, ev) -> tuple[float, str]:
+    base = ladder_rate(rates, days_out)
+    floor = rates["floor"]
+    demand = (ev or {}).get("demand", "")
+    # High-demand event: hold or lift, ignore discounting
+    if demand in ("High", "Very High"):
+        rec = max(base, rates["ia"]) * (1.10 if demand == "Very High" else 1.0)
+        return round(max(rec, floor)), f"{demand} demand event — hold/lift, no discounting"
+    if occ is None:
+        return round(max(base, floor)), "No occupancy data — ladder rate"
+    if occ >= 0.95:
+        return round(max(base * HIGH_OCC_PREMIUM, floor)), "Occupancy ≥95% — small premium"
+    if occ >= OCC_TARGET:
+        return round(max(base, floor)), "Occupancy ≥85% — hold ladder rate"
+    rec = max(base * SOFT_DISCOUNT, floor)
+    note = "Occupancy <85% — 10% cut"
+    if days_out <= 3 and rec <= floor + 1:
+        note = "Occupancy <85%, 0-3 days — at breakeven floor"
+    return round(rec), note
+
+
+# ---------- Page ----------
 st.title("Claude Pricing Dashboard")
 
 properties = get_properties()
 if not properties:
-    st.error("No properties found for this API key — check its permissions in Cloudbeds.")
+    st.error("No properties found for this API key.")
     st.stop()
 
-# Sidebar: property selector + date filters
 st.sidebar.header("Filters")
 property_name = st.sidebar.selectbox("Property", list(properties.keys()))
 property_id = properties[property_name]
-start_date = st.sidebar.date_input("Check-in from", date.today())
-end_date = st.sidebar.date_input("Check-in to", date.today() + timedelta(days=30))
+start_date = st.sidebar.date_input("Window start", date.today())
+end_date = st.sidebar.date_input("Window end", date.today() + timedelta(days=14))
 
 st.caption(f"Showing: {property_name}")
 
-# Occupancy data
+# Match pricing guide entry (exact then fuzzy)
+prop_pricing = PRICING.get(property_name)
+if prop_pricing is None:
+    key = next((k for k in PRICING if k.casefold().replace(" ", "") == property_name.casefold().replace(" ", "")), None)
+    prop_pricing = PRICING.get(key, {})
+
+# Sector + competitor set
+sector = next((s for s, v in COMPETITORS.items() if property_name in v.get("hc_properties", [])), None)
+sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else []
+
+# Total rooms
 rooms_data = get_rooms(property_id)
 total_rooms = sum(len(p.get("rooms", [])) for p in rooms_data) if rooms_data else 0
-occ_df = occupancy_by_night(property_id, str(start_date), str(end_date), total_rooms)
 
-# ----- Today's snapshot -----
-st.subheader("Today at a glance")
-today_occ = "n/a"
-if total_rooms and not occ_df.empty:
-    today_row = occ_df[occ_df["night"] == date.today()]
-    if not today_row.empty:
-        today_occ = f"{today_row.iloc[0]['occupancy %']:.0f}%"
+# Occupancy for the window
+window_days = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+occ_counts = occupancy_for_dates(property_id, window_days, total_rooms)
 
-dash = get_today_dashboard(property_id)
-dash = dash if isinstance(dash, dict) else {}
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Occupancy", today_occ)
-c2.metric("Arrivals", dash.get("arrivals", "n/a"))
-c3.metric("Departures", dash.get("departures", "n/a"))
-c4.metric("In house", dash.get("inHouse", dash.get("stayovers", "n/a")))
-
-# ----- Occupancy chart -----
-st.subheader("Occupancy by night")
-if not occ_df.empty and total_rooms:
-    st.bar_chart(occ_df.set_index("night")["occupancy %"])
-    st.caption(f"Based on {total_rooms} total rooms.")
-elif not total_rooms:
-    st.info("Couldn't count total rooms — check the getRooms permission on your API key.")
-
-# ----- Reservations table -----
-st.subheader("Reservations")
-reservations = get_reservations(property_id, str(start_date), str(end_date))
-if reservations:
-    df = pd.DataFrame(reservations)
-    cols = [c for c in ["guestName", "startDate", "endDate", "status", "balance"] if c in df.columns]
-    st.dataframe(df[cols] if cols else df, use_container_width=True)
-    st.metric("Total reservations", len(df))
+# ===== Tonight at a glance =====
+st.subheader("Tonight at a glance")
+tonight = date.today()
+occ_tonight = occ_counts.get(tonight)
+c1, c2, c3 = st.columns(3)
+if total_rooms and occ_tonight is not None:
+    pct = occ_tonight / total_rooms
+    c1.metric("Tonight's occupancy", f"{pct:.0%}", f"{occ_tonight}/{total_rooms} sold")
+    below = pct < OCC_TARGET
+    c2.metric("Pricing posture", "Discount" if below else "Hold/Lift",
+              "occupancy under 85%" if below else "occupancy at/above 85%")
 else:
-    st.info("No reservations found for this date range.")
+    c1.metric("Tonight's occupancy", "n/a")
+ev_today = event_for(tonight)
+c3.metric("Tonight's demand driver", (ev_today or {}).get("demand", "None"),
+          (ev_today or {}).get("name", "no dominant driver"))
 
-# ----- Rooms table -----
-st.subheader("Rooms")
-if rooms_data:
-    all_rooms = []
-    for p in rooms_data:
-        all_rooms.extend(p.get("rooms", []))
-    if all_rooms:
-        st.dataframe(pd.DataFrame(all_rooms), use_container_width=True)
+# ===== Our rates vs competitors (sector) =====
+st.subheader(f"Rates vs competitors — {sector or 'sector unknown'}")
+scraped = COMP_RATES.get("rates", {})
+latest_day = max(scraped.keys()) if scraped else None
+if latest_day and sector_comps:
+    rows = []
+    for comp in sector_comps:
+        info = scraped.get(latest_day, {}).get(comp, {})
+        if info.get("status") == "ok":
+            rows.append({"Competitor": comp, "Status": "Available",
+                         "Rate incl. taxes (S$)": info.get("est_incl_taxes"),
+                         "Room": info.get("room", "")})
+        else:
+            rows.append({"Competitor": comp, "Status": "SOLD OUT", "Rate incl. taxes (S$)": None, "Room": ""})
+    comp_df = pd.DataFrame(rows)
+    st.dataframe(comp_df, use_container_width=True, hide_index=True)
+
+    avail = comp_df["Rate incl. taxes (S$)"].dropna()
+    our_short = pd.Series([v["d4_7"] for v in prop_pricing.values()]).mean() if prop_pricing else None
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Comp median (avail.)", f"S$ {avail.median():.0f}" if not avail.empty else "all sold out")
+    m2.metric("Our avg short-window rate", f"S$ {our_short:.0f}" if our_short else "n/a")
+    sold_out_n = (comp_df["Status"] == "SOLD OUT").sum()
+    m3.metric("Comps sold out", f"{sold_out_n}/{len(comp_df)}",
+              "compression — hold rates" if sold_out_n > len(comp_df) / 2 else None)
+    st.caption(f"Booking.com rates for {latest_day} (cheapest room, 2 adults, est. incl. taxes/fees). "
+               "Refresh data/comp_rates.json regularly.")
+else:
+    st.info("No competitor rates on file — update data/comp_rates.json.")
+
+# ===== Vacant rooms, next 14 days =====
+st.subheader("Vacant rooms — next 14 days")
+next14 = [tonight + timedelta(days=i) for i in range(14)]
+vac_rows = []
+for d in next14:
+    try:
+        avail_types = availability_by_type(property_id, str(d))
+    except Exception:
+        avail_types = {}
+    vacant = {k: v for k, v in avail_types.items() if v > 0}  # occupied types removed
+    occ_n = occ_counts.get(d)
+    vac_rows.append({
+        "Date": str(d),
+        "Day": d.strftime("%a"),
+        "Occ %": f"{occ_n / total_rooms:.0%}" if (total_rooms and occ_n is not None) else "n/a",
+        "Vacant rooms": ", ".join(f"{k} ({v})" for k, v in sorted(vacant.items())) or "FULLY BOOKED",
+    })
+st.dataframe(pd.DataFrame(vac_rows), use_container_width=True, hide_index=True)
+
+# ===== Events =====
+st.subheader("Events — Heritage Collection relevance")
+if EVENTS:
+    ev_df = pd.DataFrame([{
+        "Dates": e.get("dates"), "Event": e.get("name"), "Venue": e.get("venue"),
+        "Attendees": e.get("attendees"), "Demand": e.get("demand"), "Why": e.get("rationale"),
+    } for e in EVENTS])
+    st.dataframe(ev_df, use_container_width=True, hide_index=True)
+    st.caption("Demand scored on past materialization + attendee count/type. "
+               "We are 3.5-star, adults-only, shophouse CBD — day-attendee and family events score low.")
+
+# ===== Price recommendations =====
+st.subheader("Price recommendations")
+if prop_pricing:
+    rec_rows = []
+    for d in window_days:
+        days_out = (d - tonight).days
+        occ_n = occ_counts.get(d)
+        occ_pct = (occ_n / total_rooms) if (total_rooms and occ_n is not None) else None
+        ev = event_for(d)
+        for room, rates in prop_pricing.items():
+            rec, why = recommend(rates, days_out, occ_pct, ev)
+            rec_rows.append({
+                "Date": str(d), "Day": d.strftime("%a"),
+                "Occ %": f"{occ_pct:.0%}" if occ_pct is not None else "n/a",
+                "Event": (ev or {}).get("name", "—"),
+                "Demand": (ev or {}).get("demand", "—"),
+                "Room": room,
+                "Ladder (S$)": ladder_rate(rates, days_out),
+                "Floor (S$)": rates["floor"],
+                "Recommended (S$)": rec,
+                "Reason": why,
+            })
+    st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
+    st.caption("Ladder: IA rate >10 days out → 7-10 → 4-7 day rates. Below 85% occupancy: 10% cut, "
+               "never below breakeven floor. High/Very High demand events: hold or lift, no discounting.")
+else:
+    st.info(f"No pricing guide entry found for {property_name} — check data/pricing.json names.")
