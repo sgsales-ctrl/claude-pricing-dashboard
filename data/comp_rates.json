@@ -1,0 +1,40 @@
+{
+  "_comment": "Competitor rates scraped from Booking.com search cards (cheapest available room, 1 night, 2 adults, SGD). display_rate = price shown on card. est_incl_taxes = estimated total incl. ~20% SG service charge + GST where card price excluded taxes (Claude Hotel confirmed +20%). 'sold_out' = 'Unavailable on our site for your selected dates'. Refresh regularly - e.g. via a scheduled Claude task.",
+  "scraped_at": "2026-07-08",
+  "rates": {
+    "2026-07-08": {
+      "The Quay Hotel": {"status": "sold_out"},
+      "Kinn Habitat": {"status": "ok", "display_rate": 191.65, "est_incl_taxes": 192, "room": "cheapest available"},
+      "Hotel Clover The Arts": {"status": "ok", "display_rate": 128, "est_incl_taxes": 154, "room": "cheapest available"},
+      "Hmlet Kada": {"status": "sold_out"},
+      "Hmlet Chinatown": {"status": "sold_out"},
+      "Hotel 1900": {"status": "sold_out"},
+      "Kinn Studios": {"status": "sold_out"},
+      "Hotel Mono": {"status": "sold_out"},
+      "Kesa": {"status": "sold_out"},
+      "Bliss Hotel": {"status": "sold_out"},
+      "Claude Hotel": {"status": "sold_out"},
+      "Hotel Nuve Heritage": {"status": "sold_out"},
+      "Rest Bugis Hotel": {"status": "sold_out"},
+      "Coliwoo Kampong Glam": {"status": "sold_out"},
+      "Hotel Clover 769": {"status": "sold_out"}
+    },
+    "2026-07-09": {
+      "The Quay Hotel": {"status": "sold_out"},
+      "Kinn Habitat": {"status": "ok", "display_rate": 136, "est_incl_taxes": 163, "room": "dorm bed - private rooms sold out, weak comp signal"},
+      "Hotel Clover The Arts": {"status": "ok", "display_rate": 120, "est_incl_taxes": 144, "room": "Superior Queen (No Window)"},
+      "Hmlet Kada": {"status": "sold_out"},
+      "Hmlet Chinatown": {"status": "sold_out"},
+      "Hotel 1900": {"status": "ok", "display_rate": 227, "est_incl_taxes": 272, "room": "cheapest available"},
+      "Kinn Studios": {"status": "ok", "display_rate": 138, "est_incl_taxes": 166, "room": "cheapest available"},
+      "Hotel Mono": {"status": "ok", "display_rate": 166, "est_incl_taxes": 199, "room": "cheapest available"},
+      "Kesa": {"status": "sold_out"},
+      "Bliss Hotel": {"status": "ok", "display_rate": 194, "est_incl_taxes": 233, "room": "Deluxe King"},
+      "Claude Hotel": {"status": "ok", "display_rate": 225, "est_incl_taxes": 270, "room": "Superior Studio (+S$45 taxes confirmed)"},
+      "Hotel Nuve Heritage": {"status": "ok", "display_rate": 195, "est_incl_taxes": 234, "room": "cheapest available"},
+      "Rest Bugis Hotel": {"status": "sold_out"},
+      "Coliwoo Kampong Glam": {"status": "ok", "display_rate": 262, "est_incl_taxes": 314, "room": "Standard Queen (No Window)"},
+      "Hotel Clover 769": {"status": "ok", "display_rate": 127, "est_incl_taxes": 152, "room": "Superior Double"}
+    }
+  }
+}
