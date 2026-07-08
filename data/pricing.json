@@ -1,0 +1,100 @@
+{
+  "_comment": "Heritage Collection pricing guide. IA = ideal base rate (>10 days to arrival), then 7-10 days, 4-7 days, breakeven floor applies 0-3 days out. All SGD.",
+  "Heritage Collection on Seah": {
+    "Loft": {"ia": 150, "d7_10": 145, "d4_7": 140, "floor": 97},
+    "Premium Loft": {"ia": 160, "d7_10": 155, "d4_7": 150, "floor": 97},
+    "Premium Loft Plus": {"ia": 180, "d7_10": 175, "d4_7": 170, "floor": 100}
+  },
+  "Heritage Collection on Arab": {
+    "Loft Single (No Window)": {"ia": 100, "d7_10": 95, "d4_7": 90, "floor": 83},
+    "Studio Single (No Window)": {"ia": 95, "d7_10": 90, "d4_7": 85, "floor": 80},
+    "Studio Single": {"ia": 100, "d7_10": 95, "d4_7": 90, "floor": 90},
+    "Studio (No Window)": {"ia": 100, "d7_10": 95, "d4_7": 90, "floor": 87},
+    "Studio": {"ia": 125, "d7_10": 120, "d4_7": 115, "floor": 97},
+    "Loft (w/Balcony)": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 126}
+  },
+  "Heritage Collection on Victoria": {
+    "Loft Tatami (No Window)": {"ia": 105, "d7_10": 100, "d4_7": 95, "floor": 89},
+    "Studio Double (No Window)": {"ia": 115, "d7_10": 110, "d4_7": 105, "floor": 98},
+    "Loft (No Window)": {"ia": 125, "d7_10": 120, "d4_7": 115, "floor": 106},
+    "Studio Queen (No Window)": {"ia": 130, "d7_10": 125, "d4_7": 120, "floor": 111},
+    "Studio Queen": {"ia": 140, "d7_10": 135, "d4_7": 130, "floor": 119},
+    "Loft": {"ia": 135, "d7_10": 130, "d4_7": 125, "floor": 115},
+    "Loft Deluxe": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 132},
+    "Garden Studio Queen": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 132},
+    "Garden Studio Deluxe": {"ia": 170, "d7_10": 165, "d4_7": 160, "floor": 145}
+  },
+  "Heritage Collection on Boat Quay (South Bridge Wing)": {
+    "Studio Single": {"ia": 130, "d7_10": 125, "d4_7": 120, "floor": 103},
+    "Studio": {"ia": 145, "d7_10": 140, "d4_7": 135, "floor": 95},
+    "Studio Premium": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 108}
+  },
+  "Heritage Collection on Boat Quay (Quayside Wing)": {
+    "Studio Single (No Window)": {"ia": 120, "d7_10": 115, "d4_7": 110, "floor": 83},
+    "Studio (No Window)": {"ia": 135, "d7_10": 130, "d4_7": 125, "floor": 86},
+    "Studio Plus (No Window)": {"ia": 140, "d7_10": 135, "d4_7": 130, "floor": 91},
+    "Studio": {"ia": 150, "d7_10": 145, "d4_7": 140, "floor": 88},
+    "Loft (No Window)": {"ia": 145, "d7_10": 140, "d4_7": 135, "floor": 100},
+    "Studio Plus": {"ia": 160, "d7_10": 155, "d4_7": 150, "floor": 104},
+    "Loft": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 96},
+    "Studio Premium": {"ia": 170, "d7_10": 165, "d4_7": 160, "floor": 100},
+    "Studio Premium Plus": {"ia": 175, "d7_10": 170, "d4_7": 165, "floor": 104},
+    "Premium Loft": {"ia": 190, "d7_10": 185, "d4_7": 180, "floor": 142},
+    "Stamford Studio": {"ia": 320, "d7_10": 315, "d4_7": 310, "floor": 200},
+    "Raffles Loft": {"ia": 330, "d7_10": 325, "d4_7": 320, "floor": 203}
+  },
+  "Heritage Collection on Clarke Quay": {
+    "Studio Single (No Window)": {"ia": 120, "d7_10": 115, "d4_7": 110, "floor": 88},
+    "Studio Single": {"ia": 140, "d7_10": 135, "d4_7": 130, "floor": 105},
+    "Studio (No Window)": {"ia": 140, "d7_10": 135, "d4_7": 130, "floor": 81},
+    "Studio": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 103},
+    "Studio Premium": {"ia": 170, "d7_10": 165, "d4_7": 160, "floor": 103}
+  },
+  "Heritage Collection on Chinatown": {
+    "Studio Single (No Window)": {"ia": 125, "d7_10": 120, "d4_7": 115, "floor": 85},
+    "Studio Single (Skylight)": {"ia": 135, "d7_10": 130, "d4_7": 125, "floor": 95},
+    "Studio (No Window)": {"ia": 140, "d7_10": 135, "d4_7": 130, "floor": 91},
+    "Studio (Skylight)": {"ia": 145, "d7_10": 140, "d4_7": 135, "floor": 98},
+    "Studio Premium (No Window)": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 95},
+    "Studio Premium": {"ia": 160, "d7_10": 155, "d4_7": 150, "floor": 110},
+    "Premium Loft (Skylight)": {"ia": 165, "d7_10": 160, "d4_7": 155, "floor": 106},
+    "Premium Loft": {"ia": 180, "d7_10": 175, "d4_7": 170, "floor": 120}
+  },
+  "Heritage Collection on Pagoda": {
+    "Studio Single": {"ia": 135, "d7_10": 130, "d4_7": 125, "floor": 101},
+    "Studio (No Window)": {"ia": 145, "d7_10": 140, "d4_7": 135, "floor": 95},
+    "Junior Studio": {"ia": 145, "d7_10": 140, "d4_7": 135, "floor": 106},
+    "Studio": {"ia": 170, "d7_10": 165, "d4_7": 160, "floor": 130},
+    "Studio Deluxe": {"ia": 175, "d7_10": 170, "d4_7": 165, "floor": 140},
+    "Junior Loft": {"ia": 170, "d7_10": 165, "d4_7": 160, "floor": 100},
+    "Loft (Skylight)": {"ia": 175, "d7_10": 170, "d4_7": 165, "floor": 100},
+    "Loft": {"ia": 180, "d7_10": 175, "d4_7": 170, "floor": 101}
+  },
+  "Heritage Collection on Ann Siang": {
+    "Studio Single (No Window)": {"ia": 120, "d7_10": 115, "d4_7": 110, "floor": 90},
+    "Studio (Skylight)": {"ia": 140, "d7_10": 135, "d4_7": 130, "floor": 136},
+    "Studio": {"ia": 150, "d7_10": 145, "d4_7": 140, "floor": 147},
+    "Two Bedroom": {"ia": 225, "d7_10": 220, "d4_7": 215, "floor": 205},
+    "Two Bedroom Deluxe": {"ia": 230, "d7_10": 225, "d4_7": 220, "floor": 188}
+  },
+  "Heritage Collection on Smith": {
+    "Single": {"ia": 125, "d7_10": 120, "d4_7": 115, "floor": 106},
+    "Studio (Skylight)": {"ia": 130, "d7_10": 125, "d4_7": 120, "floor": 111},
+    "Studio": {"ia": 135, "d7_10": 130, "d4_7": 125, "floor": 115},
+    "Studio Premium (Skylight)": {"ia": 145, "d7_10": 140, "d4_7": 135, "floor": 123},
+    "Studio Premium": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 132}
+  },
+  "Heritage Collection on Boon Tat": {
+    "Studio Premium": {"ia": 165, "d7_10": 160, "d4_7": 155, "floor": 140},
+    "Premium Loft": {"ia": 175, "d7_10": 170, "d4_7": 165, "floor": 149},
+    "One Bedroom": {"ia": 185, "d7_10": 180, "d4_7": 175, "floor": 157}
+  },
+  "Heritage Collection on KG": {
+    "Loft Single (Skylight)": {"ia": 110, "d7_10": 105, "d4_7": 100, "floor": 94},
+    "Next-to-the-Bar Studio (No Window)": {"ia": 115, "d7_10": 110, "d4_7": 105, "floor": 98},
+    "Loft (Skylight)": {"ia": 120, "d7_10": 115, "d4_7": 110, "floor": 102},
+    "Studio (No Window)": {"ia": 125, "d7_10": 120, "d4_7": 115, "floor": 106},
+    "Next-to-the-Bar Studio": {"ia": 130, "d7_10": 125, "d4_7": 120, "floor": 111},
+    "Studio Deluxe (with private outdoor terrace)": {"ia": 155, "d7_10": 150, "d4_7": 145, "floor": 132}
+  }
+}
