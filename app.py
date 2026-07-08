@@ -6,8 +6,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Claude Pricing Dashboard", layout="wide")
 
-TOKEN_URL = "https://hotels.cloudbeds.com/api/v1.1/access_token"
-API_BASE  = "https://hotels.cloudbeds.com/api/v1.1"
+TOKEN_URL = "https://hotels.cloudbeds.com/api/v1.3/access_token"
+API_BASE = "https://hotels.cloudbeds.com/api/v1.3"
 
 # Properties that need room-name filtering: {propertyID substring match: keyword}
 # The keyword must appear in the ROOM TYPE name to be counted.
