@@ -3,7 +3,9 @@ import requests
 import pandas as pd
 from datetime import date, timedelta
 
-# ---------- 1. Read the API key from .streamlit/secrets.toml ----------
+st.set_page_config(page_title="Claude Pricing Dashboard", layout="wide")
+
+# ---------- 1. Read the API key from Streamlit secrets ----------
 API_KEY = st.secrets["CLOUDBEDS_API_KEY"]
 
 # ---------- 2. Base setup for every Cloudbeds request ----------
@@ -14,7 +16,7 @@ HEADERS = {"x-api-key": API_KEY}
 def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
     """Call a Cloudbeds endpoint and return its 'data' payload."""
     r = requests.get(f"{BASE_URL}/{endpoint}", headers=HEADERS, params=params)
-    r.raise_for_status()  # stops with an error if the key/scopes are wrong
+    r.raise_for_status()
     body = r.json()
     if not body.get("success", True):
         st.error(f"Cloudbeds error: {body.get('message')}")
@@ -24,57 +26,45 @@ def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
 
 # ---------- 3. Fetch data (cached 5 min to respect rate limits) ----------
 @st.cache_data(ttl=300)
-def get_property_id() -> str:
-    """Fetch the property ID linked to this API key."""
+def get_properties() -> dict:
+    """Return {property name: property ID} for all properties on this API key."""
     hotels = cloudbeds_get("getHotels")
-    if isinstance(hotels, list) and hotels:
-        return str(hotels[0].get("propertyID", ""))
     if isinstance(hotels, dict):
-        return str(hotels.get("propertyID", ""))
-    return ""
-
-
-PROPERTY_ID = get_property_id()
-if not PROPERTY_ID:
-    st.error("Couldn't find a property for this API key — check the key's permissions in Cloudbeds.")
-    st.stop()
+        hotels = [hotels]
+    props = {}
+    for h in hotels or []:
+        pid = str(h.get("propertyID", ""))
+        name = h.get("propertyName") or h.get("hotelName") or f"Property {pid}"
+        if pid:
+            props[name] = pid
+    return props
 
 
 @st.cache_data(ttl=300)
-def get_reservations(start: str, end: str):
+def get_reservations(property_id: str, start: str, end: str):
     return cloudbeds_get(
         "getReservations",
-        {"propertyID": PROPERTY_ID, "checkInFrom": start, "checkInTo": end},
+        {"propertyID": property_id, "checkInFrom": start, "checkInTo": end},
     )
 
 
 @st.cache_data(ttl=300)
-def get_rooms():
-    return cloudbeds_get("getRooms", {"propertyID": PROPERTY_ID})
+def get_rooms(property_id: str):
+    return cloudbeds_get("getRooms", {"propertyID": property_id})
 
 
 @st.cache_data(ttl=300)
-def get_today_dashboard():
-    """Today's stats straight from Cloudbeds (arrivals, departures, occupancy)."""
-    return cloudbeds_get("getDashboard", {"propertyID": PROPERTY_ID})
+def get_today_dashboard(property_id: str):
+    return cloudbeds_get("getDashboard", {"propertyID": property_id})
 
 
-# ---------- 4. Build the dashboard page ----------
-st.set_page_config(page_title="Claude Pricing Dashboard", layout="wide")
-st.title("Claude Pricing Dashboard")
-
-# Date filter in the sidebar
-st.sidebar.header("Filters")
-start_date = st.sidebar.date_input("Check-in from", date.today())
-end_date = st.sidebar.date_input("Check-in to", date.today() + timedelta(days=30))
-
-# ----- Daily occupancy data (computed from reservations) -----
 @st.cache_data(ttl=300)
-def occupancy_by_night(start: str, end: str, total_rooms: int):
+def occupancy_by_night(property_id: str, start: str, end: str, total_rooms: int):
     """Count occupied rooms per night from reservations."""
     res = cloudbeds_get(
         "getReservations",
-        {"propertyID": PROPERTY_ID, "checkInFrom": "2000-01-01", "checkInTo": end, "status": "checked_in,checked_out,confirmed,not_confirmed"},
+        {"propertyID": property_id, "checkInFrom": "2000-01-01", "checkInTo": end,
+         "status": "checked_in,checked_out,confirmed,not_confirmed"},
     )
     nights = pd.date_range(start, end)
     counts = {n.date(): 0 for n in nights}
@@ -93,10 +83,27 @@ def occupancy_by_night(start: str, end: str, total_rooms: int):
     return df
 
 
-rooms_data_for_count = get_rooms()
-total_rooms = sum(len(p.get("rooms", [])) for p in rooms_data_for_count) if rooms_data_for_count else 0
+# ---------- 4. Build the dashboard page ----------
+st.title("Claude Pricing Dashboard")
 
-occ_df = occupancy_by_night(str(start_date), str(end_date), total_rooms)
+properties = get_properties()
+if not properties:
+    st.error("No properties found for this API key — check its permissions in Cloudbeds.")
+    st.stop()
+
+# Sidebar: property selector + date filters
+st.sidebar.header("Filters")
+property_name = st.sidebar.selectbox("Property", list(properties.keys()))
+property_id = properties[property_name]
+start_date = st.sidebar.date_input("Check-in from", date.today())
+end_date = st.sidebar.date_input("Check-in to", date.today() + timedelta(days=30))
+
+st.caption(f"Showing: {property_name}")
+
+# Occupancy data
+rooms_data = get_rooms(property_id)
+total_rooms = sum(len(p.get("rooms", [])) for p in rooms_data) if rooms_data else 0
+occ_df = occupancy_by_night(property_id, str(start_date), str(end_date), total_rooms)
 
 # ----- Today's snapshot -----
 st.subheader("Today at a glance")
@@ -106,7 +113,7 @@ if total_rooms and not occ_df.empty:
     if not today_row.empty:
         today_occ = f"{today_row.iloc[0]['occupancy %']:.0f}%"
 
-dash = get_today_dashboard()
+dash = get_today_dashboard(property_id)
 dash = dash if isinstance(dash, dict) else {}
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Occupancy", today_occ)
@@ -122,9 +129,9 @@ if not occ_df.empty and total_rooms:
 elif not total_rooms:
     st.info("Couldn't count total rooms — check the getRooms permission on your API key.")
 
-# Reservations table
+# ----- Reservations table -----
 st.subheader("Reservations")
-reservations = get_reservations(str(start_date), str(end_date))
+reservations = get_reservations(property_id, str(start_date), str(end_date))
 if reservations:
     df = pd.DataFrame(reservations)
     cols = [c for c in ["guestName", "startDate", "endDate", "status", "balance"] if c in df.columns]
@@ -133,13 +140,11 @@ if reservations:
 else:
     st.info("No reservations found for this date range.")
 
-# Rooms table
+# ----- Rooms table -----
 st.subheader("Rooms")
-rooms_data = get_rooms()
 if rooms_data:
-    # getRooms returns one entry per property, each with a 'rooms' list
     all_rooms = []
-    for prop in rooms_data:
-        all_rooms.extend(prop.get("rooms", []))
+    for p in rooms_data:
+        all_rooms.extend(p.get("rooms", []))
     if all_rooms:
         st.dataframe(pd.DataFrame(all_rooms), use_container_width=True)
