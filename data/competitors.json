@@ -1,0 +1,33 @@
+{
+  "_comment": "Competitor set per sector. hc_properties lists the Heritage Collection properties each sector's competitors apply to.",
+  "QUAYS": {
+    "competitors": ["The Quay Hotel", "Kinn Habitat", "Hotel Clover The Arts"],
+    "hc_properties": [
+      "Heritage Collection on Boat Quay (South Bridge Wing)",
+      "Heritage Collection on Clarke Quay",
+      "Heritage Collection on Boat Quay (Quayside Wing)"
+    ]
+  },
+  "CHINATOWN": {
+    "competitors": ["Hmlet Kada", "Hmlet Chinatown", "Hotel 1900", "Kinn Studios", "Hotel Mono", "Kesa", "Bliss Hotel", "Claude Hotel"],
+    "hc_properties": [
+      "Heritage Collection on Ann Siang",
+      "Heritage Collection on Boon Tat",
+      "Heritage Collection on Chinatown",
+      "Heritage Collection on Pagoda",
+      "Heritage Collection on Smith"
+    ]
+  },
+  "CITY HALL": {
+    "competitors": ["Hotel Nuve Heritage"],
+    "hc_properties": ["Heritage Collection on Seah"]
+  },
+  "KAMPONG GLAM": {
+    "competitors": ["Rest Bugis Hotel", "Coliwoo Kampong Glam", "Hotel Clover 769"],
+    "hc_properties": [
+      "Heritage Collection on Arab",
+      "Heritage Collection on Victoria",
+      "Heritage Collection on KG"
+    ]
+  }
+}
