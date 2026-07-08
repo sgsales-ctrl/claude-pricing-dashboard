@@ -68,20 +68,7 @@ st.sidebar.header("Filters")
 start_date = st.sidebar.date_input("Check-in from", date.today())
 end_date = st.sidebar.date_input("Check-in to", date.today() + timedelta(days=30))
 
-# ----- Today's occupancy snapshot (from Cloudbeds getDashboard) -----
-st.subheader("Today at a glance")
-dash = get_today_dashboard()
-if isinstance(dash, dict) and dash:
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Occupancy", dash.get("percentageOccupancy", dash.get("occupancy", "n/a")))
-    c2.metric("Arrivals", dash.get("arrivals", "n/a"))
-    c3.metric("Departures", dash.get("departures", "n/a"))
-    c4.metric("In house", dash.get("inHouse", dash.get("stayovers", "n/a")))
-
-# ----- Daily occupancy chart over the selected date range -----
-st.subheader("Occupancy by night")
-
-
+# ----- Daily occupancy data (computed from reservations) -----
 @st.cache_data(ttl=300)
 def occupancy_by_night(start: str, end: str, total_rooms: int):
     """Count occupied rooms per night from reservations."""
@@ -110,6 +97,25 @@ rooms_data_for_count = get_rooms()
 total_rooms = sum(len(p.get("rooms", [])) for p in rooms_data_for_count) if rooms_data_for_count else 0
 
 occ_df = occupancy_by_night(str(start_date), str(end_date), total_rooms)
+
+# ----- Today's snapshot -----
+st.subheader("Today at a glance")
+today_occ = "n/a"
+if total_rooms and not occ_df.empty:
+    today_row = occ_df[occ_df["night"] == date.today()]
+    if not today_row.empty:
+        today_occ = f"{today_row.iloc[0]['occupancy %']:.0f}%"
+
+dash = get_today_dashboard()
+dash = dash if isinstance(dash, dict) else {}
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("Occupancy", today_occ)
+c2.metric("Arrivals", dash.get("arrivals", "n/a"))
+c3.metric("Departures", dash.get("departures", "n/a"))
+c4.metric("In house", dash.get("inHouse", dash.get("stayovers", "n/a")))
+
+# ----- Occupancy chart -----
+st.subheader("Occupancy by night")
 if not occ_df.empty and total_rooms:
     st.bar_chart(occ_df.set_index("night")["occupancy %"])
     st.caption(f"Based on {total_rooms} total rooms.")
