@@ -24,26 +24,43 @@ def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
 
 # ---------- 3. Fetch data (cached 5 min to respect rate limits) ----------
 @st.cache_data(ttl=300)
+def get_property_id() -> str:
+    """Fetch the property ID linked to this API key."""
+    hotels = cloudbeds_get("getHotels")
+    if isinstance(hotels, list) and hotels:
+        return str(hotels[0].get("propertyID", ""))
+    if isinstance(hotels, dict):
+        return str(hotels.get("propertyID", ""))
+    return ""
+
+
+PROPERTY_ID = get_property_id()
+if not PROPERTY_ID:
+    st.error("Couldn't find a property for this API key — check the key's permissions in Cloudbeds.")
+    st.stop()
+
+
+@st.cache_data(ttl=300)
 def get_reservations(start: str, end: str):
     return cloudbeds_get(
         "getReservations",
-        {"checkInFrom": start, "checkInTo": end},
+        {"propertyID": PROPERTY_ID, "checkInFrom": start, "checkInTo": end},
     )
 
 
 @st.cache_data(ttl=300)
 def get_rooms():
-    return cloudbeds_get("getRooms")
+    return cloudbeds_get("getRooms", {"propertyID": PROPERTY_ID})
 
 
 @st.cache_data(ttl=300)
 def get_today_dashboard():
     """Today's stats straight from Cloudbeds (arrivals, departures, occupancy)."""
-    return cloudbeds_get("getDashboard")
+    return cloudbeds_get("getDashboard", {"propertyID": PROPERTY_ID})
 
 
 # ---------- 4. Build the dashboard page ----------
-st.set_page_config(page_title="Hotel Dashboard", layout="wide")
+st.set_page_config(page_title="Claude Pricing Dashboard", layout="wide")
 st.title("Claude Pricing Dashboard")
 
 # Date filter in the sidebar
@@ -70,7 +87,7 @@ def occupancy_by_night(start: str, end: str, total_rooms: int):
     """Count occupied rooms per night from reservations."""
     res = cloudbeds_get(
         "getReservations",
-        {"checkInFrom": "2000-01-01", "checkInTo": end, "status": "checked_in,checked_out,confirmed,not_confirmed"},
+        {"propertyID": PROPERTY_ID, "checkInFrom": "2000-01-01", "checkInTo": end, "status": "checked_in,checked_out,confirmed,not_confirmed"},
     )
     nights = pd.date_range(start, end)
     counts = {n.date(): 0 for n in nights}
