@@ -44,7 +44,7 @@ def get_today_dashboard():
 
 # ---------- 4. Build the dashboard page ----------
 st.set_page_config(page_title="Hotel Dashboard", layout="wide")
-st.title("Hotel Dashboard")
+st.title("Claude Pricing Dashboard")
 
 # Date filter in the sidebar
 st.sidebar.header("Filters")
