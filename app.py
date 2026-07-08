@@ -1,159 +1,122 @@
-# app.py — Heritage Collection dashboard with room-name filtering for Seah & Clarke Quay
-import datetime as dt
-import pandas as pd
-import requests
 import streamlit as st
+import requests
+import pandas as pd
+from datetime import date, timedelta
 
-st.set_page_config(page_title="Claude Pricing Dashboard", layout="wide")
+# ---------- 1. Read the API key from .streamlit/secrets.toml ----------
+API_KEY = st.secrets["CLOUDBEDS_API_KEY"]
 
-TOKEN_URL = "https://hotels.cloudbeds.com/api/v1.3/access_token"
-API_BASE = "https://hotels.cloudbeds.com/api/v1.3"
+# ---------- 2. Base setup for every Cloudbeds request ----------
+BASE_URL = "https://api.cloudbeds.com/api/v1.2"
+HEADERS = {"x-api-key": API_KEY}
 
-# Properties that need room-name filtering: {propertyID substring match: keyword}
-# The keyword must appear in the ROOM TYPE name to be counted.
-ROOM_NAME_FILTERS = {
-    "Heritage Collection on Seah": "seah",
-    "Heritage Collection on Clarke Quay": "clarke quay",
-}
 
-@st.cache_data(ttl=3000)
-def get_access_token():
-    return st.secrets["CB_API_KEY"]
-def api_get(path, token, params=None):
-    r = requests.get(f"{API_BASE}/{path}", headers={"Authorization": f"Bearer {token}"}, params=params or {})
-    r.raise_for_status()
-    return r.json()
+def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
+    """Call a Cloudbeds endpoint and return its 'data' payload."""
+    r = requests.get(f"{BASE_URL}/{endpoint}", headers=HEADERS, params=params)
+    r.raise_for_status()  # stops with an error if the key/scopes are wrong
+    body = r.json()
+    if not body.get("success", True):
+        st.error(f"Cloudbeds error: {body.get('message')}")
+        st.stop()
+    return body.get("data", [])
 
-@st.cache_data(ttl=1800)
-def get_properties(token):
-    data = api_get("getHotels", token)
-    return {h["propertyID"]: h["propertyName"] for h in data.get("data", [])}
 
-@st.cache_data(ttl=1800)
-def get_property_occupancy(token, property_id, start, end):
-    """Property-level daily occupancy % (used for the 10 unfiltered properties)."""
-    data = api_get("getDashboard", token, {"propertyID": property_id, "startDate": start, "endDate": end})
-    return pd.DataFrame([
-        {"date": d["date"], "occupancy": float(d["occupancyPercentage"])}
-        for d in data.get("data", {}).get("occupancy", [])
-    ])
+# ---------- 3. Fetch data (cached 5 min to respect rate limits) ----------
+@st.cache_data(ttl=300)
+def get_reservations(start: str, end: str):
+    return cloudbeds_get(
+        "getReservations",
+        {"checkInFrom": start, "checkInTo": end},
+    )
 
-@st.cache_data(ttl=1800)
-def get_filtered_occupancy(token, property_id, keyword, start, end):
-    """
-    Room-name-filtered daily occupancy.
-    Counts only rooms whose ROOM TYPE name contains `keyword`.
-    occupancy% = occupied matching rooms / total matching rooms.
-    Blocked/out-of-order rooms are NOT counted as occupied (matches Cloudbeds' own logic).
-    """
-    # 1) Which rooms belong to matching room types?
-    rooms_data = api_get("getRooms", token, {"propertyID": property_id})
-    matching_room_ids = set()
-    total_matching = 0
-    for rt in rooms_data.get("data", []):
-        rt_name = str(rt.get("roomTypeName", "")).lower()
-        if keyword in rt_name:
-            for room in rt.get("rooms", []):
-                matching_room_ids.add(str(room["roomID"]))
-                total_matching += 1
-    if total_matching == 0:
-        return pd.DataFrame()
 
-    # 2) Pull reservations in the window and count, per date, how many matching rooms are occupied.
-    res = api_get("getReservations", token, {
-        "propertyID": property_id, "checkInFrom": start, "checkOutTo": end,
-        "status": "confirmed,checked_in,checked_out", "includeRooms": "true",
-    })
-    dates = pd.date_range(start, end, inclusive="left").date
-    occupied = {str(d): set() for d in dates}
-    for r in res.get("data", []):
-        for assign in r.get("assigned", r.get("rooms", [])):
-            rid = str(assign.get("roomID"))
-            if rid not in matching_room_ids:
-                continue
-            ci = pd.to_datetime(assign.get("startDate", r.get("startDate"))).date()
-            co = pd.to_datetime(assign.get("endDate", r.get("endDate"))).date()
-            for d in pd.date_range(ci, co, inclusive="left").date:
-                if str(d) in occupied:
-                    occupied[str(d)].add(rid)
+@st.cache_data(ttl=300)
+def get_rooms():
+    return cloudbeds_get("getRooms")
 
-    return pd.DataFrame([
-        {"date": str(d), "occupancy": len(occupied[str(d)]) / total_matching * 100}
-        for d in dates
-    ])
 
-# ---------------- UI ----------------
-st.title("Claude Pricing Dashboard")
-tab_occ, tab_comp, tab_events, tab_price = st.tabs(
-    ["📊 Occupancy", "🏨 Competitor Rates", "📅 Events", "💡 Pricing Suggestions"]
-)
+@st.cache_data(ttl=300)
+def get_today_dashboard():
+    """Today's stats straight from Cloudbeds (arrivals, departures, occupancy)."""
+    return cloudbeds_get("getDashboard")
 
-today = dt.date.today()
-horizon = st.sidebar.slider("Days ahead", 7, 30, 14)
-start = today.isoformat()
-end = (today + dt.timedelta(days=horizon)).isoformat()
 
-try:
-    token = get_access_token()
-    props = get_properties(token)
-except Exception as e:
-    st.error(f"Could not connect to Cloudbeds: {e}")
-    st.stop()
+# ---------- 4. Build the dashboard page ----------
+st.set_page_config(page_title="Hotel Dashboard", layout="wide")
+st.title("Hotel Dashboard")
 
-with tab_occ:
-    st.subheader(f"Daily occupancy — {len(props)} properties")
-    st.caption("Seah and Clarke Quay are filtered to matching room names only; others are property-level.")
-    frames = []
-    for pid, name in props.items():
-        keyword = ROOM_NAME_FILTERS.get(name)
-        if keyword:
-            df = get_filtered_occupancy(token, pid, keyword, start, end)
-            label = f"{name} ({keyword} rooms only)"
-        else:
-            df = get_property_occupancy(token, pid, start, end)
-            label = name
-        if not df.empty:
-            df["property"] = label
-            frames.append(df)
-    if frames:
-        allocc = pd.concat(frames)
-        pivot = allocc.pivot(index="property", columns="date", values="occupancy")
-        st.dataframe(pivot.style.format("{:.1f}%").background_gradient(cmap="RdYlGn", axis=None),
-                     use_container_width=True)
-        st.line_chart(allocc.pivot(index="date", columns="property", values="occupancy"))
+# Date filter in the sidebar
+st.sidebar.header("Filters")
+start_date = st.sidebar.date_input("Check-in from", date.today())
+end_date = st.sidebar.date_input("Check-in to", date.today() + timedelta(days=30))
 
-with tab_comp:
-    st.subheader("Competitor rates (manual entry)")
-    st.caption("No rate-shopping feed connected. Enter competitor rates below.")
-    default = pd.DataFrame({
-        "date": pd.date_range(today, periods=horizon).date,
-        "our_rate": [None]*horizon, "competitor_A": [None]*horizon, "competitor_B": [None]*horizon,
-    })
-    st.session_state["comp_df"] = st.data_editor(default, num_rows="dynamic", use_container_width=True, key="comp")
+# ----- Today's occupancy snapshot (from Cloudbeds getDashboard) -----
+st.subheader("Today at a glance")
+dash = get_today_dashboard()
+if isinstance(dash, dict) and dash:
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Occupancy", dash.get("percentageOccupancy", dash.get("occupancy", "n/a")))
+    c2.metric("Arrivals", dash.get("arrivals", "n/a"))
+    c3.metric("Departures", dash.get("departures", "n/a"))
+    c4.metric("In house", dash.get("inHouse", dash.get("stayovers", "n/a")))
 
-with tab_events:
-    st.subheader("Events (manual entry)")
-    ev_default = pd.DataFrame({"date": pd.date_range(today, periods=5).date, "event": [""]*5, "impact (1-5)": [1]*5})
-    st.session_state["events_df"] = st.data_editor(ev_default, num_rows="dynamic", use_container_width=True, key="events")
+# ----- Daily occupancy chart over the selected date range -----
+st.subheader("Occupancy by night")
 
-with tab_price:
-    st.subheader("Pricing suggestions")
-    st.caption("Rules-based operational heuristics. Review and adjust — final pricing is your decision.")
-    lift_occ = st.slider("Raise rate when occupancy exceeds (%)", 70, 100, 90)
-    event_boost = st.slider("Extra suggested lift on high-impact event days (%)", 0, 50, 15)
-    if frames:
-        ev_df = st.session_state.get("events_df")
-        ev_dates = set()
-        if ev_df is not None:
-            ev_dates = {str(r["date"]) for _, r in ev_df.iterrows()
-                        if r.get("impact (1-5)", 0) and r["impact (1-5)"] >= 4}
-        recs = []
-        for _, row in allocc.iterrows():
-            note = []
-            if row["occupancy"] >= lift_occ:
-                note.append(f"High demand ({row['occupancy']:.0f}%): consider raising rate")
-            if str(row["date"]) in ev_dates:
-                note.append(f"High-impact event: consider +{event_boost}%")
-            if note:
-                recs.append({"property": row["property"], "date": row["date"], "suggestion": "; ".join(note)})
-        st.dataframe(pd.DataFrame(recs), use_container_width=True) if recs else st.info("No pricing flags.")
+
+@st.cache_data(ttl=300)
+def occupancy_by_night(start: str, end: str, total_rooms: int):
+    """Count occupied rooms per night from reservations."""
+    res = cloudbeds_get(
+        "getReservations",
+        {"checkInFrom": "2000-01-01", "checkInTo": end, "status": "checked_in,checked_out,confirmed,not_confirmed"},
+    )
+    nights = pd.date_range(start, end)
+    counts = {n.date(): 0 for n in nights}
+    for r in res:
+        try:
+            ci = pd.to_datetime(r["startDate"]).date()
+            co = pd.to_datetime(r["endDate"]).date()
+        except (KeyError, ValueError):
+            continue
+        for n in counts:
+            if ci <= n < co:  # guest occupies the night if checked in on/before, out after
+                counts[n] += 1
+    df = pd.DataFrame({"night": list(counts.keys()), "occupied": list(counts.values())})
+    if total_rooms:
+        df["occupancy %"] = (df["occupied"] / total_rooms * 100).round(1)
+    return df
+
+
+rooms_data_for_count = get_rooms()
+total_rooms = sum(len(p.get("rooms", [])) for p in rooms_data_for_count) if rooms_data_for_count else 0
+
+occ_df = occupancy_by_night(str(start_date), str(end_date), total_rooms)
+if not occ_df.empty and total_rooms:
+    st.bar_chart(occ_df.set_index("night")["occupancy %"])
+    st.caption(f"Based on {total_rooms} total rooms.")
+elif not total_rooms:
+    st.info("Couldn't count total rooms — check the getRooms permission on your API key.")
+
+# Reservations table
+st.subheader("Reservations")
+reservations = get_reservations(str(start_date), str(end_date))
+if reservations:
+    df = pd.DataFrame(reservations)
+    cols = [c for c in ["guestName", "startDate", "endDate", "status", "balance"] if c in df.columns]
+    st.dataframe(df[cols] if cols else df, use_container_width=True)
+    st.metric("Total reservations", len(df))
+else:
+    st.info("No reservations found for this date range.")
+
+# Rooms table
+st.subheader("Rooms")
+rooms_data = get_rooms()
+if rooms_data:
+    # getRooms returns one entry per property, each with a 'rooms' list
+    all_rooms = []
+    for prop in rooms_data:
+        all_rooms.extend(prop.get("rooms", []))
+    if all_rooms:
+        st.dataframe(pd.DataFrame(all_rooms), use_container_width=True)
