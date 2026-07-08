@@ -18,8 +18,7 @@ ROOM_NAME_FILTERS = {
 
 @st.cache_data(ttl=3000)
 def get_access_token():
-    return st.secrets["cbat_3qudCLvQy8RH5rQBN9cYPatW5eVr9Or2"]
-
+    return st.secrets["CB_API_KEY"]
 def api_get(path, token, params=None):
     r = requests.get(f"{API_BASE}/{path}", headers={"Authorization": f"Bearer {token}"}, params=params or {})
     r.raise_for_status()
