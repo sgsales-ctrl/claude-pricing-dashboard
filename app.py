@@ -174,7 +174,8 @@ if prop_pricing is None:
     prop_pricing = PRICING.get(key, {})
 
 # Sector + competitor set
-sector = next((s for s, v in COMPETITORS.items() if property_name in v.get("hc_properties", [])), None)
+sector = next((s for s, v in COMPETITORS.items()
+               if isinstance(v, dict) and property_name in v.get("hc_properties", [])), None)
 sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else []
 
 # Total rooms
