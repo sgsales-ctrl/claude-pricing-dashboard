@@ -59,15 +59,6 @@ def get_rooms(property_id: str):
 
 
 @st.cache_data(ttl=300)
-def get_reservations_range(property_id: str, end: str):
-    return cloudbeds_get(
-        "getReservations",
-        {"propertyID": property_id, "checkInFrom": "2000-01-01", "checkInTo": end,
-         "status": "checked_in,checked_out,confirmed,not_confirmed"},
-    )
-
-
-@st.cache_data(ttl=300)
 def availability_by_type(property_id: str, day: str):
     """Rooms available per room type for one night."""
     d = date.fromisoformat(day)
@@ -85,20 +76,17 @@ def availability_by_type(property_id: str, day: str):
 
 
 def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int) -> dict:
-    """Occupied-room count per night from reservations."""
-    if not days:
-        return {}
-    res = get_reservations_range(property_id, str(max(days)))
-    counts = {d: 0 for d in days}
-    for r in res:
+    """Occupied-room count per night, derived from Cloudbeds availability
+    (total rooms minus rooms still available). Avoids reservation pagination."""
+    counts = {}
+    if not total_rooms:
+        return counts
+    for d in days:
         try:
-            ci = pd.to_datetime(r["startDate"]).date()
-            co = pd.to_datetime(r["endDate"]).date()
-        except (KeyError, ValueError):
-            continue
-        for d in counts:
-            if ci <= d < co:
-                counts[d] += 1
+            avail = sum(availability_by_type(property_id, str(d)).values())
+            counts[d] = max(total_rooms - avail, 0)
+        except Exception:
+            counts[d] = None
     return counts
 
 
