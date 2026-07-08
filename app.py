@@ -18,14 +18,7 @@ ROOM_NAME_FILTERS = {
 
 @st.cache_data(ttl=3000)
 def get_access_token():
-    r = requests.post(TOKEN_URL, data={
-        "grant_type": "refresh_token",
-        "client_id": st.secrets["CB_CLIENT_ID"],
-        "client_secret": st.secrets["CB_CLIENT_SECRET"],
-        "refresh_token": st.secrets["CB_REFRESH_TOKEN"],
-    })
-    r.raise_for_status()
-    return r.json()["access_token"]
+    return st.secrets["cbat_3qudCLvQy8RH5rQBN9cYPatW5eVr9Or2"]
 
 def api_get(path, token, params=None):
     r = requests.get(f"{API_BASE}/{path}", headers={"Authorization": f"Bearer {token}"}, params=params or {})
