@@ -160,7 +160,15 @@ def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
     if not days:
         return {}
     if room_keys:
-        counts = {}
+        def _room_id_and_name(e: dict) -> tuple[str, str]:
+            room = e.get("room") if isinstance(e.get("room"), dict) else {}
+            rid = next((str(e.get(k) or room.get(k) or "") or "" for k in
+                        ("roomID", "roomId", "room_id", "id") if (e.get(k) or room.get(k))), "")
+            rname = next((str(e.get(k) or room.get(k) or "") or "" for k in
+                          ("roomName", "room_name", "name", "roomNumber") if (e.get(k) or room.get(k))), "")
+            return rid, _norm(rname)
+
+        counts, diagnosed = {}, False
         for d in days:
             try:
                 entries = assignments_for_date(property_id, str(d))
@@ -169,18 +177,28 @@ def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
             if entries:
                 seen, occ = set(), 0
                 for e in entries:
-                    rid = str(e.get("roomID") or "")
-                    rname = _norm(e.get("roomName", ""))
+                    if not isinstance(e, dict):
+                        continue
+                    rid, rname = _room_id_and_name(e)
                     dedupe = rid or rname
                     if not dedupe or dedupe in seen:
                         continue
                     seen.add(dedupe)
                     if rid in room_keys or (rname and rname in room_keys):
                         occ += 1
+                if occ == 0 and not diagnosed:
+                    # Field-shape mismatch? Surface field NAMES only (no guest data) to aid setup.
+                    first = next((e for e in entries if isinstance(e, dict)), {})
+                    st.caption(f"⚠ assignment matching found 0 rooms — response fields: {sorted(first.keys())}")
+                    diagnosed = True
                 counts[d] = min(occ, total_rooms) if total_rooms else occ
             else:
-                counts[d] = None  # endpoint gave nothing usable — show n/a rather than a wrong number
-        return counts
+                counts[d] = None
+        # If assignments matched nothing anywhere, fall back to type-filtered reservation count.
+        if not any(counts.values()):
+            counts = None
+        else:
+            return counts
     res = reservations_overlapping(property_id, str(min(days)), str(max(days)))
     counts = {d: 0 for d in days}
     saw_type_field = False
