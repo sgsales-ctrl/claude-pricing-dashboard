@@ -27,6 +27,11 @@ ROOM_NAME_FILTERS = {
 }
 
 
+def _norm(s) -> str:
+    """Normalize names for matching: lowercase, alphanumerics only."""
+    return re.sub(r"[^a-z0-9]", "", str(s).casefold())
+
+
 def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
     r = requests.get(f"{BASE_URL}/{endpoint}", headers=HEADERS, params=params)
     r.raise_for_status()
@@ -113,6 +118,18 @@ def availability_by_type(property_id: str, day: str):
 
 
 @st.cache_data(ttl=300)
+def assignments_for_date(property_id: str, day: str) -> list:
+    """Room-level reservation assignments for one date (which physical rooms are taken)."""
+    data = cloudbeds_get("getReservationAssignments", {"propertyID": property_id, "date": day})
+    if isinstance(data, dict):
+        for k in ("assignments", "reservationAssignments", "rooms"):
+            if isinstance(data.get(k), list):
+                return data[k]
+        return []
+    return data or []
+
+
+@st.cache_data(ttl=300)
 def reservations_overlapping(property_id: str, start: str, end: str) -> list:
     """All reservations that could cover a night in [start, end] — fully paginated."""
     out, page = [], 1
@@ -134,12 +151,36 @@ def reservations_overlapping(property_id: str, start: str, end: str) -> list:
 
 
 def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
-                        allowed_types: frozenset | None = None) -> dict:
+                        allowed_types: frozenset | None = None,
+                        room_keys: frozenset | None = None) -> dict:
     """Occupied-room count per night from actual reservations (physical occupancy).
-    If allowed_types is given, only reservations for those room types count
-    (used when a Cloudbeds property contains rooms belonging to other entities)."""
+    If room_keys is given (room-name-filtered property), count room-level
+    assignments matching those rooms — reservations from other entities sharing
+    the same Cloudbeds property are excluded exactly."""
     if not days:
         return {}
+    if room_keys:
+        counts = {}
+        for d in days:
+            try:
+                entries = assignments_for_date(property_id, str(d))
+            except Exception:
+                entries = []
+            if entries:
+                seen, occ = set(), 0
+                for e in entries:
+                    rid = str(e.get("roomID") or "")
+                    rname = _norm(e.get("roomName", ""))
+                    dedupe = rid or rname
+                    if not dedupe or dedupe in seen:
+                        continue
+                    seen.add(dedupe)
+                    if rid in room_keys or (rname and rname in room_keys):
+                        occ += 1
+                counts[d] = min(occ, total_rooms) if total_rooms else occ
+            else:
+                counts[d] = None  # endpoint gave nothing usable — show n/a rather than a wrong number
+        return counts
     res = reservations_overlapping(property_id, str(min(days)), str(max(days)))
     counts = {d: 0 for d in days}
     saw_type_field = False
@@ -249,10 +290,6 @@ sector = next((s for s, v in COMPETITORS.items()
 sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else []
 
 # Total rooms (apply room-name filter for shared Cloudbeds properties, e.g. Seah)
-def _norm(s) -> str:
-    return re.sub(r"[^a-z0-9]", "", str(s).casefold())
-
-
 name_filter = next((v for k, v in ROOM_NAME_FILTERS.items()
                     if k.casefold() == property_name.casefold()), None)
 rooms_data = get_rooms(property_id)
@@ -264,10 +301,13 @@ if name_filter:
 total_rooms = len(rooms_data)
 allowed_types = (frozenset(str(r.get("roomTypeName")) for r in rooms_data if r.get("roomTypeName"))
                  if name_filter else None)
+room_keys = (frozenset(list({str(r.get("roomID") or "") for r in rooms_data} - {""}) +
+                       [_norm(r.get("roomName", "")) for r in rooms_data if r.get("roomName")])
+             if name_filter else None)
 
 # Occupancy for the window
 window_days = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
-occ_counts = occupancy_for_dates(property_id, window_days, total_rooms, allowed_types)
+occ_counts = occupancy_for_dates(property_id, window_days, total_rooms, allowed_types, room_keys)
 if name_filter:
     st.caption(f"Room filter active: only rooms named with “{name_filter}” are counted ({total_rooms} rooms).")
     with st.expander("Room inventory (check filter)"):
