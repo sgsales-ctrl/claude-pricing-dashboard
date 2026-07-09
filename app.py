@@ -46,11 +46,18 @@ EVENTS = load_json("events.json").get("events", [])
 # ---------- Cloudbeds data (cached 5 min) ----------
 @st.cache_data(ttl=300)
 def get_properties() -> dict:
-    hotels = cloudbeds_get("getHotels")
-    if isinstance(hotels, dict):
-        hotels = [hotels]
+    """All properties on this API key — fully paginated."""
+    hotels, page = [], 1
+    while True:
+        batch = cloudbeds_get("getHotels", {"pageNumber": page, "pageSize": 100})
+        if isinstance(batch, dict):
+            batch = [batch]
+        hotels.extend(batch or [])
+        if not batch or len(batch) < 100:
+            break
+        page += 1
     return {h.get("propertyName", f"Property {h.get('propertyID')}"): str(h.get("propertyID"))
-            for h in hotels or [] if h.get("propertyID")}
+            for h in hotels if h.get("propertyID")}
 
 
 @st.cache_data(ttl=300)
@@ -75,18 +82,25 @@ def get_rooms(property_id: str) -> list:
 
 @st.cache_data(ttl=300)
 def availability_by_type(property_id: str, day: str):
-    """Rooms available per room type for one night."""
+    """Rooms available per room type for one night — fully paginated."""
     d = date.fromisoformat(day)
-    data = cloudbeds_get("getAvailableRoomTypes", {
-        "propertyIDs": property_id,
-        "startDate": day,
-        "endDate": str(d + timedelta(days=1)),
-        "adults": 1, "rooms": 1,
-    })
-    out = {}
-    for prop in data if isinstance(data, list) else [data]:
-        for rt in prop.get("propertyRooms", []):
-            out[rt.get("roomTypeName", "?")] = int(rt.get("roomsAvailable", 0))
+    out, page = {}, 1
+    while True:
+        data = cloudbeds_get("getAvailableRoomTypes", {
+            "propertyIDs": property_id,
+            "startDate": day,
+            "endDate": str(d + timedelta(days=1)),
+            "adults": 1, "rooms": 1,
+            "pageNumber": page, "pageSize": 100,
+        })
+        got = 0
+        for prop in data if isinstance(data, list) else [data]:
+            for rt in prop.get("propertyRooms", []):
+                out[rt.get("roomTypeName", "?")] = int(rt.get("roomsAvailable", 0))
+                got += 1
+        if got < 100:
+            break
+        page += 1
     return out
 
 
