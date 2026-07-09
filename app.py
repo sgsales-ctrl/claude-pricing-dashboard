@@ -18,6 +18,13 @@ OCC_TARGET = 0.85          # below this, recommend discounting
 SOFT_DISCOUNT = 0.90       # 10% cut when occupancy < 85%
 HIGH_OCC_PREMIUM = 1.05    # small lift when nearly full
 
+# Some Cloudbeds properties contain rooms that belong to other entities.
+# Map: property name -> substring that must appear in the ROOM NAME to count.
+ROOM_NAME_FILTERS = {
+    "Heritage Collection on Seah": "seah",
+    "Heritage Collection on Clarke Quay": "clarke quay",
+}
+
 
 def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
     r = requests.get(f"{BASE_URL}/{endpoint}", headers=HEADERS, params=params)
@@ -125,13 +132,22 @@ def reservations_overlapping(property_id: str, start: str, end: str) -> list:
     return [r for r in out if str(r.get("status", "")).lower() not in ("canceled", "cancelled", "no_show")]
 
 
-def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int) -> dict:
-    """Occupied-room count per night from actual reservations (physical occupancy)."""
+def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
+                        allowed_types: frozenset | None = None) -> dict:
+    """Occupied-room count per night from actual reservations (physical occupancy).
+    If allowed_types is given, only reservations for those room types count
+    (used when a Cloudbeds property contains rooms belonging to other entities)."""
     if not days:
         return {}
     res = reservations_overlapping(property_id, str(min(days)), str(max(days)))
     counts = {d: 0 for d in days}
+    saw_type_field = False
     for r in res:
+        rt = r.get("roomTypeName") or r.get("roomType") or ""
+        if rt:
+            saw_type_field = True
+        if allowed_types is not None and rt and rt not in allowed_types:
+            continue
         try:
             ci = pd.to_datetime(r["startDate"]).date()
             co = pd.to_datetime(r["endDate"]).date()
@@ -140,8 +156,18 @@ def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int) ->
         for d in counts:
             if ci <= d < co:
                 counts[d] += 1
+    # If we needed type filtering but reservations carry no type info,
+    # fall back to availability: occupied = total - available (allowed types only).
+    if allowed_types is not None and not saw_type_field:
+        for d in days:
+            try:
+                avail = availability_by_type(property_id, str(d))
+                open_rooms = sum(v for k, v in avail.items() if k in allowed_types)
+                counts[d] = max(total_rooms - open_rooms, 0)
+            except Exception:
+                counts[d] = None
     if total_rooms:  # a room can't be occupied twice; cap at total
-        counts = {d: min(c, total_rooms) for d, c in counts.items()}
+        counts = {d: (min(c, total_rooms) if c is not None else None) for d, c in counts.items()}
     return counts
 
 
@@ -221,13 +247,22 @@ sector = next((s for s, v in COMPETITORS.items()
                if isinstance(v, dict) and property_name in v.get("hc_properties", [])), None)
 sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else []
 
-# Total rooms
+# Total rooms (apply room-name filter for shared Cloudbeds properties, e.g. Seah)
+name_filter = next((v for k, v in ROOM_NAME_FILTERS.items()
+                    if k.casefold() == property_name.casefold()), None)
 rooms_data = get_rooms(property_id)
+if name_filter:
+    rooms_data = [r for r in rooms_data
+                  if name_filter in str(r.get("roomName", "")).casefold()]
 total_rooms = len(rooms_data)
+allowed_types = (frozenset(str(r.get("roomTypeName")) for r in rooms_data if r.get("roomTypeName"))
+                 if name_filter else None)
 
 # Occupancy for the window
 window_days = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
-occ_counts = occupancy_for_dates(property_id, window_days, total_rooms)
+occ_counts = occupancy_for_dates(property_id, window_days, total_rooms, allowed_types)
+if name_filter:
+    st.caption(f"Room filter active: only rooms named with “{name_filter}” are counted ({total_rooms} rooms).")
 
 # ===== Tonight at a glance =====
 st.subheader("Tonight at a glance")
@@ -285,6 +320,8 @@ for d in next14:
         avail_types = availability_by_type(property_id, str(d))
     except Exception:
         avail_types = {}
+    if allowed_types is not None:
+        avail_types = {k: v for k, v in avail_types.items() if k in allowed_types}
     vacant = {k: v for k, v in avail_types.items() if v > 0}  # occupied types removed
     occ_n = occ_counts.get(d)
     vac_rows.append({
