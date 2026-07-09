@@ -54,8 +54,23 @@ def get_properties() -> dict:
 
 
 @st.cache_data(ttl=300)
-def get_rooms(property_id: str):
-    return cloudbeds_get("getRooms", {"propertyID": property_id})
+def get_rooms(property_id: str) -> list:
+    """Flat list of all rooms for the property — fully paginated."""
+    rooms, page = [], 1
+    while True:
+        batch = cloudbeds_get("getRooms", {"propertyID": property_id,
+                                           "pageNumber": page, "pageSize": 100})
+        if isinstance(batch, dict):
+            batch = [batch]
+        got = 0
+        for prop in batch or []:
+            prop_rooms = prop.get("rooms", [])
+            rooms.extend(prop_rooms)
+            got += len(prop_rooms)
+        if got < 100:
+            break
+        page += 1
+    return rooms
 
 
 @st.cache_data(ttl=300)
@@ -194,7 +209,7 @@ sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else
 
 # Total rooms
 rooms_data = get_rooms(property_id)
-total_rooms = sum(len(p.get("rooms", [])) for p in rooms_data) if rooms_data else 0
+total_rooms = len(rooms_data)
 
 # Occupancy for the window
 window_days = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
