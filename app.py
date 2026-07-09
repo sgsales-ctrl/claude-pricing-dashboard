@@ -168,6 +168,15 @@ def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
                           ("roomName", "room_name", "name", "roomNumber") if (e.get(k) or room.get(k))), "")
             return rid, _norm(rname)
 
+        def _room_units(e: dict) -> list[dict]:
+            """An assignment entry nests its room(s) under 'assigned'."""
+            a = e.get("assigned")
+            if isinstance(a, list):
+                return [x for x in a if isinstance(x, dict)]
+            if isinstance(a, dict):
+                return [a]
+            return [e]
+
         counts, diagnosed = {}, False
         for d in days:
             try:
@@ -179,17 +188,20 @@ def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
                 for e in entries:
                     if not isinstance(e, dict):
                         continue
-                    rid, rname = _room_id_and_name(e)
-                    dedupe = rid or rname
-                    if not dedupe or dedupe in seen:
-                        continue
-                    seen.add(dedupe)
-                    if rid in room_keys or (rname and rname in room_keys):
-                        occ += 1
+                    for unit in _room_units(e):
+                        rid, rname = _room_id_and_name(unit)
+                        dedupe = rid or rname
+                        if not dedupe or dedupe in seen:
+                            continue
+                        seen.add(dedupe)
+                        if rid in room_keys or (rname and rname in room_keys):
+                            occ += 1
                 if occ == 0 and not diagnosed:
                     # Field-shape mismatch? Surface field NAMES only (no guest data) to aid setup.
                     first = next((e for e in entries if isinstance(e, dict)), {})
-                    st.caption(f"⚠ assignment matching found 0 rooms — response fields: {sorted(first.keys())}")
+                    units = _room_units(first)
+                    st.caption(f"⚠ assignment matching found 0 rooms — entry fields: {sorted(first.keys())}, "
+                               f"room-unit fields: {sorted(units[0].keys()) if units else '[]'}")
                     diagnosed = True
                 counts[d] = min(occ, total_rooms) if total_rooms else occ
             else:
