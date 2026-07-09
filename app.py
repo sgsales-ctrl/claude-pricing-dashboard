@@ -279,12 +279,17 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev) -> tuple[float,
     if demand in ("High", "Very High"):
         rec = max(base, rates["ia"]) * (1.10 if demand == "Very High" else 1.0)
         return round(max(rec, floor)), f"{demand} demand event — hold/lift, no discounting"
+    # Moderate event: expected demand — don't undercut ahead of it.
+    if demand == "Moderate":
+        if occ is None or occ >= 0.70:
+            return round(max(base, floor)), "Moderate demand event — hold rate, no discounting"
+        return round(max(base * 0.95, floor)), "Moderate event but occupancy <70% — small 5% cut only"
     if occ is None:
-        return round(max(base, floor)), "No occupancy data — ladder rate"
+        return round(max(base, floor)), "No occupancy data — IA/window rate"
     if occ >= 0.95:
         return round(max(base * HIGH_OCC_PREMIUM, floor)), "Occupancy ≥95% — small premium"
     if occ >= OCC_TARGET:
-        return round(max(base, floor)), "Occupancy ≥85% — hold ladder rate"
+        return round(max(base, floor)), "Occupancy ≥85% — hold IA/window rate"
     rec = max(base * SOFT_DISCOUNT, floor)
     note = "Occupancy <85% — 10% cut"
     if days_out <= 3 and rec <= floor + 1:
@@ -443,13 +448,15 @@ if prop_pricing:
                 "Event": (ev or {}).get("name", "—"),
                 "Demand": (ev or {}).get("demand", "—"),
                 "Room": room,
-                "Ladder (S$)": ladder_rate(rates, days_out),
+                "IA Rate (S$)": ladder_rate(rates, days_out),
                 "Floor (S$)": rates["floor"],
                 "Recommended (S$)": rec,
                 "Reason": why,
             })
     st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
-    st.caption("Ladder: IA rate >10 days out → 7-10 → 4-7 day rates. Below 85% occupancy: 10% cut, "
-               "never below breakeven floor. High/Very High demand events: hold or lift, no discounting.")
+    st.caption("IA Rate: your ideal base rate >10 days out, stepping to the 7-10 then 4-7 day rates. "
+               "Below 85% occupancy: 10% cut, never below breakeven floor. "
+               "Moderate demand events: hold rate (small 5% cut only if occupancy <70%). "
+               "High/Very High demand events: hold or lift, no discounting.")
 else:
     st.info(f"No pricing guide entry found for {property_name} — check data/pricing.json names.")
