@@ -37,7 +37,7 @@ def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
     return body.get("data", [])
 
 
-@st.cache_data
+@st.cache_data(ttl=300)  # re-read data files every 5 min so daily commits show up automatically
 def load_json(name: str):
     p = DATA_DIR / name
     if not p.exists():
