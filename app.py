@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 from datetime import date, timedelta
 
@@ -248,12 +249,18 @@ sector = next((s for s, v in COMPETITORS.items()
 sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else []
 
 # Total rooms (apply room-name filter for shared Cloudbeds properties, e.g. Seah)
+def _norm(s) -> str:
+    return re.sub(r"[^a-z0-9]", "", str(s).casefold())
+
+
 name_filter = next((v for k, v in ROOM_NAME_FILTERS.items()
                     if k.casefold() == property_name.casefold()), None)
 rooms_data = get_rooms(property_id)
+all_rooms_unfiltered = rooms_data
 if name_filter:
+    key = _norm(name_filter)
     rooms_data = [r for r in rooms_data
-                  if name_filter in str(r.get("roomName", "")).casefold()]
+                  if key in _norm(r.get("roomName", "")) or key in _norm(r.get("roomTypeName", ""))]
 total_rooms = len(rooms_data)
 allowed_types = (frozenset(str(r.get("roomTypeName")) for r in rooms_data if r.get("roomTypeName"))
                  if name_filter else None)
@@ -263,6 +270,12 @@ window_days = [start_date + timedelta(days=i) for i in range((end_date - start_d
 occ_counts = occupancy_for_dates(property_id, window_days, total_rooms, allowed_types)
 if name_filter:
     st.caption(f"Room filter active: only rooms named with “{name_filter}” are counted ({total_rooms} rooms).")
+    with st.expander("Room inventory (check filter)"):
+        inv = pd.DataFrame([{
+            "Room name": r.get("roomName"), "Room type": r.get("roomTypeName"),
+            "Counted": "✓" if r in rooms_data else "✗ excluded",
+        } for r in all_rooms_unfiltered])
+        st.dataframe(inv, use_container_width=True, hide_index=True)
 
 # ===== Tonight at a glance =====
 st.subheader("Tonight at a glance")
