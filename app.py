@@ -75,18 +75,44 @@ def availability_by_type(property_id: str, day: str):
     return out
 
 
+@st.cache_data(ttl=300)
+def reservations_overlapping(property_id: str, start: str, end: str) -> list:
+    """All reservations that could cover a night in [start, end] — fully paginated."""
+    out, page = [], 1
+    while True:
+        batch = cloudbeds_get("getReservations", {
+            "propertyID": property_id,
+            "checkOutFrom": start,   # still in-house on/after window start
+            "checkInTo": end,        # arrives before window ends
+            "pageNumber": page, "pageSize": 100,
+        })
+        if not batch:
+            break
+        out.extend(batch)
+        if len(batch) < 100:
+            break
+        page += 1
+    # physical occupancy: exclude cancellations and no-shows client-side
+    return [r for r in out if str(r.get("status", "")).lower() not in ("canceled", "cancelled", "no_show")]
+
+
 def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int) -> dict:
-    """Occupied-room count per night, derived from Cloudbeds availability
-    (total rooms minus rooms still available). Avoids reservation pagination."""
-    counts = {}
-    if not total_rooms:
-        return counts
-    for d in days:
+    """Occupied-room count per night from actual reservations (physical occupancy)."""
+    if not days:
+        return {}
+    res = reservations_overlapping(property_id, str(min(days)), str(max(days)))
+    counts = {d: 0 for d in days}
+    for r in res:
         try:
-            avail = sum(availability_by_type(property_id, str(d)).values())
-            counts[d] = max(total_rooms - avail, 0)
-        except Exception:
-            counts[d] = None
+            ci = pd.to_datetime(r["startDate"]).date()
+            co = pd.to_datetime(r["endDate"]).date()
+        except (KeyError, ValueError):
+            continue
+        for d in counts:
+            if ci <= d < co:
+                counts[d] += 1
+    if total_rooms:  # a room can't be occupied twice; cap at total
+        counts = {d: min(c, total_rooms) for d, c in counts.items()}
     return counts
 
 
