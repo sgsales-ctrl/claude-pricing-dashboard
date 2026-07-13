@@ -462,7 +462,11 @@ for d in next14:
         "Occ %": f"{occ_n / total_rooms:.0%}" if (total_rooms and occ_n is not None) else "n/a",
         "Vacant rooms": label,
     })
-st.dataframe(pd.DataFrame(vac_rows), use_container_width=True, hide_index=True)
+vac_df = pd.DataFrame(vac_rows)
+try:
+    st.table(vac_df.style.hide(axis="index"))  # st.table wraps long text — nothing gets cropped
+except Exception:
+    st.table(vac_df)
 st.caption("Vacant = physical rooms with no reservation assigned that night (independent of whether they are on sale).")
 
 # ===== Events =====
