@@ -418,26 +418,52 @@ if latest_day and sector_comps:
 else:
     st.info("No competitor rates on file — update data/comp_rates.json.")
 
-# ===== Vacant rooms, next 14 days =====
+# ===== Vacant rooms, next 14 days (physical: rooms with no assigned reservation) =====
 st.subheader("Vacant rooms — next 14 days")
 next14 = [tonight + timedelta(days=i) for i in range(14)]
+
+
+def assigned_room_keys(day: str) -> set:
+    keys = set()
+    try:
+        for e in assignments_for_date(property_id, day):
+            if not isinstance(e, dict):
+                continue
+            units = e.get("assigned")
+            units = units if isinstance(units, list) else ([units] if isinstance(units, dict) else [e])
+            for u in units:
+                if isinstance(u, dict):
+                    rid = str(u.get("roomID") or "")
+                    if rid:
+                        keys.add(rid)
+                    rn = _norm(u.get("roomName", ""))
+                    if rn:
+                        keys.add(rn)
+    except Exception:
+        pass
+    return keys
+
+
 vac_rows = []
 for d in next14:
-    try:
-        avail_types = availability_by_type(property_id, str(d))
-    except Exception:
-        avail_types = {}
-    if allowed_types is not None:
-        avail_types = {k: v for k, v in avail_types.items() if k in allowed_types}
-    vacant = {k: v for k, v in avail_types.items() if v > 0}  # occupied types removed
+    assigned = assigned_room_keys(str(d))
+    vacant = [r for r in rooms_data
+              if str(r.get("roomID") or "") not in assigned
+              and _norm(r.get("roomName", "")) not in assigned]
     occ_n = occ_counts.get(d)
+    # bookings not yet assigned to a physical room may still take one of these
+    unassigned = max((occ_n or 0) - (total_rooms - len(vacant)), 0) if occ_n is not None else 0
+    label = ", ".join(f"{r.get('roomName')} ({r.get('roomTypeName')})" for r in vacant) or "FULLY BOOKED"
+    if vacant and unassigned:
+        label += f" — {unassigned} unassigned booking(s) may take one of these"
     vac_rows.append({
         "Date": str(d),
         "Day": d.strftime("%a"),
         "Occ %": f"{occ_n / total_rooms:.0%}" if (total_rooms and occ_n is not None) else "n/a",
-        "Vacant rooms": ", ".join(f"{k} ({v})" for k, v in sorted(vacant.items())) or "FULLY BOOKED",
+        "Vacant rooms": label,
     })
 st.dataframe(pd.DataFrame(vac_rows), use_container_width=True, hide_index=True)
+st.caption("Vacant = physical rooms with no reservation assigned that night (independent of whether they are on sale).")
 
 # ===== Events =====
 st.subheader("Events — Heritage Collection relevance")
