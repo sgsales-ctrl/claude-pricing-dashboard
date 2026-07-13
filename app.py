@@ -418,11 +418,7 @@ if latest_day and sector_comps:
 else:
     st.info("No competitor rates on file — update data/comp_rates.json.")
 
-# ===== Vacant rooms, next 14 days (physical: rooms with no assigned reservation) =====
-st.subheader("Vacant rooms — next 14 days")
-next14 = [tonight + timedelta(days=i) for i in range(14)]
-
-
+# ----- Room-assignment helper (physical occupancy per room) -----
 def assigned_room_keys(day: str) -> set:
     keys = set()
     try:
@@ -444,30 +440,16 @@ def assigned_room_keys(day: str) -> set:
     return keys
 
 
-vac_rows = []
-for d in next14:
+def vacant_count_by_type(d: date) -> dict:
+    """Physical vacancy per room type on a date (rooms with no assigned reservation)."""
     assigned = assigned_room_keys(str(d))
-    vacant = [r for r in rooms_data
-              if str(r.get("roomID") or "") not in assigned
-              and _norm(r.get("roomName", "")) not in assigned]
-    occ_n = occ_counts.get(d)
-    # bookings not yet assigned to a physical room may still take one of these
-    unassigned = max((occ_n or 0) - (total_rooms - len(vacant)), 0) if occ_n is not None else 0
-    label = ", ".join(f"{r.get('roomName')} ({r.get('roomTypeName')})" for r in vacant) or "FULLY BOOKED"
-    if vacant and unassigned:
-        label += f" — {unassigned} unassigned booking(s) may take one of these"
-    vac_rows.append({
-        "Date": str(d),
-        "Day": d.strftime("%a"),
-        "Occ %": f"{occ_n / total_rooms:.0%}" if (total_rooms and occ_n is not None) else "n/a",
-        "Vacant rooms": label,
-    })
-vac_df = pd.DataFrame(vac_rows)
-try:
-    st.table(vac_df.style.hide(axis="index"))  # st.table wraps long text — nothing gets cropped
-except Exception:
-    st.table(vac_df)
-st.caption("Vacant = physical rooms with no reservation assigned that night (independent of whether they are on sale).")
+    counts = {}
+    for r in rooms_data:
+        rt = str(r.get("roomTypeName", ""))
+        occupied = (str(r.get("roomID") or "") in assigned
+                    or _norm(r.get("roomName", "")) in assigned)
+        counts[rt] = counts.get(rt, 0) + (0 if occupied else 1)
+    return counts
 
 # ===== Events =====
 st.subheader("Events — Heritage Collection relevance")
@@ -490,21 +472,34 @@ if prop_pricing:
         days_out = (d - tonight).days
         occ_n = occ_counts.get(d)
         occ_pct = (occ_n / total_rooms) if (total_rooms and occ_n is not None) else None
+        if occ_pct is not None and occ_pct >= 1.0:
+            continue  # fully booked — nothing to price
+        vac_types = vacant_count_by_type(d)
+        vac_norm = {_norm(k): v for k, v in vac_types.items()}
         ev = event_for(d)
+        ev_demand = str((ev or {}).get("demand", ""))
+        show_event = ev is not None and not ev_demand.casefold().startswith("low")
         for room, rates in prop_pricing.items():
+            room_vacancy = vac_norm.get(_norm(room))
+            if room_vacancy == 0:
+                continue  # this room type is fully occupied that night
             rec, why = recommend(rates, days_out, occ_pct, ev)
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
                 "Occ %": f"{occ_pct:.0%}" if occ_pct is not None else "n/a",
-                "Event": (ev or {}).get("name", "—"),
-                "Demand": (ev or {}).get("demand", "—"),
                 "Room": room,
+                "Vacant": room_vacancy if room_vacancy is not None else "?",
+                "Event": (ev or {}).get("name", "—") if show_event else "—",
+                "Demand": ev_demand if show_event else "—",
                 "IA Rate (S$)": ladder_rate(rates, days_out),
                 "Floor (S$)": rates["floor"],
                 "Recommended (S$)": rec,
                 "Reason": why,
             })
-    st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
+    if rec_rows:
+        st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
+    else:
+        st.success("All room types fully booked across the selected window — nothing to price.")
     st.caption("IA Rate: your ideal base rate >10 days out, stepping to the 7-10 then 4-7 day rates. "
                "Below 85% occupancy: 10% cut, never below breakeven floor. "
                "Moderate demand events: hold rate (small 5% cut only if occupancy <70%). "
