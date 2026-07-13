@@ -286,20 +286,27 @@ def ladder_rate(rates: dict, days_out: int) -> float:
     return rates["d4_7"]  # 0-3 days: start from the 4-7 rate; floor protects downside
 
 
+DEMAND_RANK = {"Very High": 4, "High": 3, "Moderate": 2, "Low-Moderate": 1, "Low": 0}
+
+
 def event_for(d: date):
+    """Highest-demand event covering date d (events can overlap)."""
+    best = None
     for ev in EVENTS:
         ds = ev.get("dates", "")
+        hit = False
         try:
-            if "to" in ds:
-                a, b = [x.strip() for x in ds.split("to")]
-                if date.fromisoformat(a) <= d <= date.fromisoformat(b):
-                    return ev
-            elif ds and ds != "":
-                if ds.startswith(str(d.year)) and str(d) in ds:
-                    return ev
+            if " to " in ds:
+                a, b = [x.strip() for x in ds.split(" to ")]
+                hit = date.fromisoformat(a) <= d <= date.fromisoformat(b)
+            elif ds:
+                hit = ds.startswith(str(d.year)) and str(d) in ds
         except ValueError:
             continue
-    return None
+        if hit and (best is None or
+                    DEMAND_RANK.get(str(ev.get("demand")), 0) > DEMAND_RANK.get(str(best.get("demand")), 0)):
+            best = ev
+    return best
 
 
 def recommend(rates: dict, days_out: int, occ: float | None, ev) -> tuple[float, str]:
