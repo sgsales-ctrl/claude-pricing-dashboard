@@ -32,8 +32,11 @@ def _norm(s) -> str:
     return re.sub(r"[^a-z0-9]", "", str(s).casefold())
 
 
+MAX_PAGES = 30  # hard cap on any pagination loop (safety against endpoints ignoring pageNumber)
+
+
 def cloudbeds_get(endpoint: str, params: dict | None = None) -> list | dict:
-    r = requests.get(f"{BASE_URL}/{endpoint}", headers=HEADERS, params=params)
+    r = requests.get(f"{BASE_URL}/{endpoint}", headers=HEADERS, params=params, timeout=15)
     r.raise_for_status()
     body = r.json()
     if not body.get("success", True):
@@ -60,13 +63,19 @@ EVENTS = load_json("events.json").get("events", [])
 @st.cache_data(ttl=300)
 def get_properties() -> dict:
     """All properties on this API key — fully paginated."""
-    hotels, page = [], 1
-    while True:
+    hotels, page, prev_first = [], 1, None
+    while page <= MAX_PAGES:
         batch = cloudbeds_get("getHotels", {"pageNumber": page, "pageSize": 100})
         if isinstance(batch, dict):
             batch = [batch]
-        hotels.extend(batch or [])
-        if not batch or len(batch) < 100:
+        if not batch:
+            break
+        first = str(batch[0].get("propertyID", ""))
+        if first and first == prev_first:
+            break
+        prev_first = first
+        hotels.extend(batch)
+        if len(batch) < 100:
             break
         page += 1
     return {h.get("propertyName", f"Property {h.get('propertyID')}"): str(h.get("propertyID"))
@@ -76,17 +85,23 @@ def get_properties() -> dict:
 @st.cache_data(ttl=300)
 def get_rooms(property_id: str) -> list:
     """Flat list of all rooms for the property — fully paginated."""
-    rooms, page = [], 1
-    while True:
+    rooms, page, prev_first = [], 1, None
+    while page <= MAX_PAGES:
         batch = cloudbeds_get("getRooms", {"propertyID": property_id,
                                            "pageNumber": page, "pageSize": 100})
         if isinstance(batch, dict):
             batch = [batch]
-        got = 0
+        got, first = 0, None
         for prop in batch or []:
             prop_rooms = prop.get("rooms", [])
+            if prop_rooms and first is None:
+                first = str(prop_rooms[0].get("roomID", "")) or str(prop_rooms[0].get("roomName", ""))
             rooms.extend(prop_rooms)
             got += len(prop_rooms)
+        if first and first == prev_first:
+            rooms = rooms[:-got]  # endpoint ignored pageNumber — drop the duplicate page
+            break
+        prev_first = first
         if got < 100:
             break
         page += 1
@@ -98,7 +113,7 @@ def availability_by_type(property_id: str, day: str):
     """Rooms available per room type for one night — fully paginated."""
     d = date.fromisoformat(day)
     out, page = {}, 1
-    while True:
+    while page <= MAX_PAGES:
         data = cloudbeds_get("getAvailableRoomTypes", {
             "propertyIDs": property_id,
             "startDate": day,
@@ -106,12 +121,12 @@ def availability_by_type(property_id: str, day: str):
             "adults": 1, "rooms": 1,
             "pageNumber": page, "pageSize": 100,
         })
-        got = 0
+        got, before = 0, len(out)
         for prop in data if isinstance(data, list) else [data]:
             for rt in prop.get("propertyRooms", []):
                 out[rt.get("roomTypeName", "?")] = int(rt.get("roomsAvailable", 0))
                 got += 1
-        if got < 100:
+        if got < 100 or len(out) == before:  # short page, or nothing new (pageNumber ignored)
             break
         page += 1
     return out
@@ -132,8 +147,8 @@ def assignments_for_date(property_id: str, day: str) -> list:
 @st.cache_data(ttl=300)
 def reservations_overlapping(property_id: str, start: str, end: str) -> list:
     """All reservations that could cover a night in [start, end] — fully paginated."""
-    out, page = [], 1
-    while True:
+    out, page, prev_first = [], 1, None
+    while page <= MAX_PAGES:
         batch = cloudbeds_get("getReservations", {
             "propertyID": property_id,
             "checkOutFrom": start,   # still in-house on/after window start
@@ -142,6 +157,10 @@ def reservations_overlapping(property_id: str, start: str, end: str) -> list:
         })
         if not batch:
             break
+        first = str(batch[0].get("reservationID", "")) if isinstance(batch[0], dict) else str(batch[0])
+        if first and first == prev_first:
+            break  # endpoint ignored pageNumber — same page again, stop
+        prev_first = first
         out.extend(batch)
         if len(batch) < 100:
             break
