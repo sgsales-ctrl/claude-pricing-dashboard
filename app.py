@@ -471,11 +471,13 @@ st.caption("Vacant = physical rooms with no reservation assigned that night (ind
 
 # ===== Events =====
 st.subheader("Events — Heritage Collection relevance")
-if EVENTS:
+shown_events = [e for e in EVENTS
+                if not str(e.get("demand", "")).casefold().startswith("low")]
+if shown_events:
     ev_df = pd.DataFrame([{
-        "Dates": e.get("dates"), "Event": e.get("name"), "Venue": e.get("venue"),
-        "Attendees": e.get("attendees"), "Demand": e.get("demand"), "Why": e.get("rationale"),
-    } for e in EVENTS])
+        "Dates": e.get("dates"), "Event": e.get("name"), "Demand": e.get("demand"),
+        "Venue": e.get("venue"), "Attendees": e.get("attendees"), "Why": e.get("rationale"),
+    } for e in shown_events])
     st.dataframe(ev_df, use_container_width=True, hide_index=True)
     st.caption("Demand scored on past materialization + attendee count/type. "
                "We are 3.5-star, adults-only, shophouse CBD — day-attendee and family events score low.")
