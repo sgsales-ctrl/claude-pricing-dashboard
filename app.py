@@ -109,8 +109,8 @@ def get_rooms(property_id: str) -> list:
 
 
 @st.cache_data(ttl=300)
-def availability_by_type(property_id: str, day: str):
-    """Rooms available per room type for one night — fully paginated."""
+def room_type_snapshot(property_id: str, day: str) -> dict:
+    """Per room type for one night: rooms available + current listed rate — fully paginated."""
     d = date.fromisoformat(day)
     out, page = {}, 1
     while page <= MAX_PAGES:
@@ -124,12 +124,24 @@ def availability_by_type(property_id: str, day: str):
         got, before = 0, len(out)
         for prop in data if isinstance(data, list) else [data]:
             for rt in prop.get("propertyRooms", []):
-                out[rt.get("roomTypeName", "?")] = int(rt.get("roomsAvailable", 0))
+                rate = rt.get("roomRate") or rt.get("totalRate") or rt.get("rate")
+                try:
+                    rate = round(float(rate)) if rate is not None else None
+                except (TypeError, ValueError):
+                    rate = None
+                out[rt.get("roomTypeName", "?")] = {
+                    "avail": int(rt.get("roomsAvailable", 0)),
+                    "rate": rate,
+                }
                 got += 1
         if got < 100 or len(out) == before:  # short page, or nothing new (pageNumber ignored)
             break
         page += 1
     return out
+
+
+def availability_by_type(property_id: str, day: str) -> dict:
+    return {k: v["avail"] for k, v in room_type_snapshot(property_id, day).items()}
 
 
 @st.cache_data(ttl=300)
@@ -294,10 +306,12 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev) -> tuple[float,
     base = ladder_rate(rates, days_out)
     floor = rates["floor"]
     demand = (ev or {}).get("demand", "")
-    # High-demand event: hold or lift, ignore discounting
+    # High-demand event: price ABOVE the IA rate, using the event's suggested markup when known
     if demand in ("High", "Very High"):
-        rec = max(base, rates["ia"]) * (1.10 if demand == "Very High" else 1.0)
-        return round(max(rec, floor)), f"{demand} demand event — hold/lift, no discounting"
+        m = re.search(r"(\d+)\s*-\s*(\d+)\s*%", str((ev or {}).get("rationale", "")))
+        up = (int(m.group(1)) + int(m.group(2))) / 200 if m else (0.20 if demand == "Very High" else 0.10)
+        rec = max(base, rates["ia"]) * (1 + up)
+        return round(max(rec, floor)), f"{demand} demand event — +{up:.0%} above IA rate"
     # Moderate event: expected demand — don't undercut ahead of it.
     if demand == "Moderate":
         if occ is None or occ >= 0.70:
@@ -476,6 +490,11 @@ if prop_pricing:
             continue  # fully booked — nothing to price
         vac_types = vacant_count_by_type(d)
         vac_norm = {_norm(k): v for k, v in vac_types.items()}
+        try:
+            snap = room_type_snapshot(property_id, str(d))
+        except Exception:
+            snap = {}
+        listed_norm = {_norm(k): v.get("rate") for k, v in snap.items()}
         ev = event_for(d)
         ev_demand = str((ev or {}).get("demand", ""))
         show_event = ev is not None and not ev_demand.casefold().startswith("low")
@@ -484,15 +503,16 @@ if prop_pricing:
             if room_vacancy == 0:
                 continue  # this room type is fully occupied that night
             rec, why = recommend(rates, days_out, occ_pct, ev)
+            listed = listed_norm.get(_norm(room))
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
                 "Occ %": f"{occ_pct:.0%}" if occ_pct is not None else "n/a",
                 "Room": room,
-                "Vacant": room_vacancy if room_vacancy is not None else "?",
                 "Event": (ev or {}).get("name", "—") if show_event else "—",
                 "Demand": ev_demand if show_event else "—",
                 "IA Rate (S$)": ladder_rate(rates, days_out),
                 "Floor (S$)": rates["floor"],
+                "Current (S$)": listed if listed is not None else "—",
                 "Recommended (S$)": rec,
                 "Reason": why,
             })
@@ -501,8 +521,10 @@ if prop_pricing:
     else:
         st.success("All room types fully booked across the selected window — nothing to price.")
     st.caption("IA Rate: your ideal base rate >10 days out, stepping to the 7-10 then 4-7 day rates. "
+               "Current: today's listed rate in Cloudbeds for that night. "
                "Below 85% occupancy: 10% cut, never below breakeven floor. "
                "Moderate demand events: hold rate (small 5% cut only if occupancy <70%). "
-               "High/Very High demand events: hold or lift, no discounting.")
+               "High/Very High demand events: priced above IA rate using the event's suggested markup "
+               "(from the events tracker), default +10%/+20%.")
 else:
     st.info(f"No pricing guide entry found for {property_name} — check data/pricing.json names.")
