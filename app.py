@@ -409,36 +409,6 @@ ev_today = event_for(tonight)
 c3.metric("Tonight's demand driver", (ev_today or {}).get("demand", "None"),
           (ev_today or {}).get("name", "no dominant driver"))
 
-# ===== Our rates vs competitors (sector) =====
-st.subheader(f"Rates vs competitors — {sector or 'sector unknown'}")
-scraped = COMP_RATES.get("rates", {})
-latest_day = max(scraped.keys()) if scraped else None
-if latest_day and sector_comps:
-    rows = []
-    for comp in sector_comps:
-        info = scraped.get(latest_day, {}).get(comp, {})
-        if info.get("status") == "ok":
-            rows.append({"Competitor": comp, "Status": "Available",
-                         "Rate incl. taxes (S$)": info.get("est_incl_taxes"),
-                         "Room": info.get("room", "")})
-        else:
-            rows.append({"Competitor": comp, "Status": "SOLD OUT", "Rate incl. taxes (S$)": None, "Room": ""})
-    comp_df = pd.DataFrame(rows)
-    st.dataframe(comp_df, use_container_width=True, hide_index=True)
-
-    avail = comp_df["Rate incl. taxes (S$)"].dropna()
-    our_short = pd.Series([v["d4_7"] for v in prop_pricing.values()]).mean() if prop_pricing else None
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Comp median (avail.)", f"S$ {avail.median():.0f}" if not avail.empty else "all sold out")
-    m2.metric("Our avg short-window rate", f"S$ {our_short:.0f}" if our_short else "n/a")
-    sold_out_n = (comp_df["Status"] == "SOLD OUT").sum()
-    m3.metric("Comps sold out", f"{sold_out_n}/{len(comp_df)}",
-              "compression — hold rates" if sold_out_n > len(comp_df) / 2 else None)
-    st.caption(f"Booking.com rates for {latest_day} (cheapest room, 2 adults, est. incl. taxes/fees). "
-               "Refresh data/comp_rates.json regularly.")
-else:
-    st.info("No competitor rates on file — update data/comp_rates.json.")
-
 # ----- Room-assignment helper (physical occupancy per room) -----
 def assigned_room_keys(day: str) -> set:
     keys = set()
@@ -472,18 +442,6 @@ def vacant_count_by_type(d: date) -> dict:
         counts[rt] = counts.get(rt, 0) + (0 if occupied else 1)
     return counts
 
-# ===== Events =====
-st.subheader("Events — Heritage Collection relevance")
-shown_events = [e for e in EVENTS
-                if not str(e.get("demand", "")).casefold().startswith("low")]
-if shown_events:
-    ev_df = pd.DataFrame([{
-        "Dates": e.get("dates"), "Event": e.get("name"), "Demand": e.get("demand"),
-        "Venue": e.get("venue"), "Attendees": e.get("attendees"), "Why": e.get("rationale"),
-    } for e in shown_events])
-    st.dataframe(ev_df, use_container_width=True, hide_index=True)
-    st.caption("Demand scored on past materialization + attendee count/type. "
-               "We are 3.5-star, adults-only, shophouse CBD — day-attendee and family events score low.")
 
 # ===== Price recommendations =====
 st.subheader("Price recommendations")
@@ -535,3 +493,47 @@ if prop_pricing:
                "(from the events tracker), default +10%/+20%.")
 else:
     st.info(f"No pricing guide entry found for {property_name} — check data/pricing.json names.")
+
+# ===== Our rates vs competitors (sector) =====
+st.subheader(f"Rates vs competitors — {sector or 'sector unknown'}")
+scraped = COMP_RATES.get("rates", {})
+latest_day = max(scraped.keys()) if scraped else None
+if latest_day and sector_comps:
+    rows = []
+    for comp in sector_comps:
+        info = scraped.get(latest_day, {}).get(comp, {})
+        if info.get("status") == "ok":
+            rows.append({"Competitor": comp, "Status": "Available",
+                         "Rate incl. taxes (S$)": info.get("est_incl_taxes"),
+                         "Room": info.get("room", "")})
+        else:
+            rows.append({"Competitor": comp, "Status": "SOLD OUT", "Rate incl. taxes (S$)": None, "Room": ""})
+    comp_df = pd.DataFrame(rows)
+    st.dataframe(comp_df, use_container_width=True, hide_index=True)
+
+    avail = comp_df["Rate incl. taxes (S$)"].dropna()
+    our_short = pd.Series([v["d4_7"] for v in prop_pricing.values()]).mean() if prop_pricing else None
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Comp median (avail.)", f"S$ {avail.median():.0f}" if not avail.empty else "all sold out")
+    m2.metric("Our avg short-window rate", f"S$ {our_short:.0f}" if our_short else "n/a")
+    sold_out_n = (comp_df["Status"] == "SOLD OUT").sum()
+    m3.metric("Comps sold out", f"{sold_out_n}/{len(comp_df)}",
+              "compression — hold rates" if sold_out_n > len(comp_df) / 2 else None)
+    st.caption(f"Booking.com rates for {latest_day} (cheapest room, 2 adults, est. incl. taxes/fees). "
+               "Refresh data/comp_rates.json regularly.")
+else:
+    st.info("No competitor rates on file — update data/comp_rates.json.")
+
+# ===== Events =====
+st.subheader("Events — Heritage Collection relevance")
+shown_events = [e for e in EVENTS
+                if not str(e.get("demand", "")).casefold().startswith("low")]
+if shown_events:
+    ev_df = pd.DataFrame([{
+        "Dates": e.get("dates"), "Event": e.get("name"), "Demand": e.get("demand"),
+        "Venue": e.get("venue"), "Attendees": e.get("attendees"), "Why": e.get("rationale"),
+    } for e in shown_events])
+    st.dataframe(ev_df, use_container_width=True, hide_index=True)
+    st.caption("Demand scored on past materialization + attendee count/type. "
+               "We are 3.5-star, adults-only, shophouse CBD — day-attendee and family events score low.")
+
