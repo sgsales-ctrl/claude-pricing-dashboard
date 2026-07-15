@@ -131,7 +131,7 @@ def room_type_snapshot(property_id: str, day: str) -> dict:
             "propertyIDs": property_id,
             "startDate": day,
             "endDate": str(d + timedelta(days=1)),
-            "adults": 1, "rooms": 1,
+            "adults": 1, "children": 0, "rooms": 1,
             "pageNumber": page, "pageSize": 100,
         })
         got, before = 0, len(out)
@@ -498,6 +498,20 @@ if prop_pricing:
         st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
     else:
         st.success("All room types fully booked across the selected window — nothing to price.")
+    if rec_rows and all(r["Current (S$)"] == "—" for r in rec_rows):
+        # No listed rates at all — probe the raw response so we can see why (field names only)
+        try:
+            probe_day = str(window_days[0])
+            raw = cloudbeds_get("getAvailableRoomTypes", {
+                "propertyIDs": property_id, "startDate": probe_day,
+                "endDate": str(window_days[0] + timedelta(days=1)),
+                "adults": 1, "children": 0, "rooms": 1,
+            })
+            first_prop = (raw if isinstance(raw, list) else [raw])
+            first_rt = (first_prop[0].get("propertyRooms") or [{}])[0] if first_prop else {}
+            st.caption(f"⚠ No listed rates found — availability fields returned: {sorted(first_rt.keys()) or 'EMPTY RESPONSE'}")
+        except Exception as ex:
+            st.caption(f"⚠ getAvailableRoomTypes failed: {type(ex).__name__}: {ex}")
     cb_type_norms = {_norm(r.get("roomTypeName", "")): 1 for r in rooms_data}
     unmatched = [room for room in prop_pricing if _lookup(cb_type_norms, room) is None]
     if unmatched:
