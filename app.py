@@ -159,14 +159,21 @@ def availability_by_type(property_id: str, day: str) -> dict:
 
 @st.cache_data(ttl=300)
 def rates_for_type(property_id: str, room_type_id: str, start: str, end: str) -> dict:
-    """Listed rate per date for one room type, from getRate (works even when
-    the online booking engine shows no availability)."""
-    data = cloudbeds_get("getRate", {
-        "propertyID": property_id, "roomTypeID": room_type_id,
-        "startDate": start, "endDate": end,
-        "adults": 2, "detailedRates": "true",
-    })
-    det = (data or {}).get("roomRateDetailed") or [] if isinstance(data, dict) else []
+    """Listed rate per date for one room type, from getRate. Quiet: returns {}
+    on any failure (e.g. 'no rate found') instead of stopping the app."""
+    try:
+        r = requests.get(f"{BASE_URL}/getRate", headers=HEADERS, params={
+            "propertyID": property_id, "roomTypeID": room_type_id,
+            "startDate": start, "endDate": end,
+            "adults": 1, "detailedRates": "true",
+        }, timeout=15)
+        body = r.json()
+        if not body.get("success", False):
+            return {}
+        data = body.get("data") or {}
+    except Exception:
+        return {}
+    det = data.get("roomRateDetailed") or [] if isinstance(data, dict) else []
     out = {}
     for x in det:
         if isinstance(x, dict) and x.get("date") is not None and x.get("rate") is not None:
