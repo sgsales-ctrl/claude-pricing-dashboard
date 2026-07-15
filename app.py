@@ -158,6 +158,26 @@ def availability_by_type(property_id: str, day: str) -> dict:
 
 
 @st.cache_data(ttl=300)
+def rates_for_type(property_id: str, room_type_id: str, start: str, end: str) -> dict:
+    """Listed rate per date for one room type, from getRate (works even when
+    the online booking engine shows no availability)."""
+    data = cloudbeds_get("getRate", {
+        "propertyID": property_id, "roomTypeID": room_type_id,
+        "startDate": start, "endDate": end,
+        "adults": 2, "detailedRates": "true",
+    })
+    det = (data or {}).get("roomRateDetailed") or [] if isinstance(data, dict) else []
+    out = {}
+    for x in det:
+        if isinstance(x, dict) and x.get("date") is not None and x.get("rate") is not None:
+            try:
+                out[str(x["date"])] = round(float(x["rate"]))
+            except (TypeError, ValueError):
+                pass
+    return out
+
+
+@st.cache_data(ttl=300)
 def assignments_for_date(property_id: str, day: str) -> list:
     """Room-level reservation assignments for one date (which physical rooms are taken)."""
     data = cloudbeds_get("getReservationAssignments", {"propertyID": property_id, "date": day})
@@ -459,6 +479,20 @@ def vacant_count_by_type(d: date) -> dict:
 # ===== Price recommendations =====
 st.subheader("Price recommendations")
 if prop_pricing:
+    # Listed rates per room type across the window (one getRate call per type)
+    type_ids = {}
+    for r in rooms_data:
+        tname, tid = str(r.get("roomTypeName", "")), str(r.get("roomTypeID") or "")
+        if tname and tid and _norm(tname) not in type_ids:
+            type_ids[_norm(tname)] = tid
+    listed_maps = {}
+    for tnorm, tid in type_ids.items():
+        try:
+            listed_maps[tnorm] = rates_for_type(property_id, tid,
+                                                str(window_days[0]),
+                                                str(window_days[-1] + timedelta(days=1)))
+        except Exception:
+            listed_maps[tnorm] = {}
     rec_rows = []
     for d in window_days:
         days_out = (d - tonight).days
@@ -468,11 +502,6 @@ if prop_pricing:
             continue  # fully booked — nothing to price
         vac_types = vacant_count_by_type(d)
         vac_norm = {_norm(k): v for k, v in vac_types.items()}
-        try:
-            snap = room_type_snapshot(property_id, str(d))
-        except Exception:
-            snap = {}
-        listed_norm = {_norm(k): v.get("rate") for k, v in snap.items()}
         ev = event_for(d)
         ev_demand = str((ev or {}).get("demand", ""))
         show_event = ev is not None and not ev_demand.casefold().startswith("low")
@@ -481,7 +510,8 @@ if prop_pricing:
             if room_vacancy == 0:
                 continue  # this room type is fully occupied that night
             rec, why = recommend(rates, days_out, occ_pct, ev)
-            listed = _lookup(listed_norm, room)
+            rate_map = _lookup(listed_maps, room) or {}
+            listed = rate_map.get(str(d))
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
                 "Occ %": f"{occ_pct:.0%}" if occ_pct is not None else "n/a",
@@ -494,27 +524,6 @@ if prop_pricing:
                 "Recommended (S$)": rec,
                 "Reason": why,
             })
-    if rec_rows and all(r["Current (S$)"] == "—" for r in rec_rows):
-        # No listed rates at all — probe raw responses on dates that HAVE vacancy
-        probe_days = sorted({r["Date"] for r in rec_rows})
-        probe_days = [probe_days[0], probe_days[-1]] if len(probe_days) > 1 else probe_days
-        probe_bits = []
-        for pd_ in probe_days:
-            try:
-                d0 = date.fromisoformat(pd_)
-                raw = cloudbeds_get("getAvailableRoomTypes", {
-                    "propertyIDs": property_id, "startDate": pd_,
-                    "endDate": str(d0 + timedelta(days=1)),
-                    "adults": 2, "children": 0, "rooms": 1,
-                })
-                props = raw if isinstance(raw, list) else [raw]
-                rts = (props[0].get("propertyRooms") or []) if props else []
-                sample = [f"{rt.get('roomTypeName')}: avail={rt.get('roomsAvailable')}, roomRate={rt.get('roomRate')!r}"
-                          for rt in rts[:4]] or ["NO ROOM TYPES RETURNED"]
-                probe_bits.append(f"{pd_} → " + " | ".join(sample))
-            except Exception as ex:
-                probe_bits.append(f"{pd_} → FAILED: {type(ex).__name__}: {ex}")
-        st.warning("Rate probe on vacant dates (no listed rates found):\n\n" + "\n\n".join(probe_bits))
     if rec_rows:
         st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
     else:
