@@ -215,6 +215,48 @@ def assignments_for_date(property_id: str, day: str) -> list:
 
 
 @st.cache_data(ttl=300)
+def reservation_rooms_overlapping(property_id: str, start: str, end: str) -> list:
+    """Room-level bookings (with room TYPE) for reservations that could cover
+    [start, end] — from getReservationsWithRateDetails, fully paginated.
+    Includes bookings not yet assigned to a physical room."""
+    out, page, prev_first = [], 1, None
+    while page <= MAX_PAGES:
+        batch = cloudbeds_get("getReservationsWithRateDetails", {
+            "propertyID": property_id,
+            "reservationCheckOutFrom": start,
+            "excludeStatuses": "canceled,no_show",
+            "pageNumber": page, "pageSize": 100,
+        })
+        if not batch:
+            break
+        first = str(batch[0].get("reservationID", "")) if isinstance(batch[0], dict) else str(batch[0])
+        if first and first == prev_first:
+            break
+        prev_first = first
+        for r in batch:
+            if not isinstance(r, dict):
+                continue
+            if str(r.get("status", "")).lower() in ("canceled", "cancelled", "no_show"):
+                continue
+            for room in r.get("rooms") or []:
+                if not isinstance(room, dict):
+                    continue
+                if str(room.get("roomStatus", "")).lower() == "cancelled":
+                    continue
+                try:
+                    ci = pd.to_datetime(room.get("roomCheckIn")).date()
+                    co = pd.to_datetime(room.get("roomCheckOut")).date()
+                except (TypeError, ValueError):
+                    continue
+                if str(ci) <= end:  # arrives before window ends
+                    out.append({"type": str(room.get("roomTypeName", "")), "ci": ci, "co": co})
+        if len(batch) < 100:
+            break
+        page += 1
+    return out
+
+
+@st.cache_data(ttl=300)
 def reservations_overlapping(property_id: str, start: str, end: str) -> list:
     """All reservations that could cover a night in [start, end] — fully paginated."""
     out, page, prev_first = [], 1, None
@@ -490,26 +532,21 @@ def assigned_room_keys(day: str) -> set:
 
 
 def vacant_count_by_type(d: date) -> dict:
-    """Vacancy per room type on a date, counted from reservations (includes
-    bookings not yet assigned to a physical room)."""
+    """Vacancy per room type on a date, from room-level booking data
+    (includes bookings not yet assigned to a physical room)."""
     totals = {}
     for r in rooms_data:
         t = str(r.get("roomTypeName", ""))
         totals[t] = totals.get(t, 0) + 1
     try:
-        res = reservations_overlapping(property_id, str(min(window_days)), str(max(window_days)))
+        booked_rooms = reservation_rooms_overlapping(property_id, str(min(window_days)), str(max(window_days)))
     except Exception:
-        res = []
+        booked_rooms = []
     occupied = {}
-    for r in res:
-        try:
-            ci = pd.to_datetime(r["startDate"]).date()
-            co = pd.to_datetime(r["endDate"]).date()
-        except (KeyError, ValueError):
+    for br in booked_rooms:
+        if not (br["ci"] <= d < br["co"]):
             continue
-        if not (ci <= d < co):
-            continue
-        rt = str(r.get("roomTypeName") or r.get("roomType") or "")
+        rt = br["type"]
         key = rt if rt in totals else next((t for t in totals if _norm(t) == _norm(rt)), None)
         if key:
             occupied[key] = occupied.get(key, 0) + 1
