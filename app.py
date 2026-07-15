@@ -1,3 +1,4 @@
+import difflib
 import json
 import re
 from pathlib import Path
@@ -32,17 +33,34 @@ def _norm(s) -> str:
     return re.sub(r"[^a-z0-9]", "", str(s).casefold())
 
 
-def _lookup(norm_dict: dict, name: str):
-    """Find a value by normalized name — exact first, then longest partial match.
-    Handles pricing-guide names differing slightly from Cloudbeds type names."""
-    key = _norm(name)
-    if key in norm_dict:
-        return norm_dict[key]
-    candidates = [(len(k), v) for k, v in norm_dict.items()
-                  if k and key and (key in k or k in key)]
-    if candidates:
-        return max(candidates)[1]
-    return None
+def build_type_mapping(guide_names: list, cb_names: list) -> dict:
+    """One-to-one best match: pricing-guide room name -> Cloudbeds room type name.
+    Prevents overlapping names (e.g. 'Studio (No Window)' vs
+    'Next-to-the-Bar Studio (No Window)') from stealing each other's match."""
+    pairs = []
+    for g in guide_names:
+        gn = _norm(g)
+        for c in cb_names:
+            cn = _norm(c)
+            if not gn or not cn:
+                continue
+            score = difflib.SequenceMatcher(None, gn, cn).ratio()
+            if gn == cn:
+                score = 3.0
+            elif gn in cn or cn in gn:
+                score = max(score, 1.0 + min(len(gn), len(cn)) / max(len(gn), len(cn)))
+            pairs.append((score, g, c))
+    pairs.sort(key=lambda x: -x[0])
+    used_g, used_c, out = set(), set(), {}
+    for s, g, c in pairs:
+        if s < 0.6:
+            break
+        if g in used_g or c in used_c:
+            continue
+        out[g] = c
+        used_g.add(g)
+        used_c.add(c)
+    return out
 
 
 MAX_PAGES = 30  # hard cap on any pagination loop (safety against endpoints ignoring pageNumber)
@@ -486,20 +504,25 @@ def vacant_count_by_type(d: date) -> dict:
 # ===== Price recommendations =====
 st.subheader("Price recommendations")
 if prop_pricing:
-    # Listed rates per room type across the window (one getRate call per type)
-    type_ids = {}
+    # One-to-one mapping: pricing-guide room name -> Cloudbeds room type
+    cb_types = {}
     for r in rooms_data:
         tname, tid = str(r.get("roomTypeName", "")), str(r.get("roomTypeID") or "")
-        if tname and tid and _norm(tname) not in type_ids:
-            type_ids[_norm(tname)] = tid
+        if tname and tname not in cb_types:
+            cb_types[tname] = tid
+    type_map = build_type_mapping(list(prop_pricing.keys()), list(cb_types.keys()))
+    # Listed rates per room type across the window (one getRate call per type)
     listed_maps = {}
-    for tnorm, tid in type_ids.items():
+    for cb_name, tid in cb_types.items():
+        if not tid:
+            listed_maps[cb_name] = {}
+            continue
         try:
-            listed_maps[tnorm] = rates_for_type(property_id, tid,
-                                                str(window_days[0]),
-                                                str(window_days[-1] + timedelta(days=1)))
+            listed_maps[cb_name] = rates_for_type(property_id, tid,
+                                                  str(window_days[0]),
+                                                  str(window_days[-1] + timedelta(days=1)))
         except Exception:
-            listed_maps[tnorm] = {}
+            listed_maps[cb_name] = {}
     rec_rows = []
     for d in window_days:
         days_out = (d - tonight).days
@@ -508,17 +531,16 @@ if prop_pricing:
         if occ_pct is not None and occ_pct >= 1.0:
             continue  # fully booked — nothing to price
         vac_types = vacant_count_by_type(d)
-        vac_norm = {_norm(k): v for k, v in vac_types.items()}
         ev = event_for(d)
         ev_demand = str((ev or {}).get("demand", ""))
         show_event = ev is not None and not ev_demand.casefold().startswith("low")
         for room, rates in prop_pricing.items():
-            room_vacancy = _lookup(vac_norm, room)
+            cb_name = type_map.get(room)
+            room_vacancy = vac_types.get(cb_name) if cb_name else None
             if room_vacancy == 0:
                 continue  # this room type is fully occupied that night
             rec, why = recommend(rates, days_out, occ_pct, ev)
-            rate_map = _lookup(listed_maps, room) or {}
-            listed = rate_map.get(str(d))
+            listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
                 "Occ %": f"{occ_pct:.0%}" if occ_pct is not None else "n/a",
@@ -535,12 +557,14 @@ if prop_pricing:
         st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
     else:
         st.success("All room types fully booked across the selected window — nothing to price.")
-    cb_type_norms = {_norm(r.get("roomTypeName", "")): 1 for r in rooms_data}
-    unmatched = [room for room in prop_pricing if _lookup(cb_type_norms, room) is None]
+    unmatched = [room for room in prop_pricing if room not in type_map]
     if unmatched:
         st.warning("These pricing-guide room names don't match any Cloudbeds room type "
                    f"(vacancy can't be verified for them): {', '.join(unmatched)}. "
                    "Align the names in data/pricing.json with Cloudbeds.")
+    with st.expander("Room-type name mapping (pricing guide → Cloudbeds)"):
+        st.dataframe(pd.DataFrame([{"Pricing guide": g, "Cloudbeds type": c} for g, c in type_map.items()]),
+                     use_container_width=True, hide_index=True)
     st.caption("IA Rate: your ideal base rate >10 days out, stepping to the 7-10 then 4-7 day rates. "
                "Current: today's listed rate in Cloudbeds for that night. "
                f"Below {OCC_TARGET:.0%} occupancy: 10% cut, never below breakeven floor; at/above: hold or lift. "
