@@ -15,7 +15,7 @@ BASE_URL = "https://api.cloudbeds.com/api/v1.2"
 HEADERS = {"x-api-key": API_KEY}
 DATA_DIR = Path(__file__).parent / "data"
 
-OCC_TARGET = 0.85          # below this, recommend discounting
+OCC_TARGET = 0.80          # below this, recommend discounting; at/above: hold or lift
 SOFT_DISCOUNT = 0.90       # 10% cut when occupancy < 85%
 HIGH_OCC_PREMIUM = 1.05    # small lift when nearly full
 
@@ -369,11 +369,11 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev) -> tuple[float,
     if occ >= 0.95:
         return round(max(base * HIGH_OCC_PREMIUM, floor)), "Occupancy ≥95% — small premium"
     if occ >= OCC_TARGET:
-        return round(max(base, floor)), "Occupancy ≥85% — hold IA/window rate"
+        return round(max(base, floor)), f"Occupancy ≥{OCC_TARGET:.0%} — hold IA/window rate"
     rec = max(base * SOFT_DISCOUNT, floor)
-    note = "Occupancy <85% — 10% cut"
+    note = f"Occupancy <{OCC_TARGET:.0%} — 10% cut"
     if days_out <= 3 and rec <= floor + 1:
-        note = "Occupancy <85%, 0-3 days — at breakeven floor"
+        note = f"Occupancy <{OCC_TARGET:.0%}, 0-3 days — at breakeven floor"
     return round(rec), note
 
 
@@ -442,7 +442,7 @@ if total_rooms and occ_tonight is not None:
     c1.metric("Tonight's occupancy", f"{pct:.0%}", f"{occ_tonight}/{total_rooms} sold")
     below = pct < OCC_TARGET
     c2.metric("Pricing posture", "Discount" if below else "Hold/Lift",
-              "occupancy under 85%" if below else "occupancy at/above 85%")
+              f"occupancy under {OCC_TARGET:.0%}" if below else f"occupancy at/above {OCC_TARGET:.0%}")
 else:
     c1.metric("Tonight's occupancy", "n/a")
 ev_today = event_for(tonight)
@@ -543,7 +543,7 @@ if prop_pricing:
                    "Align the names in data/pricing.json with Cloudbeds.")
     st.caption("IA Rate: your ideal base rate >10 days out, stepping to the 7-10 then 4-7 day rates. "
                "Current: today's listed rate in Cloudbeds for that night. "
-               "Below 85% occupancy: 10% cut, never below breakeven floor. "
+               f"Below {OCC_TARGET:.0%} occupancy: 10% cut, never below breakeven floor; at/above: hold or lift. "
                "Moderate demand events: hold rate (small 5% cut only if occupancy <70%). "
                "High/Very High demand events: priced above IA rate using the event's suggested markup "
                "(from the events tracker), default +10%/+20%.")
