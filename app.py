@@ -490,15 +490,30 @@ def assigned_room_keys(day: str) -> set:
 
 
 def vacant_count_by_type(d: date) -> dict:
-    """Physical vacancy per room type on a date (rooms with no assigned reservation)."""
-    assigned = assigned_room_keys(str(d))
-    counts = {}
+    """Vacancy per room type on a date, counted from reservations (includes
+    bookings not yet assigned to a physical room)."""
+    totals = {}
     for r in rooms_data:
-        rt = str(r.get("roomTypeName", ""))
-        occupied = (str(r.get("roomID") or "") in assigned
-                    or _norm(r.get("roomName", "")) in assigned)
-        counts[rt] = counts.get(rt, 0) + (0 if occupied else 1)
-    return counts
+        t = str(r.get("roomTypeName", ""))
+        totals[t] = totals.get(t, 0) + 1
+    try:
+        res = reservations_overlapping(property_id, str(min(window_days)), str(max(window_days)))
+    except Exception:
+        res = []
+    occupied = {}
+    for r in res:
+        try:
+            ci = pd.to_datetime(r["startDate"]).date()
+            co = pd.to_datetime(r["endDate"]).date()
+        except (KeyError, ValueError):
+            continue
+        if not (ci <= d < co):
+            continue
+        rt = str(r.get("roomTypeName") or r.get("roomType") or "")
+        key = rt if rt in totals else next((t for t in totals if _norm(t) == _norm(rt)), None)
+        if key:
+            occupied[key] = occupied.get(key, 0) + 1
+    return {t: max(totals[t] - occupied.get(t, 0), 0) for t in totals}
 
 
 # ===== Price recommendations =====
