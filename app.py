@@ -495,23 +495,26 @@ if prop_pricing:
                 "Reason": why,
             })
     if rec_rows and all(r["Current (S$)"] == "—" for r in rec_rows):
-        # No listed rates at all — probe raw responses (1 vs 2 adults) so we can see why
+        # No listed rates at all — probe raw responses on dates that HAVE vacancy
+        probe_days = sorted({r["Date"] for r in rec_rows})
+        probe_days = [probe_days[0], probe_days[-1]] if len(probe_days) > 1 else probe_days
         probe_bits = []
-        for n_adults in (1, 2):
+        for pd_ in probe_days:
             try:
+                d0 = date.fromisoformat(pd_)
                 raw = cloudbeds_get("getAvailableRoomTypes", {
-                    "propertyIDs": property_id, "startDate": str(window_days[0]),
-                    "endDate": str(window_days[0] + timedelta(days=1)),
-                    "adults": n_adults, "children": 0, "rooms": 1,
+                    "propertyIDs": property_id, "startDate": pd_,
+                    "endDate": str(d0 + timedelta(days=1)),
+                    "adults": 2, "children": 0, "rooms": 1,
                 })
                 props = raw if isinstance(raw, list) else [raw]
                 rts = (props[0].get("propertyRooms") or []) if props else []
                 sample = [f"{rt.get('roomTypeName')}: avail={rt.get('roomsAvailable')}, roomRate={rt.get('roomRate')!r}"
-                          for rt in rts[:3]] or ["NO ROOM TYPES RETURNED"]
-                probe_bits.append(f"adults={n_adults} → " + " | ".join(sample))
+                          for rt in rts[:4]] or ["NO ROOM TYPES RETURNED"]
+                probe_bits.append(f"{pd_} → " + " | ".join(sample))
             except Exception as ex:
-                probe_bits.append(f"adults={n_adults} → FAILED: {type(ex).__name__}: {ex}")
-        st.warning("Rate probe (no listed rates found):\n\n" + "\n\n".join(probe_bits))
+                probe_bits.append(f"{pd_} → FAILED: {type(ex).__name__}: {ex}")
+        st.warning("Rate probe on vacant dates (no listed rates found):\n\n" + "\n\n".join(probe_bits))
     if rec_rows:
         st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
     else:
