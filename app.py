@@ -32,6 +32,19 @@ def _norm(s) -> str:
     return re.sub(r"[^a-z0-9]", "", str(s).casefold())
 
 
+def _lookup(norm_dict: dict, name: str):
+    """Find a value by normalized name — exact first, then longest partial match.
+    Handles pricing-guide names differing slightly from Cloudbeds type names."""
+    key = _norm(name)
+    if key in norm_dict:
+        return norm_dict[key]
+    candidates = [(len(k), v) for k, v in norm_dict.items()
+                  if k and key and (key in k or k in key)]
+    if candidates:
+        return max(candidates)[1]
+    return None
+
+
 MAX_PAGES = 30  # hard cap on any pagination loop (safety against endpoints ignoring pageNumber)
 
 
@@ -464,11 +477,11 @@ if prop_pricing:
         ev_demand = str((ev or {}).get("demand", ""))
         show_event = ev is not None and not ev_demand.casefold().startswith("low")
         for room, rates in prop_pricing.items():
-            room_vacancy = vac_norm.get(_norm(room))
+            room_vacancy = _lookup(vac_norm, room)
             if room_vacancy == 0:
                 continue  # this room type is fully occupied that night
             rec, why = recommend(rates, days_out, occ_pct, ev)
-            listed = listed_norm.get(_norm(room))
+            listed = _lookup(listed_norm, room)
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
                 "Occ %": f"{occ_pct:.0%}" if occ_pct is not None else "n/a",
@@ -485,6 +498,12 @@ if prop_pricing:
         st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
     else:
         st.success("All room types fully booked across the selected window — nothing to price.")
+    cb_type_norms = {_norm(r.get("roomTypeName", "")): 1 for r in rooms_data}
+    unmatched = [room for room in prop_pricing if _lookup(cb_type_norms, room) is None]
+    if unmatched:
+        st.warning("These pricing-guide room names don't match any Cloudbeds room type "
+                   f"(vacancy can't be verified for them): {', '.join(unmatched)}. "
+                   "Align the names in data/pricing.json with Cloudbeds.")
     st.caption("IA Rate: your ideal base rate >10 days out, stepping to the 7-10 then 4-7 day rates. "
                "Current: today's listed rate in Cloudbeds for that night. "
                "Below 85% occupancy: 10% cut, never below breakeven floor. "
