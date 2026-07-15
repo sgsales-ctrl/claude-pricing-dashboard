@@ -494,24 +494,28 @@ if prop_pricing:
                 "Recommended (S$)": rec,
                 "Reason": why,
             })
+    if rec_rows and all(r["Current (S$)"] == "—" for r in rec_rows):
+        # No listed rates at all — probe raw responses (1 vs 2 adults) so we can see why
+        probe_bits = []
+        for n_adults in (1, 2):
+            try:
+                raw = cloudbeds_get("getAvailableRoomTypes", {
+                    "propertyIDs": property_id, "startDate": str(window_days[0]),
+                    "endDate": str(window_days[0] + timedelta(days=1)),
+                    "adults": n_adults, "children": 0, "rooms": 1,
+                })
+                props = raw if isinstance(raw, list) else [raw]
+                rts = (props[0].get("propertyRooms") or []) if props else []
+                sample = [f"{rt.get('roomTypeName')}: avail={rt.get('roomsAvailable')}, roomRate={rt.get('roomRate')!r}"
+                          for rt in rts[:3]] or ["NO ROOM TYPES RETURNED"]
+                probe_bits.append(f"adults={n_adults} → " + " | ".join(sample))
+            except Exception as ex:
+                probe_bits.append(f"adults={n_adults} → FAILED: {type(ex).__name__}: {ex}")
+        st.warning("Rate probe (no listed rates found):\n\n" + "\n\n".join(probe_bits))
     if rec_rows:
         st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
     else:
         st.success("All room types fully booked across the selected window — nothing to price.")
-    if rec_rows and all(r["Current (S$)"] == "—" for r in rec_rows):
-        # No listed rates at all — probe the raw response so we can see why (field names only)
-        try:
-            probe_day = str(window_days[0])
-            raw = cloudbeds_get("getAvailableRoomTypes", {
-                "propertyIDs": property_id, "startDate": probe_day,
-                "endDate": str(window_days[0] + timedelta(days=1)),
-                "adults": 1, "children": 0, "rooms": 1,
-            })
-            first_prop = (raw if isinstance(raw, list) else [raw])
-            first_rt = (first_prop[0].get("propertyRooms") or [{}])[0] if first_prop else {}
-            st.caption(f"⚠ No listed rates found — availability fields returned: {sorted(first_rt.keys()) or 'EMPTY RESPONSE'}")
-        except Exception as ex:
-            st.caption(f"⚠ getAvailableRoomTypes failed: {type(ex).__name__}: {ex}")
     cb_type_norms = {_norm(r.get("roomTypeName", "")): 1 for r in rooms_data}
     unmatched = [room for room in prop_pricing if _lookup(cb_type_norms, room) is None]
     if unmatched:
