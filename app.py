@@ -289,93 +289,46 @@ def reservations_overlapping(property_id: str, start: str, end: str) -> list:
 def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
                         allowed_types: frozenset | None = None,
                         room_keys: frozenset | None = None) -> dict:
-    """Occupied-room count per night from actual reservations (physical occupancy).
-    If room_keys is given (room-name-filtered property), count room-level
-    assignments matching those rooms — reservations from other entities sharing
-    the same Cloudbeds property are excluded exactly."""
+    """Occupied-ROOM count per night, from room-level booking data
+    (getReservationsWithRateDetails): a booking holding 2 rooms counts as 2.
+    Includes bookings not yet assigned to a physical room.
+    allowed_types (room-name-filtered properties): only rooms of those types
+    count — other entities sharing the same Cloudbeds property are excluded."""
     if not days:
         return {}
-    if room_keys:
-        def _room_id_and_name(e: dict) -> tuple[str, str]:
-            room = e.get("room") if isinstance(e.get("room"), dict) else {}
-            rid = next((str(e.get(k) or room.get(k) or "") or "" for k in
-                        ("roomID", "roomId", "room_id", "id") if (e.get(k) or room.get(k))), "")
-            rname = next((str(e.get(k) or room.get(k) or "") or "" for k in
-                          ("roomName", "room_name", "name", "roomNumber") if (e.get(k) or room.get(k))), "")
-            return rid, _norm(rname)
-
-        def _room_units(e: dict) -> list[dict]:
-            """An assignment entry nests its room(s) under 'assigned'."""
-            a = e.get("assigned")
-            if isinstance(a, list):
-                return [x for x in a if isinstance(x, dict)]
-            if isinstance(a, dict):
-                return [a]
-            return [e]
-
-        counts, diagnosed = {}, False
-        for d in days:
-            try:
-                entries = assignments_for_date(property_id, str(d))
-            except Exception:
-                entries = []
-            if entries:
-                seen, occ = set(), 0
-                for e in entries:
-                    if not isinstance(e, dict):
-                        continue
-                    for unit in _room_units(e):
-                        rid, rname = _room_id_and_name(unit)
-                        dedupe = rid or rname
-                        if not dedupe or dedupe in seen:
-                            continue
-                        seen.add(dedupe)
-                        if rid in room_keys or (rname and rname in room_keys):
-                            occ += 1
-                if occ == 0 and not diagnosed:
-                    # Field-shape mismatch? Surface field NAMES only (no guest data) to aid setup.
-                    first = next((e for e in entries if isinstance(e, dict)), {})
-                    units = _room_units(first)
-                    st.caption(f"⚠ assignment matching found 0 rooms — entry fields: {sorted(first.keys())}, "
-                               f"room-unit fields: {sorted(units[0].keys()) if units else '[]'}")
-                    diagnosed = True
-                counts[d] = min(occ, total_rooms) if total_rooms else occ
-            else:
-                counts[d] = None
-        # If assignments matched nothing anywhere, fall back to type-filtered reservation count.
-        if not any(counts.values()):
-            counts = None
-        else:
-            return counts
-    res = reservations_overlapping(property_id, str(min(days)), str(max(days)))
+    try:
+        booked = reservation_rooms_overlapping(property_id, str(min(days)), str(max(days)))
+    except Exception:
+        booked = None
     counts = {d: 0 for d in days}
-    saw_type_field = False
-    for r in res:
-        rt = r.get("roomTypeName") or r.get("roomType") or ""
-        if rt:
-            saw_type_field = True
-        if allowed_types is not None and rt and rt not in allowed_types:
-            continue
+    if booked is not None:
+        allowed_norm = ({_norm(t) for t in allowed_types} if allowed_types is not None else None)
+        for br in booked:
+            if allowed_norm is not None and _norm(br["type"]) not in allowed_norm:
+                continue
+            for d in counts:
+                if br["ci"] <= d < br["co"]:
+                    counts[d] += 1
+    else:
+        # Fallback: reservation-level counting (one booking = one room)
         try:
-            ci = pd.to_datetime(r["startDate"]).date()
-            co = pd.to_datetime(r["endDate"]).date()
-        except (KeyError, ValueError):
-            continue
-        for d in counts:
-            if ci <= d < co:
-                counts[d] += 1
-    # If we needed type filtering but reservations carry no type info,
-    # fall back to availability: occupied = total - available (allowed types only).
-    if allowed_types is not None and not saw_type_field:
-        for d in days:
+            res = reservations_overlapping(property_id, str(min(days)), str(max(days)))
+        except Exception:
+            return {d: None for d in days}
+        for r in res:
+            rt = r.get("roomTypeName") or r.get("roomType") or ""
+            if allowed_types is not None and rt and rt not in allowed_types:
+                continue
             try:
-                avail = availability_by_type(property_id, str(d))
-                open_rooms = sum(v for k, v in avail.items() if k in allowed_types)
-                counts[d] = max(total_rooms - open_rooms, 0)
-            except Exception:
-                counts[d] = None
+                ci = pd.to_datetime(r["startDate"]).date()
+                co = pd.to_datetime(r["endDate"]).date()
+            except (KeyError, ValueError):
+                continue
+            for d in counts:
+                if ci <= d < co:
+                    counts[d] += 1
     if total_rooms:  # a room can't be occupied twice; cap at total
-        counts = {d: (min(c, total_rooms) if c is not None else None) for d, c in counts.items()}
+        counts = {d: min(c, total_rooms) for d, c in counts.items()}
     return counts
 
 
