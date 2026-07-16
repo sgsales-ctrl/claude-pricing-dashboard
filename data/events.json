@@ -1,387 +1,60 @@
 {
-  "_comment": "Events merged from events_tracker.xlsx (user tracker) + MICE research. Demand mapping: High+40%+ markup=Very High, High=High, Medium-High=High, Medium=Moderate, Low-Medium=Low-Moderate, Low=Low. Low* are hidden from the events table but kept for reference. Refreshed 2026-07-14 via scheduled Claude task: added The Weeknd (Oct 2-3), Post Malone (Sep 25) and Submarine Networks World (Sep 23-24); no past events to prune.",
   "events": [
     {
-      "name": "Singapore Data Festival (SDF)",
-      "dates": "2026-07-20 to 2026-07-24",
-      "venue": "Sands Expo & Convention Centre (MBS)",
-      "attendees": "APAC business/gov/tech — likely-to-book: Partial + Overflow",
-      "demand": "Moderate",
-      "rationale": "Quays & Chinatown - short transit to MBS once 5-star fill; delegate/per-diem base | Suggested markup: 10-15% | Confirmed",
-      "best_fit": "Quays & Chinatown - short transit to MBS once 5-star fill; delegate/per-diem base",
-      "source": "https://www.pdpc.gov.sg/media-events/singapore-data-festival-2026"
+      "name": "TOKEN2049 Singapore",
+      "dates": "2026-10-07 to 2026-10-08",
+      "venue": "Marina Bay Sands (Sands Expo, all 5 floors)",
+      "attendees": "25,000+ from 160+ countries, 60% C-level, 1,000+ side events",
+      "demand": "Very High",
+      "rationale": "Large international adult business crowd staying overnight in/near CBD; historically drives citywide compression. Back-to-back with F1 weekend — Oct 5-11 is peak compression."
     },
     {
-      "name": "EXO",
-      "dates": "2026-07-24 to 2026-07-26",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Korea + SEA regional, local — likely-to-book: Direct-strong",
-      "demand": "High",
-      "rationale": "on KG / on Victoria - nearest Kallang; SOLD OUT, 2nd date added | Suggested markup: 25-35% | Confirmed",
-      "best_fit": "on KG / on Victoria - nearest Kallang; SOLD OUT, 2nd date added",
-      "source": "https://thesmartlocal.com/read/exo-singapore-concert-2026/"
-    },
-    {
-      "name": "iKON",
-      "dates": "2026-07-25 to 2026-07-25",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Korea + SEA regional — likely-to-book: Direct-partial",
-      "demand": "Moderate",
-      "rationale": "Kallang cluster - on KG/Victoria | Suggested markup: 15-20% | Confirmed",
-      "best_fit": "Kallang cluster - on KG/Victoria",
-      "source": "https://www.harpersbazaar.com.sg/lifestyle/kpop-concerts-singapore"
-    },
-    {
-      "name": "MAMAMOO (4WARD World Tour)",
-      "dates": "2026-07-31 to 2026-07-31",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Korea + SEA regional — likely-to-book: Direct-partial",
-      "demand": "Moderate",
-      "rationale": "Kallang cluster; first SG show since 2023 | Suggested markup: 15-20% | Confirmed",
-      "best_fit": "Kallang cluster; first SG show since 2023",
-      "source": "https://www.bandwagon.asia/articles/mamamoo-returns-to-singapore-this-july-here-s-how-to-get-tickets"
-    },
-    {
-      "name": "HONNE",
-      "dates": "2026-08-04 to 2026-08-06",
-      "venue": "Capitol Theatre (City Hall)",
-      "attendees": "Regional + local, bleisure — likely-to-book: Direct-partial",
-      "demand": "Low-Moderate",
-      "rationale": "on Seah / Apartments Purvis - walk to Capitol | Suggested markup: 8-12% | Confirmed",
-      "best_fit": "on Seah / Apartments Purvis - walk to Capitol",
-      "source": "https://www.timeout.com/singapore/music/upcoming-concerts-in-singapore"
-    },
-    {
-      "name": "National Day (NDP 2026)",
-      "dates": "2026-08-08 to 2026-08-09",
-      "venue": "National Stadium (Kallang)",
-      "attendees": "Domestic + regional diaspora — likely-to-book: Direct-partial",
-      "demand": "High",
-      "rationale": "Kallang venue (moved from Padang); City Hall for heartland/Marina | Suggested markup: 15-20% | Confirmed",
-      "best_fit": "Kallang venue (moved from Padang); City Hall for heartland/Marina",
-      "source": "https://www.ndp.gov.sg/"
-    },
-    {
-      "name": "F4 'FOREVER'",
-      "dates": "2026-08-14 to 2026-08-16",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Greater China + SEA Chinese, local — likely-to-book: Direct-partial + Overflow",
-      "demand": "High",
-      "rationale": "Kallang for venue; Chinatown for Mandopop/Chinese-speaking fans | Suggested markup: 15-25% | Confirmed",
-      "best_fit": "Kallang for venue; Chinatown for Mandopop/Chinese-speaking fans",
-      "source": "https://www.harpersbazaar.com.sg/lifestyle/upcoming-concerts-and-music-festivals-singapore-dates-and-tickets"
-    },
-    {
-      "name": "Singapore Night Festival",
-      "dates": "2026-08-21 to 2026-09-05",
-      "venue": "Bras Basah.Bugis (City Hall)",
-      "attendees": "Domestic + day-visitors — likely-to-book: Unlikely (day-visitor)",
-      "demand": "Low",
-      "rationale": "on Seah / Purvis sit in the precinct - ambience, not overnight driver | Suggested markup: 0-5% | Confirmed",
-      "best_fit": "on Seah / Purvis sit in the precinct - ambience, not overnight driver",
-      "source": "https://www.nhb.gov.sg/nationalmuseum/whats-on/programme/singapore-night-festival/events"
-    },
-    {
-      "name": "The Business Show Asia",
-      "dates": "2026-08-26 to 2026-08-27",
-      "venue": "Marina Bay Sands",
-      "attendees": "8,000+ SME decision-makers, regional adults",
-      "demand": "Moderate",
-      "rationale": "SME crowd is price-conscious - good fit for 3.5-star CBD shophouse near MBS. Check materialization vs past business shows."
-    },
-    {
-      "name": "Seafood Expo Asia",
-      "dates": "2026-09-02 to 2026-09-04",
-      "venue": "Marina Bay Sands",
-      "attendees": "International suppliers/buyers, adult trade",
-      "demand": "Moderate",
-      "rationale": "International trade adults staying multiple nights; mid-tier accommodation typical for exhibitor staff."
-    },
-    {
-      "name": "Medical Fair Asia + Medical Manufacturing Asia + OS+H Asia (co-located)",
-      "dates": "2026-09-09 to 2026-09-11",
-      "venue": "Marina Bay Sands",
-      "attendees": "Asia's largest medical equipment show; tens of thousands, international trade adults",
-      "demand": "High",
-      "rationale": "Large co-located trade cluster = strong overnight demand across price tiers near CBD. Historically materializes. Hold rates high; only cut if own occupancy lags <85% inside 7 days."
-    },
-    {
-      "name": "Firdhaus 'Flat Earth Theory'",
-      "dates": "2026-09-12 to 2026-09-12",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Local + Malay/regional — likely-to-book: Unlikely",
-      "demand": "Low",
-      "rationale": "slight KG affinity; mostly local same-day | Suggested markup: 0-8% | Confirmed",
-      "best_fit": "slight KG affinity; mostly local same-day",
-      "source": "https://www.thekallang.com.sg/calendar?page=1"
-    },
-    {
-      "name": "Kit Chan Atrium Live Tour",
-      "dates": "2026-09-19 to 2026-09-19",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Local + some regional Chinese — likely-to-book: Unlikely / Overflow",
-      "demand": "Low",
-      "rationale": "mostly local; minor Chinatown spillover | Suggested markup: 0-8% | Confirmed",
-      "best_fit": "mostly local; minor Chinatown spillover",
-      "source": "https://www.thekallang.com.sg/calendar?page=1"
-    },
-    {
-      "name": "MRO Asia Pacific",
-      "dates": "2026-09-22 to 2026-09-24",
-      "venue": "Singapore Expo (Changi)",
-      "attendees": "Aviation trade, international adults",
-      "demand": "Low",
-      "rationale": "Venue is far east side - attendees cluster near Changi/Expo, weak driver for CBD shophouse stock."
-    },
-    {
-      "name": "Submarine Networks World 2026",
-      "dates": "2026-09-23 to 2026-09-24",
-      "venue": "Sands Expo & Convention Centre (MBS)",
-      "attendees": "3,000+ international subsea/telecom executives, overnight business adults",
-      "demand": "Moderate",
-      "rationale": "CBD/MBS overflow - Quays & Chinatown short transit; premium delegate/per-diem base. Part of a late-Sep business cluster with MRO Asia Pacific. | Suggested markup: 10-15% | Confirmed (added 2026-07-14)",
-      "best_fit": "Quays & Chinatown - short transit to MBS",
-      "source": "https://www.submarinenetworksworld.com/"
-    },
-    {
-      "name": "Mid-Autumn Festival",
-      "dates": "2026-09-25 to 2026-09-25",
-      "venue": "Chinatown (islandwide)",
-      "attendees": "Domestic + Greater China — likely-to-book: Overflow (day)",
-      "demand": "Low-Moderate",
-      "rationale": "on Pagoda / on Chinatown - lantern precinct footfall | Suggested markup: 5-10% | Confirmed",
-      "best_fit": "on Pagoda / on Chinatown - lantern precinct footfall",
-      "source": "https://publicholidays.sg/mid-autumn-festival/"
-    },
-    {
-      "name": "Post Malone - The BIG ASS Stadium World Tour",
-      "dates": "2026-09-25 to 2026-09-25",
-      "venue": "National Stadium (Kallang)",
-      "attendees": "Global + SEA regional, adults — single-night stadium, guest Don Toliver",
-      "demand": "High",
-      "rationale": "Kallang properties (on KG / on Victoria); Chinatown overflow. Big international act pulling regional overnight fans; coincides with Mid-Autumn footfall. | Suggested markup: 15-25% | Confirmed (added 2026-07-14)",
-      "best_fit": "on KG / on Victoria nearest Kallang; Chinatown overflow",
-      "source": "https://www.livenation.sg/event/post-malone-presents-the-big-ass-stadium-world-tour-singapore-tickets-edp1660667"
-    },
-    {
-      "name": "SuperReturn Asia",
-      "dates": "2026-09-28 to 2026-10-01",
-      "venue": "Marina Bay Sands",
-      "attendees": "Global HNW/finance — likely-to-book: Overflow-unlikely",
-      "demand": "Low",
-      "rationale": "premium delegates book 4-5-star/corporate; late-Sep compression starts | Suggested markup: 5-10% | Confirmed",
-      "best_fit": "premium delegates book 4-5-star/corporate; late-Sep compression starts",
-      "source": "https://www.clocate.com/superreturn-asia/14807/"
-    },
-    {
-      "name": "The Weeknd - After Hours Til Dawn Tour",
-      "dates": "2026-10-02 to 2026-10-03",
-      "venue": "National Stadium (Kallang)",
-      "attendees": "Global + SEA regional, adults — two nights, his biggest SG shows to date, guest Creepy Nuts",
-      "demand": "High",
-      "rationale": "Kallang properties (on KG / on Victoria); citywide overflow into Chinatown/City Hall. Two sold-heavy nights that kick off an early-Oct compression run (ITZY 3 Oct, TOKEN2049 5-11 Oct, F1 9-11 Oct) - apply min-stays. | Suggested markup: 20-30% | Confirmed (added 2026-07-14)",
-      "best_fit": "on KG / on Victoria nearest Kallang; citywide overflow ahead of F1 week",
-      "source": "https://www.livenation.sg/event/the-weeknd-after-hours-til-dawn-tour-singapore-tickets-edp1672025"
-    },
-    {
-      "name": "ITZY",
-      "dates": "2026-10-03 to 2026-10-03",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Korea + SEA regional — likely-to-book: Direct-partial",
-      "demand": "Moderate",
-      "rationale": "Kallang cluster; coincides with The Weeknd night 2 - combined Kallang compression | Suggested markup: 12-18% | Confirmed",
-      "best_fit": "Kallang cluster",
-      "source": "https://www.songkick.com/metro-areas/32258-singapore-singapore"
-    },
-    {
-      "name": "TOKEN2049",
-      "dates": "2026-10-05 to 2026-10-11",
-      "venue": "Marina Bay Sands",
-      "attendees": "Global + Asia crypto — likely-to-book: Partial + Overflow",
-      "demand": "High",
-      "rationale": "Quays & Chinatown - CBD/MBS overflow; startup/per-diem base books midscale | Suggested markup: 20-30% | Confirmed",
-      "best_fit": "Quays & Chinatown - CBD/MBS overflow; startup/per-diem base books midscale",
-      "source": "https://www.token2049.com/singapore"
-    },
-    {
-      "name": "F1 Singapore GP (1st-ever Sprint)",
+      "name": "F1 Singapore Grand Prix (+ Grand Prix Season Singapore)",
       "dates": "2026-10-09 to 2026-10-11",
-      "venue": "Marina Bay Street Circuit",
-      "attendees": "Global + regional affluent — likely-to-book: Partial + Overflow",
+      "venue": "Marina Bay Street Circuit (GPSS festivities citywide 2026-10-02 to 2026-10-11)",
+      "attendees": "~270,000 over race weekend; heavy international fly-in. Concerts: Lana Del Rey, The Killers, Janet Jackson, Post Malone-adjacent lineup across 10 stages",
       "demand": "Very High",
-      "rationale": "Quays/River Valley & City Hall - walk to circuit; Sprint = fuller Fri, longer stays | Suggested markup: 40-70% (min-stay) | Confirmed",
-      "best_fit": "Quays/River Valley & City Hall - walk to circuit; Sprint = fuller Fri, longer stays",
-      "source": "https://www.formula1.com/en/racing/2026/singapore"
+      "rationale": "Proven annual compression event for CBD/Quays properties; international adults, multi-night stays. First-ever Sprint format may lift attendance further."
     },
     {
-      "name": "BIGBANG (20/26 World Tour)",
-      "dates": "2026-10-17 to 2026-10-17",
-      "venue": "National Stadium (Kallang)",
-      "attendees": "Korea + SEA regional — likely-to-book: Direct-partial",
+      "name": "Singapore International Energy Week (SIEW)",
+      "dates": "2026-10-26 to 2026-10-30",
+      "venue": "Marina Bay Sands - Sands Expo",
+      "attendees": "~13,000 energy-sector delegates, largely international",
       "demand": "High",
-      "rationale": "Kallang properties; overflow Chinatown | Suggested markup: 20-30% | Confirmed",
-      "best_fit": "Kallang properties; overflow Chinatown",
-      "source": "https://www.jambase.com/show/bigbang-%EB%B9%85%EB%B1%85-singapore-national-stadium-20261017"
+      "rationale": "Week-long international professional conference; delegates are adult business travelers staying multiple nights near CBD."
     },
     {
-      "name": "ITB Asia",
-      "dates": "2026-10-21 to 2026-10-23",
+      "name": "BEX Asia (Built Environment Week)",
+      "dates": "2026-09-02 to 2026-09-04",
       "venue": "Sands Expo & Convention Centre",
-      "attendees": "Global travel trade — likely-to-book: Partial + Overflow",
-      "demand": "High",
-      "rationale": "Quays & Chinatown - CBD/MBS overflow | Suggested markup: 15-25% | Confirmed",
-      "best_fit": "Quays & Chinatown - CBD/MBS overflow",
-      "source": "https://www.itb-asia.com/"
-    },
-    {
-      "name": "LANY (Soft 2 Tour)",
-      "dates": "2026-11-04 to 2026-11-04",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Regional + local, bleisure — likely-to-book: Direct-partial",
+      "attendees": "~10,000+ regional trade visitors",
       "demand": "Moderate",
-      "rationale": "Kallang cluster | Suggested markup: 10-15% | Confirmed",
-      "best_fit": "Kallang cluster",
-      "source": "https://www.timeout.com/singapore/music/upcoming-concerts-in-singapore"
+      "rationale": "Regional trade show; meaningful share of overnight ASEAN business visitors, but many day-attendees from Malaysia/local firms."
     },
     {
-      "name": "Deepavali",
-      "dates": "2026-11-08 to 2026-11-09",
-      "venue": "Little India (islandwide PH)",
-      "attendees": "Domestic + India diaspora — likely-to-book: Overflow",
-      "demand": "Low",
-      "rationale": "minor; not our clusters; long-weekend leisure lift | Suggested markup: 5-10% | Confirmed",
-      "best_fit": "minor; not our clusters; long-weekend leisure lift",
-      "source": "https://publicholidays.sg/deepavali/"
-    },
-    {
-      "name": "Singapore FinTech Festival (SFF)",
-      "dates": "2026-11-18 to 2026-11-20",
-      "venue": "Singapore EXPO",
-      "attendees": "Global + Asia fintech — likely-to-book: Partial + Overflow",
-      "demand": "High",
-      "rationale": "volume play; midscale books; not proximity-driven | Suggested markup: 15-25% | Confirmed",
-      "best_fit": "volume play; midscale books; not proximity-driven",
-      "source": "https://www.fintechfestival.sg/"
-    },
-    {
-      "name": "BTS World Tour 'ARIRANG'",
-      "dates": "2026-12-17 to 2026-12-22",
-      "venue": "National Stadium (Kallang)",
-      "attendees": "Global ARMY + all-Asia — likely-to-book: Direct-strong + Overflow (citywide)",
-      "demand": "Very High",
-      "rationale": "on KG / on Victoria nearest Kallang; citywide overflow - apply min-stays across all properties | Suggested markup: 50-90% (min-stay) | Confirmed",
-      "best_fit": "on KG / on Victoria nearest Kallang; citywide overflow - apply min-stays across all properties",
-      "source": "https://www.livenation.sg/event/bts-world-tour-arirang-in-singapore-singapore-tickets-edp1675139"
-    },
-    {
-      "name": "Jay Chou 'Carnival II'",
-      "dates": "2027-01-08 to 2027-01-10",
-      "venue": "National Stadium (Kallang)",
-      "attendees": "Greater China + SEA Chinese — likely-to-book: Direct-strong + Overflow",
-      "demand": "High",
-      "rationale": "Kallang venue; Chinatown for Mandopop/China visitors; tour opener = premium demand | Suggested markup: 30-50% | Confirmed",
-      "best_fit": "Kallang venue; Chinatown for Mandopop/China visitors; tour opener = premium demand",
-      "source": "https://ticketmaster.sg/activity/detail/27sg_jaychou"
-    },
-    {
-      "name": "BoyNextDoor",
-      "dates": "2027-01-23 to 2027-01-23",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Korea + SEA regional — likely-to-book: Direct-partial",
+      "name": "BIGBANG 20th Anniversary World Tour",
+      "dates": "2026-09-11 to 2026-09-11",
+      "venue": "National Stadium",
+      "attendees": "~50,000; strong regional fly-in fanbase (first tour since 2017)",
       "demand": "Moderate",
-      "rationale": "Kallang cluster | Suggested markup: 12-18% | Confirmed",
-      "best_fit": "Kallang cluster",
-      "source": "https://www.harpersbazaar.com.sg/lifestyle/kpop-concerts-singapore"
+      "rationale": "Major K-pop reunion draws regional adult fans staying 1-2 nights; venue is Kallang not CBD, but citywide occupancy typically lifts. Similar past stadium K-pop shows produced solid one-night compression."
     },
     {
-      "name": "Chinese New Year 2027",
-      "dates": "2027-02-06 to 2027-02-07",
-      "venue": "Chinatown (islandwide)",
-      "attendees": "Greater China + SEA Chinese diaspora — likely-to-book: Direct-strong",
-      "demand": "High",
-      "rationale": "on Pagoda / on Chinatown / on Smith - CNY epicentre, bazaar & light-up; min-stays | Suggested markup: 30-50% (min-stay) | Confirmed",
-      "best_fit": "on Pagoda / on Chinatown / on Smith - CNY epicentre, bazaar & light-up; min-stays",
-      "source": "https://publicholidays.sg/chinese-new-year/"
-    },
-    {
-      "name": "Stray Kids 'RUN IT' World Tour",
-      "dates": "2027-03-06 to 2027-03-07",
-      "venue": "Singapore Indoor Stadium (Kallang)",
-      "attendees": "Korea + SEA regional — likely-to-book: Direct-partial",
-      "demand": "High",
-      "rationale": "Kallang cluster, 2 nights | Suggested markup: 15-25% | Confirmed",
-      "best_fit": "Kallang cluster, 2 nights",
-      "source": "https://www.bandwagon.asia/articles/stray-kids-to-hit-singapore-bangkok-hong-kong-tokyo-seoul-more-as-part-of-run-it-world-tour"
-    },
-    {
-      "name": "Hari Raya Puasa 2027",
-      "dates": "2027-03-10 to 2027-03-10",
-      "venue": "Kampong Glam / Geylang Serai",
-      "attendees": "Domestic Malay-Muslim + MY/ID regional — likely-to-book: Direct-partial",
+      "name": "Post Malone - Big Ass World Tour",
+      "dates": "2026-09-25 to 2026-09-25",
+      "venue": "National Stadium",
+      "attendees": "~45,000; mix of local and regional fans",
       "demand": "Moderate",
-      "rationale": "on Arab / on Victoria / on KG - Ramadan bazaar, Sultan Mosque, Hari Raya shopping | Suggested markup: 10-20% | Confirmed",
-      "best_fit": "on Arab / on Victoria / on KG - Ramadan bazaar, Sultan Mosque, Hari Raya shopping",
-      "source": "https://publicholidays.sg/"
+      "rationale": "Stadium-scale international act on a Friday night; adult-skewing audience with partial regional fly-in and one-night stays."
     },
     {
-      "name": "ENHYPEN",
-      "dates": "2027-03-14 to 2027-03-14",
-      "venue": "National Stadium (Kallang)",
-      "attendees": "Korea + SEA regional — likely-to-book: Direct-partial",
-      "demand": "High",
-      "rationale": "Kallang properties; overflow. VERIFY on Ticketmaster SG (on-sale ~15 Jul 2026) | Suggested markup: 15-25% | Tentative",
-      "best_fit": "Kallang properties; overflow. VERIFY on Ticketmaster SG (on-sale ~15 Jul 2026)",
-      "source": "https://ticketmaster.sg/activity/detail/25sg_enhypen"
-    },
-    {
-      "name": "The Kid LAROI",
-      "dates": "TBC — late Jul 2026 (TBC)",
-      "venue": "TBC",
-      "attendees": "Regional + local — likely-to-book: Direct-partial",
-      "demand": "Low-Moderate",
-      "rationale": "depends on venue; verify date/venue | Suggested markup: 8-12% | Tentative",
-      "best_fit": "depends on venue; verify date/venue",
-      "source": "https://www.harpersbazaar.com.sg/lifestyle/upcoming-concerts-and-music-festivals-singapore-dates-and-tickets"
-    },
-    {
-      "name": "&Team (SG debut)",
-      "dates": "TBC — Aug 2026 (TBC)",
-      "venue": "TBC (likely Indoor Stadium)",
-      "attendees": "Japan/Korea + regional — likely-to-book: Direct-partial",
+      "name": "Submarine Networks World",
+      "dates": "2026-09-23 to 2026-09-24",
+      "venue": "Sands Expo and Convention Centre",
+      "attendees": "~1,000 international telecom executives",
       "demand": "Moderate",
-      "rationale": "Kallang if Indoor Stadium; verify date/venue | Suggested markup: 10-15% | Tentative",
-      "best_fit": "Kallang if Indoor Stadium; verify date/venue",
-      "source": "https://www.harpersbazaar.com.sg/lifestyle/kpop-concerts-singapore"
-    },
-    {
-      "name": "Legally Blonde The Musical",
-      "dates": "TBC — 2026 run (TBC)",
-      "venue": "Sands Theatre / MBS (TBC)",
-      "attendees": "Local + regional leisure — likely-to-book: Unlikely",
-      "demand": "Low",
-      "rationale": "mostly local/day; long run - low overnight | Suggested markup: 0-8% | Tentative",
-      "best_fit": "mostly local/day; long run - low overnight",
-      "source": "https://thesmartlocal.com/read/upcoming-concerts-in-singapore/"
-    },
-    {
-      "name": "Novelbright",
-      "dates": "TBC — 2026 (TBC)",
-      "venue": "TBC (small venue)",
-      "attendees": "Japan + regional — likely-to-book: Unlikely",
-      "demand": "Low",
-      "rationale": "small venue; niche | Suggested markup: 0-8% | Tentative",
-      "best_fit": "small venue; niche",
-      "source": "https://www.harpersbazaar.com.sg/lifestyle/upcoming-concerts-and-music-festivals-singapore-dates-and-tickets"
-    },
-    {
-      "name": "Mika Nakashima",
-      "dates": "TBC — 2026 (TBC)",
-      "venue": "TBC (small venue)",
-      "attendees": "Japan + regional — likely-to-book: Unlikely",
-      "demand": "Low",
-      "rationale": "small venue; niche | Suggested markup: 0-8% | Tentative",
-      "best_fit": "small venue; niche",
-      "source": "https://www.harpersbazaar.com.sg/lifestyle/upcoming-concerts-and-music-festivals-singapore-dates-and-tickets"
+      "rationale": "Small but nearly 100% international overnight delegates; niche uplift for CBD boutique properties, overlaps Post Malone week."
     }
   ]
 }
