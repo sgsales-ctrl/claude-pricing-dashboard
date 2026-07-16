@@ -511,7 +511,8 @@ if view == "Portfolio overview":
             "Sold": f"{o0}/{tot}" if (o0 is not None and tot) else "n/a",
             "Vacant tonight": (tot - o0) if (o0 is not None and tot) else None,
             "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
-            "Posture": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
+            "Posture (tonight)": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
+            "Posture (next 7d)": ("Discount" if avg7 < OCC_TARGET else "Hold/Lift") if avg7 is not None else "n/a",
             "Sector": p_sector,
             "_sort": pct if pct is not None else 2,
         })
@@ -523,8 +524,8 @@ if view == "Portfolio overview":
               f"{port_sold / port_total:.0%}" if port_total else "n/a",
               f"{port_sold}/{port_total} sold")
     m2.metric("Vacant rooms tonight", port_total - port_sold if port_total else "n/a")
-    below_n = sum(1 for r in ov_rows if r["Posture"] == "Discount")
-    m3.metric("Properties under 80%", f"{below_n}/{len(ov_rows)}")
+    below_n = sum(1 for r in ov_rows if r["Posture (tonight)"] == "Discount")
+    m3.metric("Properties under 80% tonight", f"{below_n}/{len(ov_rows)}")
 
     ov_rows.sort(key=lambda r: r["_sort"])  # weakest occupancy first
     ov_df = pd.DataFrame(ov_rows).drop(columns=["_sort"])
@@ -532,7 +533,8 @@ if view == "Portfolio overview":
     if CLOSED_PROPERTIES:
         st.caption("Excluded: " + "; ".join(
             f"{k.replace('Heritage Collection on ', '')} ({v})" for k, v in CLOSED_PROPERTIES.items()))
-    st.caption("Sorted weakest-occupancy first. Posture: Discount below 80% tonight, Hold/Lift at/above. "
+    st.caption("Sorted weakest-occupancy first. Posture (tonight) uses tonight's occupancy; "
+               "Posture (next 7d) uses the 7-day average — Discount below 80%, Hold/Lift at/above. "
                "Switch to Property detail (sidebar) for room-level price recommendations.")
     st.stop()
 
