@@ -446,6 +446,87 @@ if not properties:
     st.stop()
 
 st.sidebar.header("Filters")
+view = st.sidebar.radio("View", ["Portfolio overview", "Property detail"])
+
+if view == "Portfolio overview":
+    st.subheader("Portfolio overview")
+    tonight = date.today()
+    horizon = [tonight + timedelta(days=i) for i in range(8)]
+
+    # Upcoming high-demand events (next 3 weeks)
+    upcoming = []
+    for ev in EVENTS:
+        if str(ev.get("demand")) not in ("High", "Very High"):
+            continue
+        m = re.match(r"(\d{4}-\d{2}-\d{2})", str(ev.get("dates", "")))
+        if m:
+            start = date.fromisoformat(m.group(1))
+            if tonight <= start <= tonight + timedelta(days=21):
+                upcoming.append(f"{ev['name']} ({ev['dates']}, {ev['demand']})")
+    if upcoming:
+        st.info("Upcoming high-demand events (3 weeks): " + " • ".join(upcoming[:4]))
+
+    ov_rows, port_sold, port_total = [], 0, 0
+    progress = st.progress(0.0, text="Loading properties…")
+    plist = list(properties.items())
+    for i, (pname, pid) in enumerate(plist):
+        nf = next((v for k, v in ROOM_NAME_FILTERS.items()
+                   if k.casefold() == pname.casefold()), None)
+        try:
+            rd = get_rooms(pid)
+        except Exception:
+            rd = []
+        if nf:
+            key = _norm(nf)
+            rd = [r for r in rd
+                  if key in _norm(r.get("roomName", "")) or key in _norm(r.get("roomTypeName", ""))]
+        tot = len(rd)
+        at = (frozenset(str(r.get("roomTypeName")) for r in rd if r.get("roomTypeName"))
+              if nf else None)
+        rk = (frozenset(list({str(r.get("roomID") or "") for r in rd} - {""}) +
+                        [_norm(r.get("roomName", "")) for r in rd if r.get("roomName")])
+              if nf else None)
+        try:
+            occ = occupancy_for_dates(pid, horizon, tot, at, rk)
+        except Exception:
+            occ = {}
+        o0 = occ.get(tonight)
+        pct = (o0 / tot) if (tot and o0 is not None) else None
+        week_counts = [occ[d] for d in horizon if occ.get(d) is not None]
+        avg7 = (sum(week_counts) / (len(week_counts) * tot)) if (tot and week_counts) else None
+        if o0 is not None and tot:
+            port_sold += o0
+            port_total += tot
+        p_sector = next((s for s, v in COMPETITORS.items()
+                         if isinstance(v, dict) and pname in v.get("hc_properties", [])), "—")
+        ov_rows.append({
+            "Property": pname.replace("Heritage Collection on ", ""),
+            "Tonight": f"{pct:.0%}" if pct is not None else "n/a",
+            "Sold": f"{o0}/{tot}" if (o0 is not None and tot) else "n/a",
+            "Vacant tonight": (tot - o0) if (o0 is not None and tot) else None,
+            "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
+            "Posture": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
+            "Sector": p_sector,
+            "_sort": pct if pct is not None else 2,
+        })
+        progress.progress((i + 1) / len(plist), text=f"Loading properties… {pname}")
+    progress.empty()
+
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Portfolio occupancy tonight",
+              f"{port_sold / port_total:.0%}" if port_total else "n/a",
+              f"{port_sold}/{port_total} sold")
+    m2.metric("Vacant rooms tonight", port_total - port_sold if port_total else "n/a")
+    below_n = sum(1 for r in ov_rows if r["Posture"] == "Discount")
+    m3.metric("Properties under 80%", f"{below_n}/{len(ov_rows)}")
+
+    ov_rows.sort(key=lambda r: r["_sort"])  # weakest occupancy first
+    ov_df = pd.DataFrame(ov_rows).drop(columns=["_sort"])
+    st.dataframe(ov_df, use_container_width=True, hide_index=True)
+    st.caption("Sorted weakest-occupancy first. Posture: Discount below 80% tonight, Hold/Lift at/above. "
+               "Switch to Property detail (sidebar) for room-level price recommendations.")
+    st.stop()
+
 property_name = st.sidebar.selectbox("Property", list(properties.keys()))
 property_id = properties[property_name]
 start_date = st.sidebar.date_input("Window start", date.today())
