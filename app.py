@@ -27,6 +27,11 @@ ROOM_NAME_FILTERS = {
     "Heritage Collection on Clarke Quay": "clarke quay",
 }
 
+# Properties temporarily excluded from the portfolio overview (e.g. closed for works)
+CLOSED_PROPERTIES = {
+    "Heritage Collection on Smith": "closed for refurbishment",
+}
+
 
 def _norm(s) -> str:
     """Normalize names for matching: lowercase, alphanumerics only."""
@@ -468,7 +473,8 @@ if view == "Portfolio overview":
 
     ov_rows, port_sold, port_total = [], 0, 0
     progress = st.progress(0.0, text="Loading properties…")
-    plist = list(properties.items())
+    plist = [(p, i) for p, i in properties.items()
+             if not any(c.casefold() == p.casefold() for c in CLOSED_PROPERTIES)]
     for i, (pname, pid) in enumerate(plist):
         nf = next((v for k, v in ROOM_NAME_FILTERS.items()
                    if k.casefold() == pname.casefold()), None)
@@ -523,6 +529,9 @@ if view == "Portfolio overview":
     ov_rows.sort(key=lambda r: r["_sort"])  # weakest occupancy first
     ov_df = pd.DataFrame(ov_rows).drop(columns=["_sort"])
     st.dataframe(ov_df, use_container_width=True, hide_index=True)
+    if CLOSED_PROPERTIES:
+        st.caption("Excluded: " + "; ".join(
+            f"{k.replace('Heritage Collection on ', '')} ({v})" for k, v in CLOSED_PROPERTIES.items()))
     st.caption("Sorted weakest-occupancy first. Posture: Discount below 80% tonight, Hold/Lift at/above. "
                "Switch to Property detail (sidebar) for room-level price recommendations.")
     st.stop()
