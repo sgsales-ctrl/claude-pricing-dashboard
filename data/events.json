@@ -3,58 +3,66 @@
     {
       "name": "TOKEN2049 Singapore",
       "dates": "2026-10-07 to 2026-10-08",
-      "venue": "Marina Bay Sands (Sands Expo, all 5 floors)",
-      "attendees": "25,000+ from 160+ countries, 60% C-level, 1,000+ side events",
+      "venue": "Marina Bay Sands",
+      "attendees": "25,000+ international crypto/finance professionals",
       "demand": "Very High",
-      "rationale": "Large international adult business crowd staying overnight in/near CBD; historically drives citywide compression. Back-to-back with F1 weekend — Oct 5-11 is peak compression."
+      "rationale": "Overwhelmingly international adult delegates staying multiple nights; takes over all five floors of MBS. Past editions (2024, 2025) drove city-wide compression in CBD. Back-to-back with F1 weekend creates a 5-day compression window Oct 7-11."
     },
     {
-      "name": "F1 Singapore Grand Prix (+ Grand Prix Season Singapore)",
+      "name": "Formula 1 Singapore Grand Prix",
       "dates": "2026-10-09 to 2026-10-11",
-      "venue": "Marina Bay Street Circuit (GPSS festivities citywide 2026-10-02 to 2026-10-11)",
-      "attendees": "~270,000 over race weekend; heavy international fly-in. Concerts: Lana Del Rey, The Killers, Janet Jackson, Post Malone-adjacent lineup across 10 stages",
+      "venue": "Marina Bay Street Circuit",
+      "attendees": "250,000+ over 3 days, large international share",
       "demand": "Very High",
-      "rationale": "Proven annual compression event for CBD/Quays properties; international adults, multi-night stays. First-ever Sprint format may lift attendance further."
+      "rationale": "Strongest annual compression event for CBD/Quays properties; consistently materializes into sell-outs and peak ADR. Concert lineup (Lana Del Rey, The Killers, Janet Jackson, JJ Lin) adds regional overnight fans. Hold rates aggressively."
+    },
+    {
+      "name": "The Weeknd - After Hours Til Dawn Tour (2 nights)",
+      "dates": "2026-10-02 to 2026-10-03",
+      "venue": "National Stadium",
+      "attendees": "~50,000/night, significant regional fly-in",
+      "demand": "High",
+      "rationale": "Two-night stadium run; past mega stadium concerts (Taylor Swift 2024, Coldplay 2024) materialized into strong citywide occupancy from regional adult fans staying overnight. Adults-only positioning fits fan demographic."
+    },
+    {
+      "name": "BIGBANG 20th Anniversary Concert",
+      "dates": "2026-09-11 to 2026-09-11",
+      "venue": "National Stadium",
+      "attendees": "~50,000, strong regional K-pop fly-in",
+      "demand": "High",
+      "rationale": "First tour since 2017; reunion scarcity drives regional adult fans (now 25-40 demographic) to fly in and stay overnight. K-pop stadium shows have historically lifted weekend occupancy."
+    },
+    {
+      "name": "Post Malone Big Ass World Tour / Stray Kids weekend",
+      "dates": "2026-09-25 to 2026-09-26",
+      "venue": "National Stadium / Kallang precinct",
+      "attendees": "50,000+ across the weekend",
+      "demand": "High",
+      "rationale": "Stadium-scale acts reported for the same late-September weekend; concentrated regional fly-in of adult concertgoers staying 1-2 nights near CBD."
     },
     {
       "name": "Singapore International Energy Week (SIEW)",
       "dates": "2026-10-26 to 2026-10-30",
       "venue": "Marina Bay Sands - Sands Expo",
-      "attendees": "~13,000 energy-sector delegates, largely international",
-      "demand": "High",
-      "rationale": "Week-long international professional conference; delegates are adult business travelers staying multiple nights near CBD."
+      "attendees": "~13,000 energy professionals, ministers, delegates",
+      "demand": "Moderate",
+      "rationale": "Week-long international delegate event; senior delegates book 4-5 star, but overflow of mid-tier corporate attendees benefits 3.5-star CBD aparthotels on weeknights. Sizeable regional day-visitor share caps upside."
     },
     {
       "name": "BEX Asia (Built Environment Week)",
       "dates": "2026-09-02 to 2026-09-04",
-      "venue": "Sands Expo & Convention Centre",
-      "attendees": "~10,000+ regional trade visitors",
+      "venue": "Marina Bay Sands - Sands Expo",
+      "attendees": "~12,000 trade visitors, regional",
       "demand": "Moderate",
-      "rationale": "Regional trade show; meaningful share of overnight ASEAN business visitors, but many day-attendees from Malaysia/local firms."
-    },
-    {
-      "name": "BIGBANG 20th Anniversary World Tour",
-      "dates": "2026-09-11 to 2026-09-11",
-      "venue": "National Stadium",
-      "attendees": "~50,000; strong regional fly-in fanbase (first tour since 2017)",
-      "demand": "Moderate",
-      "rationale": "Major K-pop reunion draws regional adult fans staying 1-2 nights; venue is Kallang not CBD, but citywide occupancy typically lifts. Similar past stadium K-pop shows produced solid one-night compression."
-    },
-    {
-      "name": "Post Malone - Big Ass World Tour",
-      "dates": "2026-09-25 to 2026-09-25",
-      "venue": "National Stadium",
-      "attendees": "~45,000; mix of local and regional fans",
-      "demand": "Moderate",
-      "rationale": "Stadium-scale international act on a Friday night; adult-skewing audience with partial regional fly-in and one-night stays."
+      "rationale": "Regional trade show with meaningful Malaysian/Indonesian overnight visitor share, but many local day attendees. Modest midweek corporate lift for CBD properties."
     },
     {
       "name": "Submarine Networks World",
       "dates": "2026-09-23 to 2026-09-24",
-      "venue": "Sands Expo and Convention Centre",
-      "attendees": "~1,000 international telecom executives",
+      "venue": "Marina Bay Sands - Sands Expo",
+      "attendees": "~1,000 international delegates",
       "demand": "Moderate",
-      "rationale": "Small but nearly 100% international overnight delegates; niche uplift for CBD boutique properties, overlaps Post Malone week."
+      "rationale": "Small but almost entirely international overnight delegates; adjacent to the Sept 25-26 stadium concert weekend, compounding midweek-to-weekend demand."
     }
   ]
 }
