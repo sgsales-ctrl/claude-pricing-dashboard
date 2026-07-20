@@ -483,7 +483,6 @@ if view == "Portfolio overview":
             "Vacant tonight": (tot - o0) if (o0 is not None and tot) else None,
             "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
             "Posture (tonight)": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
-            "Posture (next 7d)": ("Discount" if avg7 < OCC_TARGET else "Hold/Lift") if avg7 is not None else "n/a",
             "Sector": p_sector,
             "_sort": pct if pct is not None else 2,
         })
@@ -504,8 +503,7 @@ if view == "Portfolio overview":
     if CLOSED_PROPERTIES:
         st.caption("Excluded: " + "; ".join(
             f"{k.replace('Heritage Collection on ', '')} ({v})" for k, v in CLOSED_PROPERTIES.items()))
-    st.caption("Sorted weakest-occupancy first. Posture (tonight) uses tonight's occupancy; "
-               "Posture (next 7d) uses the 7-day average — Discount below 80%, Hold/Lift at/above. "
+    st.caption("Sorted weakest-occupancy first. Posture (tonight): Discount below 80% tonight, Hold/Lift at/above. "
                "Switch to Property detail (sidebar) for room-level price recommendations.")
     st.stop()
 
