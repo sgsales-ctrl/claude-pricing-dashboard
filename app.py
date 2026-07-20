@@ -32,10 +32,27 @@ CLOSED_PROPERTIES = {
     "Heritage Collection on Smith": "closed for refurbishment",
 }
 
+# Individual rooms excluded from all calculations (e.g. out of service)
+EXCLUDED_ROOMS = {
+    "Heritage Collection on Arab": ["AR204"],
+    "Heritage Collection on Chinatown": ["CN106"],
+    "Heritage Collection on Boat Quay (Quayside Wing)": ["BQQ218"],
+}
+
 
 def _norm(s) -> str:
     """Normalize names for matching: lowercase, alphanumerics only."""
     return re.sub(r"[^a-z0-9]", "", str(s).casefold())
+
+
+def apply_room_exclusions(pname: str, rooms: list) -> list:
+    """Drop individually excluded rooms (e.g. out of service) for a property."""
+    exc = next((v for k, v in EXCLUDED_ROOMS.items() if k.casefold() == pname.casefold()), None)
+    if not exc:
+        return rooms
+    keys = [_norm(x) for x in exc if _norm(x)]
+    return [r for r in rooms
+            if not any(k in _norm(r.get("roomName", "")) for k in keys)]
 
 
 def build_type_mapping(guide_names: list, cb_names: list) -> dict:
@@ -439,6 +456,7 @@ if view == "Portfolio overview":
             key = _norm(nf)
             rd = [r for r in rd
                   if key in _norm(r.get("roomName", "")) or key in _norm(r.get("roomTypeName", ""))]
+        rd = apply_room_exclusions(pname, rd)
         tot = len(rd)
         at = (frozenset(str(r.get("roomTypeName")) for r in rd if r.get("roomTypeName"))
               if nf else None)
@@ -518,6 +536,7 @@ if name_filter:
     key = _norm(name_filter)
     rooms_data = [r for r in rooms_data
                   if key in _norm(r.get("roomName", "")) or key in _norm(r.get("roomTypeName", ""))]
+rooms_data = apply_room_exclusions(property_name, rooms_data)
 total_rooms = len(rooms_data)
 allowed_types = (frozenset(str(r.get("roomTypeName")) for r in rooms_data if r.get("roomTypeName"))
                  if name_filter else None)
