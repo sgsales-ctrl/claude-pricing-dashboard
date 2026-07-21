@@ -425,10 +425,14 @@ view = st.sidebar.radio("View", ["Portfolio overview", "Property detail"])
 
 if view == "Portfolio overview":
     st.subheader("Portfolio overview")
-    tonight = date.today()
-    horizon = [tonight + timedelta(days=i) for i in range(8)]
+    ov_date = st.sidebar.date_input("Overview date", date.today())
+    is_today = ov_date == date.today()
+    day_label = "tonight" if is_today else ov_date.strftime("%a %d %b %Y")
+    horizon = [ov_date + timedelta(days=i) for i in range(8)]
+    if not is_today:
+        st.caption(f"Showing data for **{day_label}** — change it via 'Overview date' in the sidebar.")
 
-    # Upcoming high-demand events (next 3 weeks)
+    # Upcoming high-demand events (3 weeks from the selected date)
     upcoming = []
     for ev in EVENTS:
         if str(ev.get("demand")) not in ("High", "Very High"):
@@ -436,8 +440,11 @@ if view == "Portfolio overview":
         m = re.match(r"(\d{4}-\d{2}-\d{2})", str(ev.get("dates", "")))
         if m:
             start = date.fromisoformat(m.group(1))
-            if tonight <= start <= tonight + timedelta(days=21):
+            if ov_date <= start <= ov_date + timedelta(days=21):
                 upcoming.append(f"{ev['name']} ({ev['dates']}, {ev['demand']})")
+    ev_on_date = event_for(ov_date)
+    if ev_on_date and str(ev_on_date.get("demand", "")).casefold() not in ("low", "low-moderate"):
+        st.info(f"Event on {day_label}: {ev_on_date['name']} ({ev_on_date.get('demand')})")
     if upcoming:
         st.info("Upcoming high-demand events (3 weeks): " + " • ".join(upcoming[:4]))
 
@@ -467,7 +474,7 @@ if view == "Portfolio overview":
             occ = occupancy_for_dates(pid, horizon, tot, at, rk)
         except Exception:
             occ = {}
-        o0 = occ.get(tonight)
+        o0 = occ.get(ov_date)
         pct = (o0 / tot) if (tot and o0 is not None) else None
         week_counts = [occ[d] for d in horizon if occ.get(d) is not None]
         avg7 = (sum(week_counts) / (len(week_counts) * tot)) if (tot and week_counts) else None
@@ -478,11 +485,11 @@ if view == "Portfolio overview":
                          if isinstance(v, dict) and pname in v.get("hc_properties", [])), "—")
         ov_rows.append({
             "Property": pname.replace("Heritage Collection on ", ""),
-            "Tonight": f"{pct:.0%}" if pct is not None else "n/a",
+            "Occ %": f"{pct:.0%}" if pct is not None else "n/a",
             "Sold": f"{o0}/{tot}" if (o0 is not None and tot) else "n/a",
-            "Vacant tonight": (tot - o0) if (o0 is not None and tot) else None,
+            "Vacant": (tot - o0) if (o0 is not None and tot) else None,
             "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
-            "Posture (tonight)": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
+            "Posture": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
             "Sector": p_sector,
             "_sort": pct if pct is not None else 2,
         })
@@ -490,12 +497,12 @@ if view == "Portfolio overview":
     progress.empty()
 
     m1, m2, m3 = st.columns(3)
-    m1.metric("Portfolio occupancy tonight",
+    m1.metric(f"Portfolio occupancy — {day_label}",
               f"{port_sold / port_total:.0%}" if port_total else "n/a",
               f"{port_sold}/{port_total} sold")
-    m2.metric("Vacant rooms tonight", port_total - port_sold if port_total else "n/a")
-    below_n = sum(1 for r in ov_rows if r["Posture (tonight)"] == "Discount")
-    m3.metric("Properties under 80% tonight", f"{below_n}/{len(ov_rows)}")
+    m2.metric(f"Vacant rooms — {day_label}", port_total - port_sold if port_total else "n/a")
+    below_n = sum(1 for r in ov_rows if r["Posture"] == "Discount")
+    m3.metric(f"Properties under 80% — {day_label}", f"{below_n}/{len(ov_rows)}")
 
     ov_rows.sort(key=lambda r: r["_sort"])  # weakest occupancy first
     ov_df = pd.DataFrame(ov_rows).drop(columns=["_sort"])
@@ -503,7 +510,8 @@ if view == "Portfolio overview":
     if CLOSED_PROPERTIES:
         st.caption("Excluded: " + "; ".join(
             f"{k.replace('Heritage Collection on ', '')} ({v})" for k, v in CLOSED_PROPERTIES.items()))
-    st.caption("Sorted weakest-occupancy first. Posture (tonight): Discount below 80% tonight, Hold/Lift at/above. "
+    st.caption(f"All figures are for {day_label}; 'Next 7d avg' covers the 7 days from that date. "
+               "Sorted weakest-occupancy first. Posture: Discount below 80%, Hold/Lift at/above. "
                "Switch to Property detail (sidebar) for room-level price recommendations.")
     st.stop()
 
