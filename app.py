@@ -530,7 +530,7 @@ def overview_pricing(pname: str, rd: list, booked: list, allowed_types: frozense
     ev_demand = str((ev or {}).get("demand", ""))
     show_event = ev is not None and not ev_demand.casefold().startswith("low")
     days_out = (target - date.today()).days
-    items, reason = [], "—"
+    rooms_out, prices_out, reason = [], [], "—"
     for guide_room, rates in pp.items():
         cb = tmap.get(guide_room)
         if not cb or vac.get(cb, 0) <= 0:
@@ -545,11 +545,16 @@ def overview_pricing(pname: str, rd: list, booked: list, allowed_types: frozense
             if run < GAP_MIN_NIGHTS:
                 continue
         rec, why = recommend(rates, days_out, occ_pct, ev)
-        items.append(f"{guide_room} S${rec}")
+        rooms_out.append(guide_room)
+        prices_out.append(f"S${rec}")
         reason = why
-    available_str = "; ".join(items) if items else "None sellable"
+    if rooms_out:
+        available_str = "; ".join(rooms_out)
+        price_str = "; ".join(prices_out)
+    else:  # fully booked / nothing sellable
+        available_str = price_str = reason = "—"
     event_str = (ev or {}).get("name", "No event") if show_event else "No event"
-    return available_str, event_str, reason
+    return available_str, price_str, event_str, reason
 
 
 # ---------- Page ----------
@@ -642,9 +647,9 @@ if view == "Portfolio overview":
                          if isinstance(v, dict) and pname in v.get("hc_properties", [])), "—")
         # Available room types + recommended prices, event, and reason for this date
         try:
-            avail_str, event_str, reason_str = overview_pricing(pname, rd, booked, at, ov_date, pct, is_gap)
+            avail_str, price_str, event_str, reason_str = overview_pricing(pname, rd, booked, at, ov_date, pct, is_gap)
         except Exception:
-            avail_str, event_str, reason_str = "—", "—", "—"
+            avail_str, price_str, event_str, reason_str = "—", "—", "—", "—"
         ov_rows.append({
             "Property": pname.replace("Heritage Collection on ", ""),
             "Occ %": f"{pct:.0%}" if pct is not None else "n/a",
@@ -653,7 +658,8 @@ if view == "Portfolio overview":
             "Gap": (gap_detail if gap_rooms else "0") if is_gap else "—",
             "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
             "Posture": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
-            "Available (rec. price)": avail_str,
+            "Available": avail_str,
+            "Rec. price": price_str,
             "Event": event_str,
             "Reason": reason_str,
             "Sector": p_sector,
