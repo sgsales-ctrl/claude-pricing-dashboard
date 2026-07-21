@@ -337,6 +337,48 @@ def reservations_overlapping(property_id: str, start: str, end: str) -> list:
     return [r for r in out if str(r.get("status", "")).lower() not in ("canceled", "cancelled", "no_show")]
 
 
+def split_vacant_for_date(rooms_list: list, booked_rooms: list,
+                          allowed_types: frozenset | None, target: date) -> tuple[int, int]:
+    """For a long-stay property, split vacant rooms on `target` into
+    (sellable_vacant, gap_rooms): a vacant room-type is sellable if it stays
+    open for GAP_MIN_NIGHTS consecutive nights, otherwise it's a gap."""
+    totals = {}
+    for r in rooms_list:
+        t = str(r.get("roomTypeName", ""))
+        totals[t] = totals.get(t, 0) + 1
+    an = {_norm(t) for t in allowed_types} if allowed_types is not None else None
+
+    def vac_on(day: date) -> dict:
+        occ = {}
+        for br in booked_rooms:
+            if an is not None and _norm(br["type"]) not in an:
+                continue
+            if br["ci"] <= day < br["co"]:
+                key = br["type"] if br["type"] in totals else next(
+                    (t for t in totals if _norm(t) == _norm(br["type"])), None)
+                if key:
+                    occ[key] = occ.get(key, 0) + 1
+        return {t: max(totals[t] - occ.get(t, 0), 0) for t in totals}
+
+    vt = vac_on(target)
+    sellable = gap = 0
+    for t, cnt in vt.items():
+        if cnt <= 0:
+            continue
+        run, dd = 1, target - timedelta(days=1)
+        lo = target - timedelta(days=GAP_MIN_NIGHTS)
+        while dd >= lo and run < 2 * GAP_MIN_NIGHTS and vac_on(dd).get(t, 0) > 0:
+            run += 1; dd -= timedelta(days=1)
+        dd, hi = target + timedelta(days=1), target + timedelta(days=GAP_MIN_NIGHTS)
+        while dd <= hi and run < 2 * GAP_MIN_NIGHTS and vac_on(dd).get(t, 0) > 0:
+            run += 1; dd += timedelta(days=1)
+        if run >= GAP_MIN_NIGHTS:
+            sellable += cnt
+        else:
+            gap += cnt
+    return sellable, gap
+
+
 def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
                         allowed_types: frozenset | None = None,
                         room_keys: frozenset | None = None) -> dict:
@@ -482,7 +524,7 @@ if view == "Portfolio overview":
     if upcoming:
         st.info("Upcoming high-demand events (3 weeks): " + " • ".join(upcoming[:4]))
 
-    ov_rows, port_sold, port_total = [], 0, 0
+    ov_rows, port_sold, port_total, port_gap = [], 0, 0, 0
     progress = st.progress(0.0, text="Loading properties…")
     plist = [(p, i) for p, i in properties.items()
              if not any(c.casefold() == p.casefold() for c in CLOSED_PROPERTIES)]
@@ -512,16 +554,30 @@ if view == "Portfolio overview":
         pct = (o0 / tot) if (tot and o0 is not None) else None
         week_counts = [occ[d] for d in horizon if occ.get(d) is not None]
         avg7 = (sum(week_counts) / (len(week_counts) * tot)) if (tot and week_counts) else None
+        total_vac = (tot - o0) if (o0 is not None and tot) else None
+        # Long-stay properties: split vacant into sellable vs gap
+        sellable_vac, gap_rooms = total_vac, 0
+        is_gap = any(g.casefold() == pname.casefold() for g in GAP_PROPERTIES)
+        if is_gap and total_vac:
+            try:
+                booked = reservation_rooms_overlapping(
+                    pid, str(ov_date - timedelta(days=GAP_MIN_NIGHTS)),
+                    str(ov_date + timedelta(days=7 + GAP_MIN_NIGHTS)))
+                sellable_vac, gap_rooms = split_vacant_for_date(rd, booked, at, ov_date)
+            except Exception:
+                pass
         if o0 is not None and tot:
             port_sold += o0
             port_total += tot
+            port_gap += gap_rooms
         p_sector = next((s for s, v in COMPETITORS.items()
                          if isinstance(v, dict) and pname in v.get("hc_properties", [])), "—")
         ov_rows.append({
             "Property": pname.replace("Heritage Collection on ", ""),
             "Occ %": f"{pct:.0%}" if pct is not None else "n/a",
             "Sold": f"{o0}/{tot}" if (o0 is not None and tot) else "n/a",
-            "Vacant": (tot - o0) if (o0 is not None and tot) else None,
+            "Vacant": sellable_vac if sellable_vac is not None else None,
+            "Gap": gap_rooms if is_gap else "—",
             "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
             "Posture": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
             "Sector": p_sector,
@@ -534,7 +590,9 @@ if view == "Portfolio overview":
     m1.metric(f"Portfolio occupancy — {day_label}",
               f"{port_sold / port_total:.0%}" if port_total else "n/a",
               f"{port_sold}/{port_total} sold")
-    m2.metric(f"Vacant rooms — {day_label}", port_total - port_sold if port_total else "n/a")
+    m2.metric(f"Vacant rooms — {day_label}",
+              (port_total - port_sold - port_gap) if port_total else "n/a",
+              f"+{port_gap} gap" if port_gap else None, delta_color="off")
     below_n = sum(1 for r in ov_rows if r["Posture"] == "Discount")
     m3.metric(f"Properties under 80% — {day_label}", f"{below_n}/{len(ov_rows)}")
 
@@ -546,6 +604,8 @@ if view == "Portfolio overview":
             f"{k.replace('Heritage Collection on ', '')} ({v})" for k, v in CLOSED_PROPERTIES.items()))
     st.caption(f"All figures are for {day_label}; 'Next 7d avg' covers the 7 days from that date. "
                "Sorted weakest-occupancy first. Posture: Discount below 80%, Hold/Lift at/above. "
+               f"Vacant excludes gaps for long-stay properties (Ann Siang, BQ South Bridge, Smith, Boon Tat): "
+               f"a vacant stretch under {GAP_MIN_NIGHTS} nights is counted under Gap, not Vacant. "
                "Switch to Property detail (sidebar) for room-level price recommendations.")
     st.stop()
 
