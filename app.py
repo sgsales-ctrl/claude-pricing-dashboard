@@ -362,6 +362,7 @@ def split_vacant_for_date(rooms_list: list, booked_rooms: list,
 
     vt = vac_on(target)
     sellable = gap = 0
+    gap_bits = []
     for t, cnt in vt.items():
         if cnt <= 0:
             continue
@@ -376,7 +377,9 @@ def split_vacant_for_date(rooms_list: list, booked_rooms: list,
             sellable += cnt
         else:
             gap += cnt
-    return sellable, gap
+            gap_bits.append(f"{run}n ({cnt} rm)")
+    gap_detail = "; ".join(gap_bits) if gap_bits else "—"
+    return sellable, gap, gap_detail
 
 
 def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
@@ -624,11 +627,11 @@ if view == "Portfolio overview":
         except Exception:
             booked = []
         # Long-stay properties: split vacant into sellable vs gap
-        sellable_vac, gap_rooms = total_vac, 0
+        sellable_vac, gap_rooms, gap_detail = total_vac, 0, "—"
         is_gap = any(g.casefold() == pname.casefold() for g in GAP_PROPERTIES)
         if is_gap and total_vac:
             try:
-                sellable_vac, gap_rooms = split_vacant_for_date(rd, booked, at, ov_date)
+                sellable_vac, gap_rooms, gap_detail = split_vacant_for_date(rd, booked, at, ov_date)
             except Exception:
                 pass
         if o0 is not None and tot:
@@ -647,7 +650,7 @@ if view == "Portfolio overview":
             "Occ %": f"{pct:.0%}" if pct is not None else "n/a",
             "Sold": f"{o0}/{tot}" if (o0 is not None and tot) else "n/a",
             "Vacant": sellable_vac if sellable_vac is not None else None,
-            "Gap": gap_rooms if is_gap else "—",
+            "Gap": (gap_detail if gap_rooms else "0") if is_gap else "—",
             "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
             "Posture": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
             "Available (rec. price)": avail_str,
