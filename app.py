@@ -32,6 +32,30 @@ CLOSED_PROPERTIES = {
     "Heritage Collection on Smith": "closed for refurbishment",
 }
 
+# Display order for the property dropdown
+PROPERTY_ORDER = [
+    "Heritage Collection on Boat Quay (Quayside Wing)",
+    "Heritage Collection on Boat Quay (South Bridge Wing)",
+    "Heritage Collection on Clarke Quay",
+    "Heritage Collection on Seah",
+    "Heritage Collection on Victoria",
+    "Heritage Collection on KG",
+    "Heritage Collection on Arab",
+    "Heritage Collection on Chinatown",
+    "Heritage Collection on Pagoda",
+    "Heritage Collection on Ann Siang",
+    "Heritage Collection on Boon Tat",
+    "Heritage Collection on Smith",
+]
+
+
+def property_sort_key(name: str):
+    for i, p in enumerate(PROPERTY_ORDER):
+        if p.casefold() == name.casefold():
+            return (i, "")
+    return (len(PROPERTY_ORDER), name)  # unknown names go last, alphabetically
+
+
 # Individual rooms excluded from all calculations (e.g. out of service)
 EXCLUDED_ROOMS = {
     "Heritage Collection on Arab": ["AR204"],
@@ -515,7 +539,7 @@ if view == "Portfolio overview":
                "Switch to Property detail (sidebar) for room-level price recommendations.")
     st.stop()
 
-property_name = st.sidebar.selectbox("Property", list(properties.keys()))
+property_name = st.sidebar.selectbox("Property", sorted(properties.keys(), key=property_sort_key))
 property_id = properties[property_name]
 start_date = st.sidebar.date_input("Window start", date.today())
 end_date = st.sidebar.date_input("Window end", date.today() + timedelta(days=14))
