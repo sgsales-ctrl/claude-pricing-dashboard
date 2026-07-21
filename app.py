@@ -56,6 +56,16 @@ def property_sort_key(name: str):
     return (len(PROPERTY_ORDER), name)  # unknown names go last, alphabetically
 
 
+# Long-stay properties (min stay): vacancy shorter than GAP_MIN_NIGHTS consecutive
+# nights is a 'gap' between bookings, not sellable vacancy
+GAP_MIN_NIGHTS = 6
+GAP_PROPERTIES = [
+    "Heritage Collection on Ann Siang",
+    "Heritage Collection on Boat Quay (South Bridge Wing)",
+    "Heritage Collection on Smith",
+    "Heritage Collection on Boon Tat",
+]
+
 # Individual rooms excluded from all calculations (e.g. out of service)
 EXCLUDED_ROOMS = {
     "Heritage Collection on Arab": ["AR204"],
@@ -633,7 +643,10 @@ def vacant_count_by_type(d: date) -> dict:
         t = str(r.get("roomTypeName", ""))
         totals[t] = totals.get(t, 0) + 1
     try:
-        booked_rooms = reservation_rooms_overlapping(property_id, str(min(window_days)), str(max(window_days)))
+        booked_rooms = reservation_rooms_overlapping(
+            property_id,
+            str(min(window_days) - timedelta(days=GAP_MIN_NIGHTS)),
+            str(max(window_days) + timedelta(days=GAP_MIN_NIGHTS)))
     except Exception:
         booked_rooms = []
     occupied = {}
@@ -669,6 +682,23 @@ if prop_pricing:
                                                   str(window_days[-1] + timedelta(days=1)))
         except Exception:
             listed_maps[cb_name] = {}
+    is_gap_prop = any(g.casefold() == property_name.casefold() for g in GAP_PROPERTIES)
+
+    def vacancy_run(cb_type: str, d0: date) -> int:
+        """Consecutive nights (containing d0) on which this room type has ≥1 vacant room."""
+        run = 1
+        lo = min(window_days) - timedelta(days=GAP_MIN_NIGHTS)
+        hi = max(window_days) + timedelta(days=GAP_MIN_NIGHTS)
+        dd = d0 - timedelta(days=1)
+        while dd >= lo and run < 2 * GAP_MIN_NIGHTS and vacant_count_by_type(dd).get(cb_type, 0) > 0:
+            run += 1
+            dd -= timedelta(days=1)
+        dd = d0 + timedelta(days=1)
+        while dd <= hi and run < 2 * GAP_MIN_NIGHTS and vacant_count_by_type(dd).get(cb_type, 0) > 0:
+            run += 1
+            dd += timedelta(days=1)
+        return run
+
     rec_rows = []
     for d in window_days:
         days_out = (d - tonight).days
@@ -685,12 +715,18 @@ if prop_pricing:
             room_vacancy = vac_types.get(cb_name) if cb_name else None
             if room_vacancy == 0:
                 continue  # this room type is fully occupied that night
+            vac_label = "Vacant"
+            if is_gap_prop and cb_name and room_vacancy:
+                run = vacancy_run(cb_name, d)
+                if run < GAP_MIN_NIGHTS:
+                    vac_label = f"Gap ({run} night{'s' if run != 1 else ''})"
             rec, why = recommend(rates, days_out, occ_pct, ev)
             listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
                 "Occ %": f"{occ_pct:.0%}" if occ_pct is not None else "n/a",
                 "Room": room,
+                "Vacancy": vac_label,
                 "Event": (ev or {}).get("name", "No event") if show_event else "No event",
                 "Demand": ev_demand if show_event else "None",
                 "IA Rate (S$)": ladder_rate(rates, days_out),
@@ -716,7 +752,9 @@ if prop_pricing:
                f"Below {OCC_TARGET:.0%} occupancy: 10% cut, never below breakeven floor; at/above: hold or lift. "
                "Moderate demand events: hold rate (small 5% cut only if occupancy <70%). "
                "High/Very High demand events: priced above IA rate using the event's suggested markup "
-               "(from the events tracker), default +10%/+20%.")
+               "(from the events tracker), default +10%/+20%. "
+               f"Long-stay properties (Ann Siang, BQ South Bridge, Smith, Boon Tat): vacancy shorter than "
+               f"{GAP_MIN_NIGHTS} consecutive nights shows as a Gap, not sellable vacancy.")
 else:
     st.info(f"No pricing guide entry found for {property_name} — check data/pricing.json names.")
 
