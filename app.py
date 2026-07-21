@@ -488,6 +488,67 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev) -> tuple[float,
     return round(rec), note
 
 
+def overview_pricing(pname: str, rd: list, booked: list, allowed_types: frozenset | None,
+                     target: date, occ_pct: float | None, is_gap: bool):
+    """For the overview: available (sellable) room types with recommended price,
+    the event, and the rate reason for `target`. Returns (available_str, event_str, reason_str)."""
+    pp = PRICING.get(pname)
+    if pp is None:
+        k = next((k for k in PRICING if k.casefold().replace(" ", "") == pname.casefold().replace(" ", "")), None)
+        pp = PRICING.get(k, {})
+    if not pp:
+        return "no pricing guide", "—", "—"
+    cb_types = {}
+    for r in rd:
+        t = str(r.get("roomTypeName", ""))
+        if t and t not in cb_types:
+            cb_types[t] = True
+    tmap = build_type_mapping(list(pp.keys()), list(cb_types.keys()))
+    an = {_norm(t) for t in allowed_types} if allowed_types is not None else None
+
+    def vac_on(day: date) -> dict:
+        totals = {}
+        for r in rd:
+            t = str(r.get("roomTypeName", ""))
+            totals[t] = totals.get(t, 0) + 1
+        occ = {}
+        for br in booked:
+            if an is not None and _norm(br["type"]) not in an:
+                continue
+            if br["ci"] <= day < br["co"]:
+                key = br["type"] if br["type"] in totals else next(
+                    (t for t in totals if _norm(t) == _norm(br["type"])), None)
+                if key:
+                    occ[key] = occ.get(key, 0) + 1
+        return {t: max(totals[t] - occ.get(t, 0), 0) for t in totals}
+
+    vac = vac_on(target)
+    ev = event_for(target)
+    ev_demand = str((ev or {}).get("demand", ""))
+    show_event = ev is not None and not ev_demand.casefold().startswith("low")
+    days_out = (target - date.today()).days
+    items, reason = [], "—"
+    for guide_room, rates in pp.items():
+        cb = tmap.get(guide_room)
+        if not cb or vac.get(cb, 0) <= 0:
+            continue
+        if is_gap:  # skip gap-only vacancy (not sellable under min stay)
+            run, dd = 1, target - timedelta(days=1)
+            while run < GAP_MIN_NIGHTS and vac_on(dd).get(cb, 0) > 0:
+                run += 1; dd -= timedelta(days=1)
+            dd = target + timedelta(days=1)
+            while run < GAP_MIN_NIGHTS and vac_on(dd).get(cb, 0) > 0:
+                run += 1; dd += timedelta(days=1)
+            if run < GAP_MIN_NIGHTS:
+                continue
+        rec, why = recommend(rates, days_out, occ_pct, ev)
+        items.append(f"{guide_room} S${rec}")
+        reason = why
+    available_str = "; ".join(items) if items else "None sellable"
+    event_str = (ev or {}).get("name", "No event") if show_event else "No event"
+    return available_str, event_str, reason
+
+
 # ---------- Page ----------
 st.title("Claude Pricing Dashboard")
 
@@ -555,14 +616,18 @@ if view == "Portfolio overview":
         week_counts = [occ[d] for d in horizon if occ.get(d) is not None]
         avg7 = (sum(week_counts) / (len(week_counts) * tot)) if (tot and week_counts) else None
         total_vac = (tot - o0) if (o0 is not None and tot) else None
+        # Room-level bookings for this property/date window (cached)
+        try:
+            booked = reservation_rooms_overlapping(
+                pid, str(ov_date - timedelta(days=GAP_MIN_NIGHTS)),
+                str(ov_date + timedelta(days=7 + GAP_MIN_NIGHTS)))
+        except Exception:
+            booked = []
         # Long-stay properties: split vacant into sellable vs gap
         sellable_vac, gap_rooms = total_vac, 0
         is_gap = any(g.casefold() == pname.casefold() for g in GAP_PROPERTIES)
         if is_gap and total_vac:
             try:
-                booked = reservation_rooms_overlapping(
-                    pid, str(ov_date - timedelta(days=GAP_MIN_NIGHTS)),
-                    str(ov_date + timedelta(days=7 + GAP_MIN_NIGHTS)))
                 sellable_vac, gap_rooms = split_vacant_for_date(rd, booked, at, ov_date)
             except Exception:
                 pass
@@ -572,6 +637,11 @@ if view == "Portfolio overview":
             port_gap += gap_rooms
         p_sector = next((s for s, v in COMPETITORS.items()
                          if isinstance(v, dict) and pname in v.get("hc_properties", [])), "—")
+        # Available room types + recommended prices, event, and reason for this date
+        try:
+            avail_str, event_str, reason_str = overview_pricing(pname, rd, booked, at, ov_date, pct, is_gap)
+        except Exception:
+            avail_str, event_str, reason_str = "—", "—", "—"
         ov_rows.append({
             "Property": pname.replace("Heritage Collection on ", ""),
             "Occ %": f"{pct:.0%}" if pct is not None else "n/a",
@@ -580,6 +650,9 @@ if view == "Portfolio overview":
             "Gap": gap_rooms if is_gap else "—",
             "Next 7d avg": f"{avg7:.0%}" if avg7 is not None else "n/a",
             "Posture": ("Discount" if pct < OCC_TARGET else "Hold/Lift") if pct is not None else "n/a",
+            "Available (rec. price)": avail_str,
+            "Event": event_str,
+            "Reason": reason_str,
             "Sector": p_sector,
             "_sort": pct if pct is not None else 2,
         })
