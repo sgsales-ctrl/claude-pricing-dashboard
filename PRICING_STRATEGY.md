@@ -35,13 +35,13 @@ a fallback proxy. Competitor rates for future dates use the latest scraped snaps
 ## Parameters (in app.py)
 - `OCC_TARGET = 0.80` — discount threshold.
 - `COMP_UNDERCUT = 0.95` — target position vs competitor equivalent-category median.
-- `PEAK_MONTHS = {7, 8}` — Jul/Aug peak; the 5%-below-competitor step applies only when occupancy <80%, otherwise hold own rate.
+- `PEAK_MONTHS = {7, 8}` — Jul/Aug peak; the 5%-below-competitor step applies only when occupancy <80%; at ≥80% take the higher of own rate vs competitor (never undercut).
 - `GAP_MIN_NIGHTS = 6` — long-stay gap threshold (Ann Siang, BQ South Bridge, Smith, Boon Tat).
 
 ## Peak season (July & August)
 Singapore peak months. In **July and August** the competitor step is gated by our own occupancy:
 - **Occupancy < 80%** → price **~5% below** the competitor median for that category (undercut to win share while we still have rooms to fill).
-- **Occupancy ≥ 80%** → **hold our own IA / occupancy rate**; do NOT undercut competitors when we are already busy.
+- **Occupancy ≥ 80%** → **take the higher of our own rate and the competitor rate** — never price below the competitor when we are already busy.
 - The breakeven floor still applies, and a High / Very High event uplift is never undercut.
 - Outside July / August, the general competitor rule above applies unchanged.
 
