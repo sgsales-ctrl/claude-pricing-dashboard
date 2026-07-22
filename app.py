@@ -463,32 +463,88 @@ def event_for(d: date):
     return best
 
 
-def recommend(rates: dict, days_out: int, occ: float | None, ev) -> tuple[float, str]:
+COMP_UNDERCUT = 0.95  # target ~5% below competitor equivalent-category rate
+
+
+def room_category(name: str) -> str:
+    """Bucket our room name into a competitor-comparable category."""
+    n = name.casefold()
+    if "single" in n:
+        return "Single"
+    if "bedroom" in n or "raffles" in n or "stamford" in n:
+        return "Suite"
+    if "loft" in n:
+        return "Loft"
+    if "studio" in n:
+        return "Studio"
+    return "Other"
+
+
+def comp_category_median(sector_comps: list, scraped_day: dict, category: str):
+    """Median competitor rate (incl. taxes) for the equivalent room category.
+    Uses per-category data when the scrape provides it, else the competitor's
+    cheapest available rate as a proxy."""
+    vals = []
+    for comp in sector_comps:
+        info = scraped_day.get(comp, {})
+        if info.get("status") != "ok":
+            continue
+        bycat = info.get("by_category") or {}
+        r = bycat.get(category)
+        if r is None:  # proxy: cheapest available rate for this competitor
+            r = info.get("est_incl_taxes")
+        try:
+            vals.append(float(r))
+        except (TypeError, ValueError):
+            continue
+    if not vals:
+        return None
+    vals.sort()
+    n = len(vals)
+    return (vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2)
+
+
+def recommend(rates: dict, days_out: int, occ: float | None, ev, comp_median: float | None = None) -> tuple[float, str]:
     base = ladder_rate(rates, days_out)
     floor = rates["floor"]
     demand = (ev or {}).get("demand", "")
-    # High-demand event: price ABOVE the IA rate, using the event's suggested markup when known
+    # ---- Step 1: own occupancy / event-based rate ----
     if demand in ("High", "Very High"):
         m = re.search(r"(\d+)\s*-\s*(\d+)\s*%", str((ev or {}).get("rationale", "")))
         up = (int(m.group(1)) + int(m.group(2))) / 200 if m else (0.20 if demand == "Very High" else 0.10)
-        rec = max(base, rates["ia"]) * (1 + up)
-        return round(max(rec, floor)), f"{demand} demand event — +{up:.0%} above IA rate"
-    # Moderate event: expected demand — don't undercut ahead of it.
-    if demand == "Moderate":
+        occ_rate = max(base, rates["ia"]) * (1 + up)
+        occ_reason = f"{demand} event +{up:.0%} vs IA"
+    elif demand == "Moderate":
         if occ is None or occ >= 0.70:
-            return round(max(base, floor)), "Moderate demand event — hold rate, no discounting"
-        return round(max(base * 0.95, floor)), "Moderate event but occupancy <70% — small 5% cut only"
-    if occ is None:
-        return round(max(base, floor)), "No occupancy data — IA/window rate"
-    if occ >= 0.95:
-        return round(max(base * HIGH_OCC_PREMIUM, floor)), "Occupancy ≥95% — small premium"
-    if occ >= OCC_TARGET:
-        return round(max(base, floor)), f"Occupancy ≥{OCC_TARGET:.0%} — hold IA/window rate"
-    rec = max(base * SOFT_DISCOUNT, floor)
-    note = f"Occupancy <{OCC_TARGET:.0%} — 10% cut"
-    if days_out <= 3 and rec <= floor + 1:
-        note = f"Occupancy <{OCC_TARGET:.0%}, 0-3 days — at breakeven floor"
-    return round(rec), note
+            occ_rate, occ_reason = base, "Moderate event — hold"
+        else:
+            occ_rate, occ_reason = base * 0.95, "Moderate event, occ<70% — 5% cut"
+    elif occ is None:
+        occ_rate, occ_reason = base, "No occ data — IA/window rate"
+    elif occ >= 0.95:
+        occ_rate, occ_reason = base * HIGH_OCC_PREMIUM, "occ ≥95% — premium"
+    elif occ >= OCC_TARGET:
+        occ_rate, occ_reason = base, f"occ ≥{OCC_TARGET:.0%} — hold"
+    else:
+        occ_rate, occ_reason = base * SOFT_DISCOUNT, f"occ <{OCC_TARGET:.0%} — 10% cut"
+    occ_rate = max(occ_rate, floor)
+    # ---- Step 2: blend with competitor equivalent-category rate ----
+    if not comp_median:
+        return round(occ_rate), occ_reason + " · no comp data"
+    anchor = comp_median * COMP_UNDERCUT  # ~5% below competitor
+    if occ is not None and occ >= 0.85:
+        rec = max(occ_rate, anchor)
+        note = f"≥85% occ — take higher of own vs comp (comp S${comp_median:.0f})"
+    elif occ is not None and occ < OCC_TARGET:
+        rec = min(occ_rate, anchor)
+        note = f"soft occ — ~5% below comp S${comp_median:.0f} to win share"
+    else:
+        rec = anchor
+        note = f"~5% below comp median S${comp_median:.0f}"
+    if demand in ("High", "Very High"):
+        rec = max(rec, occ_rate)  # never undercut an event uplift
+    rec = max(rec, floor)
+    return round(rec), occ_reason + " · " + note
 
 
 def overview_pricing(pname: str, rd: list, booked: list, allowed_types: frozenset | None,
@@ -835,6 +891,17 @@ def vacant_count_by_type(d: date) -> dict:
 # ===== Price recommendations =====
 st.subheader("Price recommendations")
 if prop_pricing:
+    # Competitor rates (latest scraped snapshot) for this property's sector, by category
+    _scraped = COMP_RATES.get("rates", {})
+    _comp_day = _scraped.get(max(_scraped.keys())) if _scraped else {}
+    comp_med_cache = {}
+
+    def comp_med_for(room_name: str):
+        cat = room_category(room_name)
+        if cat not in comp_med_cache:
+            comp_med_cache[cat] = comp_category_median(sector_comps, _comp_day, cat) if sector_comps else None
+        return cat, comp_med_cache[cat]
+
     # One-to-one mapping: pricing-guide room name -> Cloudbeds room type
     cb_types = {}
     for r in rooms_data:
@@ -892,7 +959,8 @@ if prop_pricing:
                 run = vacancy_run(cb_name, d)
                 if run < GAP_MIN_NIGHTS:
                     vac_label = f"Gap ({run} night{'s' if run != 1 else ''})"
-            rec, why = recommend(rates, days_out, occ_pct, ev)
+            cat, comp_med = comp_med_for(room)
+            rec, why = recommend(rates, days_out, occ_pct, ev, comp_med)
             listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
@@ -904,6 +972,8 @@ if prop_pricing:
                 "IA Rate (S$)": ladder_rate(rates, days_out),
                 "Floor (S$)": rates["floor"],
                 "Current (S$)": listed if listed is not None else "—",
+                "Comp cat": cat,
+                "Comp median (S$)": round(comp_med) if comp_med else "—",
                 "Recommended (S$)": rec,
                 "Reason": why,
             })
@@ -925,6 +995,8 @@ if prop_pricing:
                "Moderate demand events: hold rate (small 5% cut only if occupancy <70%). "
                "High/Very High demand events: priced above IA rate using the event's suggested markup "
                "(from the events tracker), default +10%/+20%. "
+               "Comp median = competitor rate for the equivalent room category (latest scrape); we target "
+               "~5% below it, but when our occupancy ≥85% we take the higher of own-rate vs competitor. "
                f"Long-stay properties (Ann Siang, BQ South Bridge, Smith, Boon Tat): vacancy shorter than "
                f"{GAP_MIN_NIGHTS} consecutive nights shows as a Gap, not sellable vacancy.")
 else:
