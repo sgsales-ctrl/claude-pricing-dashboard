@@ -1,5 +1,5 @@
 {
-  "_comment": "Competitor rates scraped from Booking.com (2 adults, 1 room, SGD) for today and tomorrow. All by_category and est_incl_taxes figures are TAX-INCLUSIVE = base price shown + the separate '+S$ X taxes and charges' line on each rate (Booking rooms here showed taxes as an add-on, not inclusive). display_rate = cheapest room's base price for reference; est_incl_taxes/room = cheapest available room overall (tax-incl). by_category = lowest tax-incl total per equivalent Heritage category: Single (single/solo/dorm bed), Studio (standard double/queen/king/twin/studio-apartment, incl. entry-level rooms a property brands 'suite'), Loft (loft/duplex), Suite (a genuine premium suite tier above the property's standard rooms). Categories not offered / sold out for the date are omitted. status='sold_out' where Booking showed 'Unavailable on our site for your selected dates' or 'no availability' on the property page. Scraped via Claude in Chrome.",
+  "_comment": "Competitor rates scraped from Booking.com (2 adults, 1 room, SGD). All by_category / est_incl_taxes are TAX-INCLUSIVE = base + the separate '+S$ X taxes and charges' line. display_rate = cheapest room's base; room/est_incl_taxes = cheapest available room overall. by_category = lowest tax-incl total per Heritage category: Single (single/solo/dorm bed), Studio (standard double/queen/king/twin/studio incl. entry rooms branded 'suite'), Loft (loft/duplex), Suite (genuine premium suite tier). Categories not offered / sold out are omitted. sold_out = Booking showed 'Unavailable'/'no availability'. Dates 2026-07-22 & 2026-07-23 = full daily scrape (all competitors). Dates 2026-07-28, 2026-07-30, 2026-08-04 = one-time forward top-up (Hotel Clover The Arts only, to demo the Jul/Aug peak rule on sellable dates); other competitors not scraped for those dates.",
   "scraped_at": "2026-07-22",
   "rates": {
     "2026-07-22": {
@@ -35,6 +35,15 @@
       "Rest Bugis Hotel": {"status": "sold_out"},
       "Coliwoo Kampong Glam": {"status": "ok", "display_rate": 323, "est_incl_taxes": 352, "room": "Kampong Glam Suite", "by_category": {"Studio": 352}},
       "Hotel Clover 769": {"status": "ok", "display_rate": 217, "est_incl_taxes": 260, "room": "Double Room with Hot Tub (Indoor)", "by_category": {"Studio": 260}}
+    },
+    "2026-07-28": {
+      "Hotel Clover The Arts": {"status": "ok", "display_rate": 113, "est_incl_taxes": 135, "room": "Superior Single Room without Window", "by_category": {"Single": 135, "Studio": 171}}
+    },
+    "2026-07-30": {
+      "Hotel Clover The Arts": {"status": "ok", "display_rate": 98, "est_incl_taxes": 117, "room": "Superior Single Room without Window", "by_category": {"Single": 117, "Studio": 153}}
+    },
+    "2026-08-04": {
+      "Hotel Clover The Arts": {"status": "sold_out"}
     }
   }
 }
