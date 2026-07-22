@@ -883,9 +883,20 @@ if view == "Competitor analysis":
                 rates = prop_pricing[room]
                 cb_name = type_map.get(room)
                 st.markdown(f"**{room}**")
-                comps_shown = [c for c in sector_comps if any(comp_rate_on(scraped.get(str(d), {}), c, cat) is not None for d in window_days)]
-                rows = []
+                avail_days = []
                 for d in window_days:
+                    try:
+                        _snap = availability_by_type(property_id, str(d))
+                    except Exception:
+                        _snap = {}
+                    if cb_name and any(_norm(k) == _norm(cb_name) and v > 0 for k, v in _snap.items()):
+                        avail_days.append(d)
+                if not avail_days:
+                    st.caption(f"No availability for {room} in the selected window — nothing to sell, so no comparison is shown.")
+                    continue
+                comps_shown = [c for c in sector_comps if any(comp_rate_on(scraped.get(str(d), {}), c, cat) is not None for d in avail_days)]
+                rows = []
+                for d in avail_days:
                     ds = str(d)
                     days_out = (d - tonight).days
                     occ_n = occ_counts.get(d)
