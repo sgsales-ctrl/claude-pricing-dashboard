@@ -807,6 +807,8 @@ if prop_pricing is None:
 sector = next((s for s, v in COMPETITORS.items()
                if isinstance(v, dict) and property_name in v.get("hc_properties", [])), None)
 sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else []
+# Exclude competitors not comparable to our private rooms (Kinn Habitat = hostel, dorm beds only).
+sector_comps = [c for c in sector_comps if _norm(c) != _norm("Kinn Habitat")]
 
 # Total rooms (apply room-name filter for shared Cloudbeds properties, e.g. Seah)
 name_filter = next((v for k, v in ROOM_NAME_FILTERS.items()
@@ -881,6 +883,7 @@ if view == "Competitor analysis":
                 rates = prop_pricing[room]
                 cb_name = type_map.get(room)
                 st.markdown(f"**{room}**")
+                comps_shown = [c for c in sector_comps if any(comp_rate_on(scraped.get(str(d), {}), c, cat) is not None for d in window_days)]
                 rows = []
                 for d in window_days:
                     ds = str(d)
@@ -890,19 +893,17 @@ if view == "Competitor analysis":
                     ev = event_for(d)
                     listed = (listed_maps.get(cb_name) or {}).get(ds) if cb_name else None
                     day_snap = scraped.get(ds, {})
-                    comp_vals = {}
-                    for comp in sector_comps:
-                        comp_vals[comp] = comp_rate_on(day_snap, comp, cat)
+                    comp_vals = {c: comp_rate_on(day_snap, c, cat) for c in comps_shown}
                     present = [v for v in comp_vals.values() if v is not None]
                     cheapest = min(present) if present else None
-                    comp_med = comp_category_median(sector_comps, day_snap, cat)
+                    comp_med = comp_category_median(comps_shown, day_snap, cat)
                     rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med)
                     row = {
                         "Date": d.strftime("%m-%d"), "DOW": d.strftime("%a"),
-                        "Our rate": f"${listed:.0f}" if listed is not None else "None",
-                        "Our rec": f"${rec:.0f}",
+                        "Current rate": f"${listed:.0f}" if listed is not None else "None",
+                        "Recommended": f"${rec:.0f}",
                     }
-                    for comp in sector_comps:
+                    for comp in comps_shown:
                         v = comp_vals[comp]
                         row[f"{comp} ({COMP_CAT_FOR.get(cat, 'Studio')})"] = f"${v:.0f}" if v is not None else "None"
                     row["Cheapest comp"] = f"${cheapest:.0f}" if cheapest is not None else "None"
@@ -913,9 +914,11 @@ if view == "Competitor analysis":
                         row["Our rec vs cheapest"] = "None"
                     rows.append(row)
                 st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                if not comps_shown:
+                    st.caption("No competitor has availability in this category over the selected window — showing our current rate and recommendation only.")
     st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
-               "dates not yet scraped show None. A competitor whose equivalent category is sold out is excluded. "
-               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
+               "dates not yet scraped show None. Only competitors with availability in this category are shown; Kinn Habitat is excluded (hostel — dormitory beds only, not comparable). "
+               "'Current rate' is the listed Cloudbeds rate; 'Recommended' targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
     st.stop()
 
 # ===== Tonight at a glance =====
