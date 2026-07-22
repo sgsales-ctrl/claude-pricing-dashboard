@@ -964,12 +964,36 @@ else:
 st.subheader("Events — Heritage Collection relevance")
 shown_events = [e for e in EVENTS
                 if not str(e.get("demand", "")).casefold().startswith("low")]
+
+
+def impacted_properties(ev) -> str:
+    """List HC properties that catch this event's demand, grouped Direct / Overflow."""
+    direct, overflow = [], []
+    for pn in properties:
+        short = pn.replace("Heritage Collection on ", "")
+        sec = next((s for s, v in COMPETITORS.items()
+                    if isinstance(v, dict) and pn in v.get("hc_properties", [])), "—")
+        imp = event_impact(short, sec, ev)
+        if imp == "Direct":
+            direct.append(short)
+        elif imp == "Overflow":
+            overflow.append(short)
+    parts = []
+    if direct:
+        parts.append("Direct: " + ", ".join(direct))
+    if overflow:
+        parts.append("Overflow: " + ", ".join(overflow))
+    return " · ".join(parts) if parts else "—"
+
+
 if shown_events:
     ev_df = pd.DataFrame([{
         "Dates": e.get("dates"), "Event": e.get("name"), "Demand": e.get("demand"),
+        "Impacted properties (by location)": impacted_properties(e),
         "Venue": e.get("venue"), "Attendees": e.get("attendees"), "Why": e.get("rationale"),
     } for e in shown_events])
     st.dataframe(ev_df, use_container_width=True, hide_index=True)
     st.caption("Demand scored on past materialization + attendee count/type. "
-               "We are 3.5-star, adults-only, shophouse CBD — day-attendee and family events score low.")
+               "We are 3.5-star, adults-only, shophouse CBD — day-attendee and family events score low. "
+               "Impacted properties: Direct = event names the property/area; Overflow = its sector catches spillover.")
 
