@@ -557,6 +557,32 @@ def overview_pricing(pname: str, rd: list, booked: list, allowed_types: frozense
     return available_str, price_str, event_str, reason
 
 
+# Location keywords per sector, for deciding which properties an event impacts
+SECTOR_KEYWORDS = {
+    "QUAYS": ["quay", "quays", "river valley", "clarke", "boat quay", "robertson"],
+    "CHINATOWN": ["chinatown", "tanjong pagar", "mandopop", "chinese", "maxwell"],
+    "CITY HALL": ["city hall", "seah", "bras basah", "capitol", "esplanade"],
+    "KAMPONG GLAM": ["kampong glam", "kallang", "arab", "sultan", "bugis", "malay", "victoria"],
+}
+_GENERIC_TOKENS = {"boat", "quay", "quays", "wing", "south", "bridge", "north",
+                   "quayside", "heritage", "collection", "the", "on", "hc"}
+
+
+def event_impact(pname_short: str, sector: str, ev) -> str:
+    """Does this property catch the event's demand, by location? Direct / Overflow / —."""
+    if not ev or str(ev.get("demand", "")).casefold() in ("low", "low-moderate", ""):
+        return "—"
+    text = " ".join(str(ev.get(k, "")) for k in
+                    ("best_fit", "rationale", "attendees", "venue", "name")).lower()
+    toks = [t for t in re.split(r"[^a-z0-9]+", pname_short.lower())
+            if t and len(t) >= 3 and t not in _GENERIC_TOKENS]
+    if any(t in text for t in toks):
+        return "Direct"
+    if any(kw in text for kw in SECTOR_KEYWORDS.get(sector, [])):
+        return "Overflow"
+    return "—"
+
+
 # ---------- Page ----------
 st.title("Claude Pricing Dashboard")
 
@@ -645,6 +671,8 @@ if view == "Portfolio overview":
             port_gap += gap_rooms
         p_sector = next((s for s, v in COMPETITORS.items()
                          if isinstance(v, dict) and pname in v.get("hc_properties", [])), "—")
+        impact_str = event_impact(pname.replace("Heritage Collection on ", ""),
+                                  p_sector, event_for(ov_date))
         # Available room types + recommended prices, event, and reason for this date
         try:
             avail_str, price_str, event_str, reason_str = overview_pricing(pname, rd, booked, at, ov_date, pct, is_gap)
@@ -661,6 +689,7 @@ if view == "Portfolio overview":
             "Available": avail_str,
             "Rec. price": price_str,
             "Event": event_str,
+            "Event fit": impact_str,
             "Reason": reason_str,
             "Sector": p_sector,
             "_sort": pct if pct is not None else 2,
@@ -688,6 +717,7 @@ if view == "Portfolio overview":
                "Sorted weakest-occupancy first. Posture: Discount below 80%, Hold/Lift at/above. "
                f"Vacant excludes gaps for long-stay properties (Ann Siang, BQ South Bridge, Smith, Boon Tat): "
                f"a vacant stretch under {GAP_MIN_NIGHTS} nights is counted under Gap, not Vacant. "
+               "Event fit: Direct = event names this property/area; Overflow = its sector catches spillover. "
                "Switch to Property detail (sidebar) for room-level price recommendations.")
     st.stop()
 
