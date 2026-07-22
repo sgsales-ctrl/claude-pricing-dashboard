@@ -1,40 +1,40 @@
 {
-  "_comment": "Competitor rates scraped from Booking.com result cards (2 adults, 1 room, SGD). est_incl_taxes = display_rate + taxes shown on card when available, else display_rate x 1.2 rounded. sold_out = card showed 'Unavailable on our site for your selected dates'.",
-  "scraped_at": "2026-07-21",
+  "_comment": "Competitor rates scraped from Booking.com result cards (2 adults, 1 room, SGD, cheapest available room shown on card). est_incl_taxes = display_rate x 1.2 rounded; every card showed taxes/charges as extra (none tax-inclusive). sold_out = card showed 'Unavailable on our site for your selected dates'. Dates = today and tomorrow.",
+  "scraped_at": "2026-07-22",
   "rates": {
-    "2026-07-21": {
+    "2026-07-22": {
       "The Quay Hotel": {"status": "sold_out"},
-      "Kinn Habitat": {"status": "ok", "display_rate": 110, "est_incl_taxes": 132, "room": "Single Bed in Female Dormitory Room"},
-      "Hotel Clover The Arts": {"status": "ok", "display_rate": 113, "est_incl_taxes": 135, "room": "Superior Queen Room without Window"},
+      "Kinn Habitat": {"status": "ok", "display_rate": 136, "est_incl_taxes": 163, "room": "Double Room with Private Bathroom"},
+      "Hotel Clover The Arts": {"status": "ok", "display_rate": 158, "est_incl_taxes": 190, "room": "Deluxe Queen Room without Window"},
       "Hmlet Kada": {"status": "sold_out"},
       "Hmlet Chinatown": {"status": "sold_out"},
-      "Hotel 1900": {"status": "ok", "display_rate": 170, "est_incl_taxes": 204, "room": "Standard Queen Room (Without Window)"},
+      "Hotel 1900": {"status": "ok", "display_rate": 193, "est_incl_taxes": 232, "room": "Deluxe Queen Room"},
       "Kinn Studios": {"status": "sold_out"},
-      "Hotel Mono": {"status": "ok", "display_rate": 171, "est_incl_taxes": 205, "room": "Twin Room"},
-      "Kesa House": {"status": "sold_out"},
-      "Bliss Hotel": {"status": "ok", "display_rate": 180, "est_incl_taxes": 216, "room": "Superior Twin Room - No Window"},
-      "Claude Hotel": {"status": "ok", "display_rate": 249, "est_incl_taxes": 299, "room": "Deluxe Window"},
-      "Hotel Nuve Heritage": {"status": "ok", "display_rate": 190, "est_incl_taxes": 228, "room": "Double Room"},
+      "Hotel Mono": {"status": "ok", "display_rate": 168, "est_incl_taxes": 202, "room": "Standard Double Room"},
+      "Kesa House": {"status": "ok", "display_rate": 216, "est_incl_taxes": 259, "room": "Standard Room (No Window)"},
+      "Bliss Hotel": {"status": "sold_out"},
+      "Claude Hotel": {"status": "ok", "display_rate": 211, "est_incl_taxes": 253, "room": "Deluxe Window"},
+      "Hotel Nuve Heritage": {"status": "ok", "display_rate": 234, "est_incl_taxes": 281, "room": "Deluxe King Room"},
       "Rest Bugis Hotel": {"status": "sold_out"},
       "Coliwoo Kampong Glam": {"status": "sold_out"},
-      "Hotel Clover 769": {"status": "ok", "display_rate": 120, "est_incl_taxes": 144, "room": "Deluxe Double Room"}
+      "Hotel Clover 769": {"status": "ok", "display_rate": 217, "est_incl_taxes": 260, "room": "Double Room with Hot Tub (Indoor)"}
     },
-    "2026-07-22": {
-      "The Quay Hotel": {"status": "ok", "display_rate": 125, "est_incl_taxes": 150, "room": "Superior Double Room"},
-      "Kinn Habitat": {"status": "ok", "display_rate": 160, "est_incl_taxes": 192, "room": "Double Room with Private Bathroom"},
-      "Hotel Clover The Arts": {"status": "ok", "display_rate": 173, "est_incl_taxes": 207, "room": "Executive Queen Room"},
+    "2026-07-23": {
+      "The Quay Hotel": {"status": "sold_out"},
+      "Kinn Habitat": {"status": "ok", "display_rate": 182, "est_incl_taxes": 218, "room": "Double Room with Private Bathroom"},
+      "Hotel Clover The Arts": {"status": "ok", "display_rate": 143, "est_incl_taxes": 172, "room": "Superior Queen Room without Window"},
       "Hmlet Kada": {"status": "sold_out"},
       "Hmlet Chinatown": {"status": "sold_out"},
-      "Hotel 1900": {"status": "ok", "display_rate": 188, "est_incl_taxes": 225, "room": "Deluxe Queen Room"},
+      "Hotel 1900": {"status": "ok", "display_rate": 359, "est_incl_taxes": 431, "room": "Executive Queen Room"},
       "Kinn Studios": {"status": "sold_out"},
-      "Hotel Mono": {"status": "ok", "display_rate": 168, "est_incl_taxes": 201, "room": "Twin Room"},
-      "Kesa House": {"status": "ok", "display_rate": 204, "est_incl_taxes": 245, "room": "Standard Room (No Window)"},
+      "Hotel Mono": {"status": "ok", "display_rate": 171, "est_incl_taxes": 205, "room": "Twin Room"},
+      "Kesa House": {"status": "ok", "display_rate": 205, "est_incl_taxes": 246, "room": "Superior"},
       "Bliss Hotel": {"status": "sold_out"},
-      "Claude Hotel": {"status": "ok", "display_rate": 183, "est_incl_taxes": 220, "room": "Superior Double Room without Window"},
-      "Hotel Nuve Heritage": {"status": "ok", "display_rate": 176, "est_incl_taxes": 211, "room": "Quaint Queen"},
+      "Claude Hotel": {"status": "ok", "display_rate": 209, "est_incl_taxes": 251, "room": "Deluxe Window"},
+      "Hotel Nuve Heritage": {"status": "ok", "display_rate": 203, "est_incl_taxes": 244, "room": "Quaint Queen"},
       "Rest Bugis Hotel": {"status": "sold_out"},
-      "Coliwoo Kampong Glam": {"status": "ok", "display_rate": 201, "est_incl_taxes": 219, "room": "Standard Queen (No Window)"},
-      "Hotel Clover 769": {"status": "ok", "display_rate": 120, "est_incl_taxes": 144, "room": "Deluxe Double Room"}
+      "Coliwoo Kampong Glam": {"status": "ok", "display_rate": 309, "est_incl_taxes": 371, "room": "Kampong Glam Suite"},
+      "Hotel Clover 769": {"status": "ok", "display_rate": 217, "est_incl_taxes": 260, "room": "Double Room with Hot Tub (Indoor)"}
     }
   }
 }
