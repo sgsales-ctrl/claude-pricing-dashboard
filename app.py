@@ -466,37 +466,50 @@ def event_for(d: date):
 COMP_UNDERCUT = 0.95  # target ~5% below competitor equivalent-category rate
 
 
+# Display buckets for our rooms (tabs) and the competitor category each maps to
+CATEGORY_TABS = ["Single", "Studio", "Loft", "Premium", "Top"]
+COMP_CAT_FOR = {"Single": "Single", "Studio": "Studio", "Premium": "Studio",
+                "Loft": "Loft", "Top": "Suite"}
+
+
 def room_category(name: str) -> str:
-    """Bucket our room name into a competitor-comparable category."""
+    """Bucket our room name into a display category (Single/Studio/Loft/Premium/Top)."""
     n = name.casefold()
     if "single" in n:
         return "Single"
-    if "bedroom" in n or "raffles" in n or "stamford" in n:
-        return "Suite"
+    if "bedroom" in n or "raffles" in n or "stamford" in n or "suite" in n:
+        return "Top"
+    if "premium" in n or "deluxe" in n:
+        return "Premium"
     if "loft" in n:
         return "Loft"
     if "studio" in n:
         return "Studio"
-    return "Other"
+    return "Studio"
+
+
+def comp_rate_on(day_snapshot: dict, competitor: str, display_category: str):
+    """One competitor's rate (incl. taxes) for the equivalent category on a date.
+    Returns None if sold out for that category (excluded from benchmark)."""
+    info = day_snapshot.get(competitor, {})
+    if info.get("status") != "ok":
+        return None
+    comp_cat = COMP_CAT_FOR.get(display_category, "Studio")
+    bycat = info.get("by_category")
+    if isinstance(bycat, dict):
+        r = bycat.get(comp_cat)          # sold out for this category -> None (excluded)
+    else:
+        r = info.get("est_incl_taxes")   # old flat data: cheapest-room proxy
+    try:
+        return float(r) if r is not None else None
+    except (TypeError, ValueError):
+        return None
 
 
 def comp_category_median(sector_comps: list, scraped_day: dict, category: str):
-    """Median competitor rate (incl. taxes) for the equivalent room category.
-    Uses per-category data when the scrape provides it, else the competitor's
-    cheapest available rate as a proxy."""
-    vals = []
-    for comp in sector_comps:
-        info = scraped_day.get(comp, {})
-        if info.get("status") != "ok":
-            continue
-        bycat = info.get("by_category") or {}
-        r = bycat.get(category)
-        if r is None:  # proxy: cheapest available rate for this competitor
-            r = info.get("est_incl_taxes")
-        try:
-            vals.append(float(r))
-        except (TypeError, ValueError):
-            continue
+    """Median competitor rate (incl. taxes) for the equivalent room category,
+    excluding competitors whose equivalent category is sold out."""
+    vals = [v for c in sector_comps if (v := comp_rate_on(scraped_day, c, category)) is not None]
     if not vals:
         return None
     vals.sort()
@@ -648,7 +661,7 @@ if not properties:
     st.stop()
 
 st.sidebar.header("Filters")
-view = st.sidebar.radio("View", ["Portfolio overview", "Property detail"])
+view = st.sidebar.radio("View", ["Portfolio overview", "Property detail", "Competitor analysis"])
 
 if view == "Portfolio overview":
     st.subheader("Portfolio overview")
@@ -824,6 +837,87 @@ if name_filter:
         } for r in all_rooms_unfiltered])
         st.dataframe(inv, use_container_width=True, hide_index=True)
 
+# Per-room-type listed rates + type mapping (shared by detail & competitor views)
+cb_types = {}
+for r in rooms_data:
+    tname, tid = str(r.get("roomTypeName", "")), str(r.get("roomTypeID") or "")
+    if tname and tname not in cb_types:
+        cb_types[tname] = tid
+type_map = build_type_mapping(list(prop_pricing.keys()), list(cb_types.keys())) if prop_pricing else {}
+listed_maps = {}
+if prop_pricing:
+    for cb_name, tid in cb_types.items():
+        if not tid:
+            listed_maps[cb_name] = {}
+            continue
+        try:
+            listed_maps[cb_name] = rates_for_type(property_id, tid, str(window_days[0]),
+                                                  str(window_days[-1] + timedelta(days=1)))
+        except Exception:
+            listed_maps[cb_name] = {}
+
+# ===== Competitor analysis — per room type =====
+if view == "Competitor analysis":
+    st.subheader("Competitor Analysis — per room type")
+    st.caption("For each of our room types, current rate + recommended next to the comparable "
+               "competitor properties. Rates inclusive of taxes & fees.")
+    if not prop_pricing:
+        st.info(f"No pricing guide entry found for {property_name}.")
+        st.stop()
+    scraped = COMP_RATES.get("rates", {})
+    tonight = date.today()
+    # group our rooms by display category
+    by_cat = {c: [] for c in CATEGORY_TABS}
+    for room in prop_pricing:
+        by_cat.setdefault(room_category(room), []).append(room)
+    tabs = st.tabs(CATEGORY_TABS)
+    for tab, cat in zip(tabs, CATEGORY_TABS):
+        with tab:
+            rooms_here = by_cat.get(cat, [])
+            if not rooms_here:
+                st.caption(f"No {cat} room types at {property_name.replace('Heritage Collection on ','')}.")
+                continue
+            for room in rooms_here:
+                rates = prop_pricing[room]
+                cb_name = type_map.get(room)
+                st.markdown(f"**{room}**")
+                rows = []
+                for d in window_days:
+                    ds = str(d)
+                    days_out = (d - tonight).days
+                    occ_n = occ_counts.get(d)
+                    occ_pct = (occ_n / total_rooms) if (total_rooms and occ_n is not None) else None
+                    ev = event_for(d)
+                    listed = (listed_maps.get(cb_name) or {}).get(ds) if cb_name else None
+                    day_snap = scraped.get(ds, {})
+                    comp_vals = {}
+                    for comp in sector_comps:
+                        comp_vals[comp] = comp_rate_on(day_snap, comp, cat)
+                    present = [v for v in comp_vals.values() if v is not None]
+                    cheapest = min(present) if present else None
+                    comp_med = comp_category_median(sector_comps, day_snap, cat)
+                    rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med)
+                    row = {
+                        "Date": d.strftime("%m-%d"), "DOW": d.strftime("%a"),
+                        "Our rate": f"${listed:.0f}" if listed is not None else "None",
+                        "Our rec": f"${rec:.0f}",
+                    }
+                    for comp in sector_comps:
+                        v = comp_vals[comp]
+                        row[f"{comp} ({COMP_CAT_FOR.get(cat, 'Studio')})"] = f"${v:.0f}" if v is not None else "None"
+                    row["Cheapest comp"] = f"${cheapest:.0f}" if cheapest is not None else "None"
+                    if cheapest is not None:
+                        diff = rec - cheapest
+                        row["Our rec vs cheapest"] = f"${'+' if diff >= 0 else '-'}{abs(diff):.0f}"
+                    else:
+                        row["Our rec vs cheapest"] = "None"
+                    rows.append(row)
+                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
+               "dates not yet scraped show None. A competitor whose equivalent category is sold out is excluded. "
+               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
+    st.stop()
+
 # ===== Tonight at a glance =====
 st.subheader("Tonight at a glance")
 tonight = date.today()
@@ -902,25 +996,7 @@ if prop_pricing:
             comp_med_cache[cat] = comp_category_median(sector_comps, _comp_day, cat) if sector_comps else None
         return cat, comp_med_cache[cat]
 
-    # One-to-one mapping: pricing-guide room name -> Cloudbeds room type
-    cb_types = {}
-    for r in rooms_data:
-        tname, tid = str(r.get("roomTypeName", "")), str(r.get("roomTypeID") or "")
-        if tname and tname not in cb_types:
-            cb_types[tname] = tid
-    type_map = build_type_mapping(list(prop_pricing.keys()), list(cb_types.keys()))
-    # Listed rates per room type across the window (one getRate call per type)
-    listed_maps = {}
-    for cb_name, tid in cb_types.items():
-        if not tid:
-            listed_maps[cb_name] = {}
-            continue
-        try:
-            listed_maps[cb_name] = rates_for_type(property_id, tid,
-                                                  str(window_days[0]),
-                                                  str(window_days[-1] + timedelta(days=1)))
-        except Exception:
-            listed_maps[cb_name] = {}
+    # type_map and listed_maps are computed above (shared with the competitor view)
     is_gap_prop = any(g.casefold() == property_name.casefold() for g in GAP_PROPERTIES)
 
     def vacancy_run(cb_type: str, d0: date) -> int:
