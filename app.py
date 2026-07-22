@@ -908,7 +908,7 @@ if view == "Competitor analysis":
                     present = [v for v in comp_vals.values() if v is not None]
                     cheapest = min(present) if present else None
                     comp_med = comp_category_median(comps_shown, day_snap, cat)
-                    rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med)
+                    rec, why = recommend(rates, days_out, occ_pct, ev, comp_med)
                     row = {
                         "Date": d.strftime("%m-%d"), "DOW": d.strftime("%a"),
                         "Current rate": f"${listed:.0f}" if listed is not None else "None",
@@ -918,13 +918,14 @@ if view == "Competitor analysis":
                         v = comp_vals[comp]
                         row[f"{comp} ({COMP_CAT_FOR.get(cat, 'Studio')})"] = f"${v:.0f}" if v is not None else "None"
                     row["Cheapest comp"] = f"${cheapest:.0f}" if cheapest is not None else "None"
+                    row["Rationale"] = why
                     rows.append(row)
                 st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
                 if not comps_shown:
                     st.caption("No competitor has availability in this category over the selected window — showing our current rate and recommendation only.")
     st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
                "dates not yet scraped show None. Only competitors with availability in this category are shown; Kinn Habitat is excluded (hostel — dormitory beds only, not comparable). "
-               "'Current rate' is the listed Cloudbeds rate; 'Recommended' targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
+               "'Current rate' is the listed Cloudbeds rate; 'Rationale' shows how each 'Recommended' was derived; 'Recommended' targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
     st.stop()
 
 # ===== Tonight at a glance =====
