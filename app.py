@@ -464,6 +464,7 @@ def event_for(d: date):
 
 
 COMP_UNDERCUT = 0.95  # target ~5% below competitor equivalent-category rate
+PEAK_MONTHS = {7, 8}  # Jul & Aug: Singapore peak — anchor to competitors (5% below), suppress own-rate override
 
 
 # Display buckets for our rooms (tabs) and the competitor category each maps to
@@ -520,6 +521,7 @@ def comp_category_median(sector_comps: list, scraped_day: dict, category: str):
 def recommend(rates: dict, days_out: int, occ: float | None, ev, comp_median: float | None = None) -> tuple[float, str]:
     base = ladder_rate(rates, days_out)
     floor = rates["floor"]
+    is_peak = (date.today() + timedelta(days=days_out)).month in PEAK_MONTHS
     demand = (ev or {}).get("demand", "")
     # ---- Step 1: own occupancy / event-based rate ----
     if demand in ("High", "Very High"):
@@ -545,6 +547,11 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev, comp_median: fl
     if not comp_median:
         return round(occ_rate), occ_reason + " · no comp data"
     anchor = comp_median * COMP_UNDERCUT  # ~5% below competitor
+    if is_peak:
+        rec = max(anchor, floor)
+        if demand in ("High", "Very High"):
+            rec = max(rec, occ_rate)
+        return round(rec), occ_reason + f" · Jul/Aug peak — price 5% below comp S${comp_median:.0f}"
     if occ is not None and occ >= 0.85:
         rec = max(occ_rate, anchor)
         note = f"≥85% occ — take higher of own vs comp (comp S${comp_median:.0f})"
