@@ -907,11 +907,6 @@ if view == "Competitor analysis":
                         v = comp_vals[comp]
                         row[f"{comp} ({COMP_CAT_FOR.get(cat, 'Studio')})"] = f"${v:.0f}" if v is not None else "None"
                     row["Cheapest comp"] = f"${cheapest:.0f}" if cheapest is not None else "None"
-                    if cheapest is not None:
-                        diff = rec - cheapest
-                        row["Our rec vs cheapest"] = f"${'+' if diff >= 0 else '-'}{abs(diff):.0f}"
-                    else:
-                        row["Our rec vs cheapest"] = "None"
                     rows.append(row)
                 st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
                 if not comps_shown:
