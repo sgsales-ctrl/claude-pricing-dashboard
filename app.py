@@ -548,10 +548,15 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev, comp_median: fl
         return round(occ_rate), occ_reason + " · no comp data"
     anchor = comp_median * COMP_UNDERCUT  # ~5% below competitor
     if is_peak:
-        rec = max(anchor, floor)
+        if occ is not None and occ < OCC_TARGET:
+            rec = max(anchor, floor)
+            note = f"Jul/Aug peak, occ <{OCC_TARGET:.0%} — 5% below comp S${comp_median:.0f}"
+        else:
+            rec = max(occ_rate, floor)
+            note = f"Jul/Aug peak, occ ≥{OCC_TARGET:.0%} — hold own rate (5%-below-comp only when occ <{OCC_TARGET:.0%})"
         if demand in ("High", "Very High"):
             rec = max(rec, occ_rate)
-        return round(rec), occ_reason + f" · Jul/Aug peak — price 5% below comp S${comp_median:.0f}"
+        return round(rec), occ_reason + " · " + note
     if occ is not None and occ >= 0.85:
         rec = max(occ_rate, anchor)
         note = f"≥85% occ — take higher of own vs comp (comp S${comp_median:.0f})"
