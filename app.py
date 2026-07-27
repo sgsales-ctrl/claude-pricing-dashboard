@@ -464,7 +464,6 @@ def event_for(d: date):
 
 
 COMP_UNDERCUT = 0.95  # target ~5% below competitor equivalent-category rate
-PEAK_MONTHS = {7, 8}  # Jul & Aug: Singapore peak — anchor to competitors (5% below), suppress own-rate override
 
 
 # Display buckets for our rooms (tabs) and the competitor category each maps to
@@ -518,10 +517,41 @@ def comp_category_median(sector_comps: list, scraped_day: dict, category: str):
     return (vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2)
 
 
-def recommend(rates: dict, days_out: int, occ: float | None, ev, comp_median: float | None = None) -> tuple[float, str]:
+COMP_INVENTORY = COMPETITORS.get("inventory", {})
+
+
+def comp_occupancy(competitor: str, scraped_day: dict):
+    """Estimated occupancy of one competitor = 1 - (Booking.com units left / total inventory).
+    Directional: reflects Booking's allotment only. None if data/inventory missing."""
+    info = scraped_day.get(competitor, {})
+    inv = COMP_INVENTORY.get(competitor)
+    if not inv:
+        return None
+    if info.get("status") == "sold_out":
+        return 1.0
+    left = info.get("units_left_total")
+    if left is None:
+        return None
+    try:
+        return max(0.0, min(1.0, 1 - float(left) / inv))
+    except (TypeError, ValueError):
+        return None
+
+
+def sector_comp_occupancy(sector_comps: list, scraped_day: dict):
+    """Median estimated occupancy across a sector's competitors (excludes hostels w/o inventory)."""
+    occs = [o for c in sector_comps if (o := comp_occupancy(c, scraped_day)) is not None]
+    if not occs:
+        return None
+    occs.sort()
+    n = len(occs)
+    return (occs[n // 2] if n % 2 else (occs[n // 2 - 1] + occs[n // 2]) / 2)
+
+
+def recommend(rates: dict, days_out: int, occ: float | None, ev,
+              comp_median: float | None = None, comp_occ: float | None = None) -> tuple[float, str]:
     base = ladder_rate(rates, days_out)
     floor = rates["floor"]
-    is_peak = (date.today() + timedelta(days=days_out)).month in PEAK_MONTHS
     demand = (ev or {}).get("demand", "")
     # ---- Step 1: own occupancy / event-based rate ----
     if demand in ("High", "Very High"):
@@ -545,29 +575,26 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev, comp_median: fl
     occ_rate = max(occ_rate, floor)
     # ---- Step 2: blend with competitor equivalent-category rate ----
     if not comp_median:
-        return round(occ_rate), occ_reason + " · no comp data"
-    anchor = comp_median * COMP_UNDERCUT  # ~5% below competitor
-    if is_peak:
-        if occ is not None and occ < OCC_TARGET:
-            rec = max(anchor, floor)
-            note = f"Jul/Aug peak, occ <{OCC_TARGET:.0%} — 5% below comp S${comp_median:.0f}"
-        else:
-            rec = max(occ_rate, comp_median, floor)
-            note = f"Jul/Aug peak, occ ≥{OCC_TARGET:.0%} — higher of own rate vs comp S${comp_median:.0f} (never undercut)"
-        if demand in ("High", "Very High"):
-            rec = max(rec, occ_rate)
-        return round(rec), occ_reason + " · " + note
-    if occ is not None and occ >= 0.85:
-        rec = max(occ_rate, anchor)
-        note = f"≥85% occ — take higher of own vs comp (comp S${comp_median:.0f})"
-    elif occ is not None and occ < OCC_TARGET:
-        rec = min(occ_rate, anchor)
-        note = f"soft occ — ~5% below comp S${comp_median:.0f} to win share"
+        rec, note = occ_rate, "no comp rate"
     else:
-        rec = anchor
-        note = f"~5% below comp median S${comp_median:.0f}"
-    if demand in ("High", "Very High"):
-        rec = max(rec, occ_rate)  # never undercut an event uplift
+        anchor = comp_median * COMP_UNDERCUT  # ~5% below competitor
+        if occ is not None and occ >= 0.85:
+            rec = max(occ_rate, anchor)
+            note = f"≥85% occ — take higher of own vs comp (comp S${comp_median:.0f})"
+        elif occ is not None and occ < OCC_TARGET:
+            rec = min(occ_rate, anchor)
+            note = f"soft occ — ~5% below comp S${comp_median:.0f} to win share"
+        else:
+            rec = anchor
+            note = f"~5% below comp median S${comp_median:.0f}"
+        if demand in ("High", "Very High"):
+            rec = max(rec, occ_rate)  # never undercut an event uplift
+    # ---- Step 3: competitor occupancy (area compression) ----
+    if comp_occ is not None and comp_occ >= 0.85 and demand not in ("High", "Very High"):
+        lifted = round(rec * 1.05)
+        if lifted > rec:
+            rec = lifted
+            note += f" · competitors {comp_occ:.0%} full — +5% compression"
     rec = max(rec, floor)
     return round(rec), occ_reason + " · " + note
 
@@ -819,8 +846,6 @@ if prop_pricing is None:
 sector = next((s for s, v in COMPETITORS.items()
                if isinstance(v, dict) and property_name in v.get("hc_properties", [])), None)
 sector_comps = COMPETITORS.get(sector, {}).get("competitors", []) if sector else []
-# Exclude competitors not comparable to our private rooms (Kinn Habitat = hostel, dorm beds only).
-sector_comps = [c for c in sector_comps if _norm(c) != _norm("Kinn Habitat")]
 
 # Total rooms (apply room-name filter for shared Cloudbeds properties, e.g. Seah)
 name_filter = next((v for k, v in ROOM_NAME_FILTERS.items()
@@ -895,20 +920,8 @@ if view == "Competitor analysis":
                 rates = prop_pricing[room]
                 cb_name = type_map.get(room)
                 st.markdown(f"**{room}**")
-                avail_days = []
-                for d in window_days:
-                    try:
-                        _snap = availability_by_type(property_id, str(d))
-                    except Exception:
-                        _snap = {}
-                    if cb_name and any(_norm(k) == _norm(cb_name) and v > 0 for k, v in _snap.items()):
-                        avail_days.append(d)
-                if not avail_days:
-                    st.caption(f"No availability for {room} in the selected window — nothing to sell, so no comparison is shown.")
-                    continue
-                comps_shown = [c for c in sector_comps if any(comp_rate_on(scraped.get(str(d), {}), c, cat) is not None for d in avail_days)]
                 rows = []
-                for d in avail_days:
+                for d in window_days:
                     ds = str(d)
                     days_out = (d - tonight).days
                     occ_n = occ_counts.get(d)
@@ -916,28 +929,33 @@ if view == "Competitor analysis":
                     ev = event_for(d)
                     listed = (listed_maps.get(cb_name) or {}).get(ds) if cb_name else None
                     day_snap = scraped.get(ds, {})
-                    comp_vals = {c: comp_rate_on(day_snap, c, cat) for c in comps_shown}
+                    comp_vals = {}
+                    for comp in sector_comps:
+                        comp_vals[comp] = comp_rate_on(day_snap, comp, cat)
                     present = [v for v in comp_vals.values() if v is not None]
                     cheapest = min(present) if present else None
-                    comp_med = comp_category_median(comps_shown, day_snap, cat)
-                    rec, why = recommend(rates, days_out, occ_pct, ev, comp_med)
+                    comp_med = comp_category_median(sector_comps, day_snap, cat)
+                    rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med,
+                                       sector_comp_occupancy(sector_comps, day_snap))
                     row = {
                         "Date": d.strftime("%m-%d"), "DOW": d.strftime("%a"),
-                        "Current rate": f"${listed:.0f}" if listed is not None else "None",
-                        "Recommended": f"${rec:.0f}",
+                        "Our rate": f"${listed:.0f}" if listed is not None else "None",
+                        "Our rec": f"${rec:.0f}",
                     }
-                    for comp in comps_shown:
+                    for comp in sector_comps:
                         v = comp_vals[comp]
                         row[f"{comp} ({COMP_CAT_FOR.get(cat, 'Studio')})"] = f"${v:.0f}" if v is not None else "None"
                     row["Cheapest comp"] = f"${cheapest:.0f}" if cheapest is not None else "None"
-                    row["Rationale"] = why
+                    if cheapest is not None:
+                        diff = rec - cheapest
+                        row["Our rec vs cheapest"] = f"${'+' if diff >= 0 else '-'}{abs(diff):.0f}"
+                    else:
+                        row["Our rec vs cheapest"] = "None"
                     rows.append(row)
                 st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
-                if not comps_shown:
-                    st.caption("No competitor has availability in this category over the selected window — showing our current rate and recommendation only.")
     st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
-               "dates not yet scraped show None. Only competitors with availability in this category are shown; Kinn Habitat is excluded (hostel — dormitory beds only, not comparable). "
-               "'Current rate' is the listed Cloudbeds rate; 'Rationale' shows how each 'Recommended' was derived; 'Recommended' targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
+               "dates not yet scraped show None. A competitor whose equivalent category is sold out is excluded. "
+               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
     st.stop()
 
 # ===== Tonight at a glance =====
@@ -1047,6 +1065,7 @@ if prop_pricing:
         ev = event_for(d)
         ev_demand = str((ev or {}).get("demand", ""))
         show_event = ev is not None and not ev_demand.casefold().startswith("low")
+        d_comp_occ = sector_comp_occupancy(sector_comps, _scraped.get(str(d), _comp_day))
         for room, rates in prop_pricing.items():
             cb_name = type_map.get(room)
             room_vacancy = vac_types.get(cb_name) if cb_name else None
@@ -1058,7 +1077,7 @@ if prop_pricing:
                 if run < GAP_MIN_NIGHTS:
                     vac_label = f"Gap ({run} night{'s' if run != 1 else ''})"
             cat, comp_med = comp_med_for(room)
-            rec, why = recommend(rates, days_out, occ_pct, ev, comp_med)
+            rec, why = recommend(rates, days_out, occ_pct, ev, comp_med, d_comp_occ)
             listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
@@ -1105,28 +1124,38 @@ st.subheader(f"Rates vs competitors — {sector or 'sector unknown'}")
 scraped = COMP_RATES.get("rates", {})
 latest_day = max(scraped.keys()) if scraped else None
 if latest_day and sector_comps:
+    day_snap = scraped.get(latest_day, {})
     rows = []
     for comp in sector_comps:
-        info = scraped.get(latest_day, {}).get(comp, {})
-        if info.get("status") == "ok":
-            rows.append({"Competitor": comp, "Status": "Available",
-                         "Rate incl. taxes (S$)": info.get("est_incl_taxes"),
-                         "Room": info.get("room", "")})
-        else:
-            rows.append({"Competitor": comp, "Status": "SOLD OUT", "Rate incl. taxes (S$)": None, "Room": ""})
+        info = day_snap.get(comp, {})
+        inv = COMP_INVENTORY.get(comp)
+        occ = comp_occupancy(comp, day_snap)
+        left = info.get("units_left_total")
+        rows.append({
+            "Competitor": comp,
+            "Status": "Available" if info.get("status") == "ok" else "SOLD OUT",
+            "Rate incl. taxes (S$)": info.get("est_incl_taxes") if info.get("status") == "ok" else None,
+            "Inventory": inv if inv else "—",
+            "Units left": left if left is not None else ("0" if info.get("status") == "sold_out" else "—"),
+            "Est. occ %": f"{occ:.0%}" if occ is not None else "—",
+            "Room": info.get("room", ""),
+        })
     comp_df = pd.DataFrame(rows)
     st.dataframe(comp_df, use_container_width=True, hide_index=True)
 
     avail = comp_df["Rate incl. taxes (S$)"].dropna()
-    our_short = pd.Series([v["d4_7"] for v in prop_pricing.values()]).mean() if prop_pricing else None
+    sect_occ = sector_comp_occupancy(sector_comps, day_snap)
     m1, m2, m3 = st.columns(3)
     m1.metric("Comp median (avail.)", f"S$ {avail.median():.0f}" if not avail.empty else "all sold out")
-    m2.metric("Our avg short-window rate", f"S$ {our_short:.0f}" if our_short else "n/a")
+    m2.metric("Competitors' occupancy", f"{sect_occ:.0%}" if sect_occ is not None else "—",
+              "compression — lift" if (sect_occ is not None and sect_occ >= 0.85) else None,
+              delta_color="off")
     sold_out_n = (comp_df["Status"] == "SOLD OUT").sum()
-    m3.metric("Comps sold out", f"{sold_out_n}/{len(comp_df)}",
-              "compression — hold rates" if sold_out_n > len(comp_df) / 2 else None)
-    st.caption(f"Booking.com rates for {latest_day} (cheapest room, 2 adults, est. incl. taxes/fees). "
-               "Refresh data/comp_rates.json regularly.")
+    m3.metric("Comps sold out", f"{sold_out_n}/{len(comp_df)}")
+    st.caption(f"Booking.com rates & availability for {latest_day} (2 adults, incl. taxes & fees). "
+               "Est. occ % = 1 − Booking units-left ÷ total inventory (directional; reflects Booking's allotment only). "
+               "Kinn Habitat: rate uses private rooms; occupancy includes dorm. When competitors are ≥85% full, "
+               "that compression nudges our rate up (+5%). Refresh data/comp_rates.json regularly.")
 else:
     st.info("No competitor rates on file — update data/comp_rates.json.")
 
