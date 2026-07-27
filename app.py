@@ -556,7 +556,7 @@ def sector_comp_occupancy(sector_comps: list, scraped_day: dict):
 
 
 def recommend(rates: dict, days_out: int, occ: float | None, ev,
-              comp_median: float | None = None, comp_occ: float | None = None) -> tuple[float, str]:
+              comp_median: float | None = None, comp_occ: float | None = None, listed: float | None = None) -> tuple[float, str]:
     base = ladder_rate(rates, days_out)
     floor = rates["floor"]
     demand = (ev or {}).get("demand", "")
@@ -602,6 +602,9 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
         if lifted > rec:
             rec = lifted
             note += f" · competitors {comp_occ:.0%} full — +5% compression"
+    if listed is not None and occ is not None and occ >= OCC_TARGET and listed > rec:
+        rec = listed
+        note += f" · occ ≥{OCC_TARGET:.0%} — holding current listed rate"
     rec = max(rec, floor)
     return round(rec), occ_reason + " · " + note
 
@@ -943,7 +946,7 @@ if view == "Competitor analysis":
                     cheapest = min(present) if present else None
                     comp_med = comp_category_median(sector_comps, day_snap, cat)
                     rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med,
-                                       sector_comp_occupancy(sector_comps, day_snap))
+                                       sector_comp_occupancy(sector_comps, day_snap), listed)
                     row = {
                         "Date": d.strftime("%m-%d"), "DOW": d.strftime("%a"),
                         "Our rate": f"${listed:.0f}" if listed is not None else "None",
@@ -965,7 +968,7 @@ if view == "Competitor analysis":
                 st.dataframe(_casty, use_container_width=True, hide_index=True)
     st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
                "dates not yet scraped show None. A competitor whose equivalent category is sold out is excluded. "
-               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
+               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%. At ≥80% occupancy the rec never drops below the current listed rate.")
     st.stop()
 
 # ===== Tonight at a glance =====
@@ -1087,7 +1090,7 @@ if prop_pricing:
                 if run < GAP_MIN_NIGHTS:
                     vac_label = f"Gap ({run} night{'s' if run != 1 else ''})"
             cat, comp_med = comp_med_for(room)
-            rec, why = recommend(rates, days_out, occ_pct, ev, comp_med, d_comp_occ)
+            listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None; rec, why = recommend(rates, days_out, occ_pct, ev, comp_med, d_comp_occ, listed)
             listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
@@ -1126,7 +1129,7 @@ if prop_pricing:
                "High/Very High demand events: priced above IA rate using the event's suggested markup "
                "(from the events tracker), default +10%/+20%. "
                "Comp median = competitor rate for the equivalent room category (latest scrape); we target "
-               "~5% below it, but when our occupancy ≥85% we take the higher of own-rate vs competitor. "
+               "~5% below it, but when our occupancy ≥85% we take the higher of own-rate vs competitor. At ≥80% occupancy we never recommend below the current listed rate. "
                f"Long-stay properties (Ann Siang, BQ South Bridge, Smith, Boon Tat): vacancy shorter than "
                f"{GAP_MIN_NIGHTS} consecutive nights shows as a Gap, not sellable vacancy.")
 else:
