@@ -488,6 +488,11 @@ def room_category(name: str) -> str:
     return "Studio"
 
 
+# Hostels whose cheapest room is a dorm bed — their RATE benchmark must use
+# private rooms only (never the flat cheapest proxy, which is a dorm).
+RATE_PRIVATE_ONLY = set(COMPETITORS.get("rate_private_only", ["Kinn Habitat"]))
+
+
 def comp_rate_on(day_snapshot: dict, competitor: str, display_category: str):
     """One competitor's rate (incl. taxes) for the equivalent category on a date.
     Returns None if sold out for that category (excluded from benchmark)."""
@@ -498,6 +503,8 @@ def comp_rate_on(day_snapshot: dict, competitor: str, display_category: str):
     bycat = info.get("by_category")
     if isinstance(bycat, dict):
         r = bycat.get(comp_cat)          # sold out for this category -> None (excluded)
+    elif competitor in RATE_PRIVATE_ONLY:
+        r = None                          # dorm hostel: no flat fallback (that price is a dorm bed)
     else:
         r = info.get("est_incl_taxes")   # old flat data: cheapest-room proxy
     try:
