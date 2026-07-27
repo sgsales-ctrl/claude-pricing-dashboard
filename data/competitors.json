@@ -1,5 +1,27 @@
 {
-  "_comment": "Competitor set per sector. hc_properties lists the Heritage Collection properties each sector's competitors apply to.",
+  "_comment": "Competitor set per sector. hc_properties = the Heritage Collection properties each sector's competitors apply to. inventory = total sellable units for occupancy % (verified vs public sources 2026-07). Kinn Habitat inventory=128 (private rooms + dorm capsules) for whole-property occupancy, but its RATE benchmark uses private rooms only.",
+  "inventory": {
+    "The Quay Hotel": 41,
+    "Kinn Habitat": 128,
+    "Hotel Clover The Arts": 44,
+    "Hmlet Kada": 18,
+    "Lyf Chinatown": 90,
+    "Hmlet Chinatown": 38,
+    "Hotel 1900": 134,
+    "Kinn Studios": 23,
+    "Hotel Mono": 46,
+    "Kesa": 59,
+    "Bliss Hotel": 42,
+    "Claude Hotel": 49,
+    "Hotel Nuve Heritage": 20,
+    "Rest Bugis Hotel": 74,
+    "Coliwoo Kampong Glam": 24,
+    "Hotel Clover 769": 35
+  },
+  "notes": {
+    "Kinn Habitat": "Capsule/dorm hostel: 8 private rooms + 120 dorm capsules. RATE benchmark uses private rooms only; OCCUPANCY uses the full 128 (incl. dorm) to reflect whole-property fill.",
+    "Claude Hotel": "49 per Booking/TripAdvisor/aggregators; the earlier 43 was from the internal inventory sheet, not a public source."
+  },
   "QUAYS": {
     "competitors": ["The Quay Hotel", "Kinn Habitat", "Hotel Clover The Arts"],
     "hc_properties": [
@@ -9,7 +31,7 @@
     ]
   },
   "CHINATOWN": {
-    "competitors": ["Hmlet Kada", "Hmlet Chinatown", "Hotel 1900", "Kinn Studios", "Hotel Mono", "Kesa", "Bliss Hotel", "Claude Hotel"],
+    "competitors": ["Hmlet Kada", "Lyf Chinatown", "Hmlet Chinatown", "Hotel 1900", "Kinn Studios", "Hotel Mono", "Kesa", "Bliss Hotel", "Claude Hotel"],
     "hc_properties": [
       "Heritage Collection on Ann Siang",
       "Heritage Collection on Boon Tat",
