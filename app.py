@@ -959,7 +959,10 @@ if view == "Competitor analysis":
                     else:
                         row["Our rec vs cheapest"] = "None"
                     rows.append(row)
-                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                _cadf = pd.DataFrame(rows)
+                _casty = _cadf.style.set_properties(
+                    subset=["Our rec"], **{"background-color": "#FFF3B0", "font-weight": "bold"})
+                st.dataframe(_casty, use_container_width=True, hide_index=True)
     st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
                "dates not yet scraped show None. A competitor whose equivalent category is sold out is excluded. "
                "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
@@ -1102,7 +1105,10 @@ if prop_pricing:
                 "Reason": why,
             })
     if rec_rows:
-        st.dataframe(pd.DataFrame(rec_rows), use_container_width=True, hide_index=True, height=500)
+        _recdf = pd.DataFrame(rec_rows)
+        _recsty = _recdf.style.set_properties(
+            subset=["Recommended (S$)"], **{"background-color": "#FFF3B0", "font-weight": "bold"})
+        st.dataframe(_recsty, use_container_width=True, hide_index=True, height=500)
     else:
         st.success("All room types fully booked across the selected window — nothing to price.")
     unmatched = [room for room in prop_pricing if room not in type_map]
