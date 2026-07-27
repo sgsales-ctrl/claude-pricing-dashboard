@@ -18,6 +18,7 @@
     "Coliwoo Kampong Glam": 24,
     "Hotel Clover 769": 35
   },
+  "rate_private_only": ["Kinn Habitat"],
   "notes": {
     "Kinn Habitat": "Capsule/dorm hostel: 8 private rooms + 120 dorm capsules. RATE benchmark uses private rooms only; OCCUPANCY uses the full 128 (incl. dorm) to reflect whole-property fill.",
     "Claude Hotel": "49 per Booking/TripAdvisor/aggregators; the earlier 43 was from the internal inventory sheet, not a public source."
