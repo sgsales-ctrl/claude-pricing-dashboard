@@ -1,7 +1,7 @@
 {
   "_comment": "Heritage Collection pricing guide. IA = ideal base rate (>10 days to arrival), then 7-10 days, 4-7 days, breakeven floor applies 0-3 days out. All SGD.",
   "Heritage Collection on Seah": {
-    "Loft (No Window)": {"ia": 150, "d7_10": 145, "d4_7": 140, "floor": 97},
+    "Seah Loft (No Window)": {"ia": 150, "d7_10": 145, "d4_7": 140, "floor": 97},
     "Loft": {"ia": 150, "d7_10": 145, "d4_7": 140, "floor": 97},
     "Premium Loft": {"ia": 160, "d7_10": 155, "d4_7": 150, "floor": 97},
     "Premium Loft Plus": {"ia": 180, "d7_10": 175, "d4_7": 170, "floor": 100}
