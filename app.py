@@ -856,23 +856,72 @@ if view == "Competitor analysis":
         st.stop()
     scraped = COMP_RATES.get("rates", {})
     tonight = date.today()
-    # group our rooms by display category
-    by_cat = {c: [] for c in CATEGORY_TABS}
+
+    # ---- our vacancy per Cloudbeds room type per night (to show only sellable dates) ----
+    type_totals = {}
+    for r in rooms_data:
+        t = str(r.get("roomTypeName", ""))
+        type_totals[t] = type_totals.get(t, 0) + 1
+    try:
+        _booked = reservation_rooms_overlapping(
+            property_id, str(min(window_days) - timedelta(days=GAP_MIN_NIGHTS)),
+            str(max(window_days) + timedelta(days=GAP_MIN_NIGHTS)))
+    except Exception:
+        _booked = []
+    _allowed_norm = ({_norm(t) for t in allowed_types} if allowed_types is not None else None)
+    _vac_cache = {}
+
+    def _vac_on(day: date) -> dict:
+        if day not in _vac_cache:
+            occ = {}
+            for br in _booked:
+                if _allowed_norm is not None and _norm(br["type"]) not in _allowed_norm:
+                    continue
+                if br["ci"] <= day < br["co"]:
+                    key = br["type"] if br["type"] in type_totals else next(
+                        (t for t in type_totals if _norm(t) == _norm(br["type"])), None)
+                    if key:
+                        occ[key] = occ.get(key, 0) + 1
+            _vac_cache[day] = {t: max(type_totals[t] - occ.get(t, 0), 0) for t in type_totals}
+        return _vac_cache[day]
+
+    _is_gap_prop = any(g.casefold() == property_name.casefold() for g in GAP_PROPERTIES)
+
+    def _sellable(cb_type, d) -> bool:
+        if not cb_type:
+            return True  # unmatched name — don't hide
+        if _vac_on(d).get(cb_type, 0) <= 0:
+            return False
+        if _is_gap_prop:  # gap-only vacancy isn't sellable under min stay
+            run, dd = 1, d - timedelta(days=1)
+            while run < GAP_MIN_NIGHTS and _vac_on(dd).get(cb_type, 0) > 0:
+                run += 1; dd -= timedelta(days=1)
+            dd = d + timedelta(days=1)
+            while run < GAP_MIN_NIGHTS and _vac_on(dd).get(cb_type, 0) > 0:
+                run += 1; dd += timedelta(days=1)
+            if run < GAP_MIN_NIGHTS:
+                return False
+        return True
+
+    # only tabs for categories this property actually has
+    by_cat = {}
     for room in prop_pricing:
         by_cat.setdefault(room_category(room), []).append(room)
-    tabs = st.tabs(CATEGORY_TABS)
-    for tab, cat in zip(tabs, CATEGORY_TABS):
+    cats_present = [c for c in CATEGORY_TABS if by_cat.get(c)]
+    if not cats_present:
+        st.info("No room types found for this property.")
+        st.stop()
+    tabs = st.tabs(cats_present)
+    for tab, cat in zip(tabs, cats_present):
         with tab:
-            rooms_here = by_cat.get(cat, [])
-            if not rooms_here:
-                st.caption(f"No {cat} room types at {property_name.replace('Heritage Collection on ','')}.")
-                continue
-            for room in rooms_here:
+            shown_any = False
+            for room in by_cat[cat]:
                 rates = prop_pricing[room]
                 cb_name = type_map.get(room)
-                st.markdown(f"**{room}**")
                 rows = []
                 for d in window_days:
+                    if not _sellable(cb_name, d):
+                        continue  # skip dates this room is fully booked / not sellable
                     ds = str(d)
                     days_out = (d - tonight).days
                     occ_n = occ_counts.get(d)
@@ -903,12 +952,20 @@ if view == "Competitor analysis":
                     else:
                         row["Our rec vs cheapest"] = "None"
                     rows.append(row)
+                if not rows:
+                    continue  # this room type is fully booked across the whole window
+                shown_any = True
+                st.markdown(f"**{room}**")
                 _cadf = pd.DataFrame(rows)
                 _casty = _cadf.style.set_properties(
                     subset=["Our rec"], **{"background-color": "#FFF3B0", "font-weight": "bold"})
                 st.dataframe(_casty, use_container_width=True, hide_index=True)
-    st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
-               "dates not yet scraped show None. A competitor whose equivalent category is sold out is excluded. "
+            if not shown_any:
+                st.caption(f"All {cat} room types are fully booked across the selected window.")
+    st.caption("Only dates where the room is genuinely vacant/sellable are shown (fully-booked dates are hidden; "
+               "for long-stay properties, gap-only nights are excluded). "
+               "Competitor rates come from the daily Booking.com scrape (by category, incl. taxes & fees); "
+               "dates not yet scraped show None; sold-out competitors are excluded. "
                "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
     st.stop()
 
