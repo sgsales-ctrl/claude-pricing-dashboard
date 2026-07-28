@@ -259,18 +259,6 @@ def rates_for_type(property_id: str, room_type_id: str, start: str, end: str) ->
 
 
 @st.cache_data(ttl=300)
-def assignments_for_date(property_id: str, day: str) -> list:
-    """Room-level reservation assignments for one date (which physical rooms are taken)."""
-    data = cloudbeds_get("getReservationAssignments", {"propertyID": property_id, "date": day})
-    if isinstance(data, dict):
-        for k in ("assignments", "reservationAssignments", "rooms"):
-            if isinstance(data.get(k), list):
-                return data[k]
-        return []
-    return data or []
-
-
-@st.cache_data(ttl=300)
 def reservation_rooms_overlapping(property_id: str, start: str, end: str) -> list:
     """Room-level bookings (with room TYPE) for reservations that could cover
     [start, end] — from getReservationsWithRateDetails, fully paginated.
@@ -310,31 +298,6 @@ def reservation_rooms_overlapping(property_id: str, start: str, end: str) -> lis
             break
         page += 1
     return out
-
-
-@st.cache_data(ttl=300)
-def reservations_overlapping(property_id: str, start: str, end: str) -> list:
-    """All reservations that could cover a night in [start, end] — fully paginated."""
-    out, page, prev_first = [], 1, None
-    while page <= MAX_PAGES:
-        batch = cloudbeds_get("getReservations", {
-            "propertyID": property_id,
-            "checkOutFrom": start,   # still in-house on/after window start
-            "checkInTo": end,        # arrives before window ends
-            "pageNumber": page, "pageSize": 100,
-        })
-        if not batch:
-            break
-        first = str(batch[0].get("reservationID", "")) if isinstance(batch[0], dict) else str(batch[0])
-        if first and first == prev_first:
-            break  # endpoint ignored pageNumber — same page again, stop
-        prev_first = first
-        out.extend(batch)
-        if len(batch) < 100:
-            break
-        page += 1
-    # physical occupancy: exclude cancellations and no-shows client-side
-    return [r for r in out if str(r.get("status", "")).lower() not in ("canceled", "cancelled", "no_show")]
 
 
 def split_vacant_for_date(rooms_list: list, booked_rooms: list,
@@ -395,34 +358,15 @@ def occupancy_for_dates(property_id: str, days: list[date], total_rooms: int,
     try:
         booked = reservation_rooms_overlapping(property_id, str(min(days)), str(max(days)))
     except Exception:
-        booked = None
+        return {d: None for d in days}  # no fallback endpoint — show n/a rather than a wrong number
     counts = {d: 0 for d in days}
-    if booked is not None:
-        allowed_norm = ({_norm(t) for t in allowed_types} if allowed_types is not None else None)
-        for br in booked:
-            if allowed_norm is not None and _norm(br["type"]) not in allowed_norm:
-                continue
-            for d in counts:
-                if br["ci"] <= d < br["co"]:
-                    counts[d] += 1
-    else:
-        # Fallback: reservation-level counting (one booking = one room)
-        try:
-            res = reservations_overlapping(property_id, str(min(days)), str(max(days)))
-        except Exception:
-            return {d: None for d in days}
-        for r in res:
-            rt = r.get("roomTypeName") or r.get("roomType") or ""
-            if allowed_types is not None and rt and rt not in allowed_types:
-                continue
-            try:
-                ci = pd.to_datetime(r["startDate"]).date()
-                co = pd.to_datetime(r["endDate"]).date()
-            except (KeyError, ValueError):
-                continue
-            for d in counts:
-                if ci <= d < co:
-                    counts[d] += 1
+    allowed_norm = ({_norm(t) for t in allowed_types} if allowed_types is not None else None)
+    for br in booked:
+        if allowed_norm is not None and _norm(br["type"]) not in allowed_norm:
+            continue
+        for d in counts:
+            if br["ci"] <= d < br["co"]:
+                counts[d] += 1
     if total_rooms:  # a room can't be occupied twice; cap at total
         counts = {d: min(c, total_rooms) for d, c in counts.items()}
     return counts
@@ -556,7 +500,7 @@ def sector_comp_occupancy(sector_comps: list, scraped_day: dict):
 
 
 def recommend(rates: dict, days_out: int, occ: float | None, ev,
-              comp_median: float | None = None, comp_occ: float | None = None, listed: float | None = None) -> tuple[float, str]:
+              comp_median: float | None = None, comp_occ: float | None = None) -> tuple[float, str]:
     base = ladder_rate(rates, days_out)
     floor = rates["floor"]
     demand = (ev or {}).get("demand", "")
@@ -602,9 +546,6 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
         if lifted > rec:
             rec = lifted
             note += f" · competitors {comp_occ:.0%} full — +5% compression"
-    if listed is not None and occ is not None and occ >= OCC_TARGET and listed > rec:
-        rec = listed
-        note += f" · occ ≥{OCC_TARGET:.0%} — holding current listed rate"
     rec = max(rec, floor)
     return round(rec), occ_reason + " · " + note
 
@@ -946,7 +887,7 @@ if view == "Competitor analysis":
                     cheapest = min(present) if present else None
                     comp_med = comp_category_median(sector_comps, day_snap, cat)
                     rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med,
-                                       sector_comp_occupancy(sector_comps, day_snap), listed)
+                                       sector_comp_occupancy(sector_comps, day_snap))
                     row = {
                         "Date": d.strftime("%m-%d"), "DOW": d.strftime("%a"),
                         "Our rate": f"${listed:.0f}" if listed is not None else "None",
@@ -968,7 +909,7 @@ if view == "Competitor analysis":
                 st.dataframe(_casty, use_container_width=True, hide_index=True)
     st.caption("Competitor rates come from the daily Booking.com scrape (by room category, incl. taxes & fees); "
                "dates not yet scraped show None. A competitor whose equivalent category is sold out is excluded. "
-               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%. At ≥80% occupancy the rec never drops below the current listed rate.")
+               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
     st.stop()
 
 # ===== Tonight at a glance =====
@@ -987,28 +928,6 @@ else:
 ev_today = event_for(tonight)
 c3.metric("Tonight's demand driver", (ev_today or {}).get("demand", "None"),
           (ev_today or {}).get("name", "no dominant driver"))
-
-# ----- Room-assignment helper (physical occupancy per room) -----
-def assigned_room_keys(day: str) -> set:
-    keys = set()
-    try:
-        for e in assignments_for_date(property_id, day):
-            if not isinstance(e, dict):
-                continue
-            units = e.get("assigned")
-            units = units if isinstance(units, list) else ([units] if isinstance(units, dict) else [e])
-            for u in units:
-                if isinstance(u, dict):
-                    rid = str(u.get("roomID") or "")
-                    if rid:
-                        keys.add(rid)
-                    rn = _norm(u.get("roomName", ""))
-                    if rn:
-                        keys.add(rn)
-    except Exception:
-        pass
-    return keys
-
 
 def vacant_count_by_type(d: date) -> dict:
     """Vacancy per room type on a date, from room-level booking data
@@ -1090,7 +1009,7 @@ if prop_pricing:
                 if run < GAP_MIN_NIGHTS:
                     vac_label = f"Gap ({run} night{'s' if run != 1 else ''})"
             cat, comp_med = comp_med_for(room)
-            listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None; rec, why = recommend(rates, days_out, occ_pct, ev, comp_med, d_comp_occ, listed)
+            rec, why = recommend(rates, days_out, occ_pct, ev, comp_med, d_comp_occ)
             listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),
@@ -1129,7 +1048,7 @@ if prop_pricing:
                "High/Very High demand events: priced above IA rate using the event's suggested markup "
                "(from the events tracker), default +10%/+20%. "
                "Comp median = competitor rate for the equivalent room category (latest scrape); we target "
-               "~5% below it, but when our occupancy ≥85% we take the higher of own-rate vs competitor. At ≥80% occupancy we never recommend below the current listed rate. "
+               "~5% below it, but when our occupancy ≥85% we take the higher of own-rate vs competitor. "
                f"Long-stay properties (Ann Siang, BQ South Bridge, Smith, Boon Tat): vacancy shorter than "
                f"{GAP_MIN_NIGHTS} consecutive nights shows as a Gap, not sellable vacancy.")
 else:
