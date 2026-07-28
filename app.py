@@ -232,33 +232,6 @@ def availability_by_type(property_id: str, day: str) -> dict:
 
 
 @st.cache_data(ttl=300)
-def rates_for_type(property_id: str, room_type_id: str, start: str, end: str) -> dict:
-    """Listed rate per date for one room type, from getRate. Quiet: returns {}
-    on any failure (e.g. 'no rate found') instead of stopping the app."""
-    try:
-        r = requests.get(f"{BASE_URL}/getRate", headers=HEADERS, params={
-            "propertyID": property_id, "roomTypeID": room_type_id,
-            "startDate": start, "endDate": end,
-            "adults": 1, "detailedRates": "true",
-        }, timeout=15)
-        body = r.json()
-        if not body.get("success", False):
-            return {}
-        data = body.get("data") or {}
-    except Exception:
-        return {}
-    det = data.get("roomRateDetailed") or [] if isinstance(data, dict) else []
-    out = {}
-    for x in det:
-        if isinstance(x, dict) and x.get("date") is not None and x.get("rate") is not None:
-            try:
-                out[str(x["date"])] = round(float(x["rate"]))
-            except (TypeError, ValueError):
-                pass
-    return out
-
-
-@st.cache_data(ttl=300)
 def reservation_rooms_overlapping(property_id: str, start: str, end: str) -> list:
     """Room-level bookings (with room TYPE) for reservations that could cover
     [start, end] — from getReservationsWithRateDetails, fully paginated.
@@ -834,17 +807,22 @@ for r in rooms_data:
     if tname and tname not in cb_types:
         cb_types[tname] = tid
 type_map = build_type_mapping(list(prop_pricing.keys()), list(cb_types.keys())) if prop_pricing else {}
+# Listed rate = the booking-engine sellable rate a guest is quoted (getAvailableRoomTypes
+# roomRate), NOT the room type's default/rack rate plan (getRate). One call per night, cached.
 listed_maps = {}
 if prop_pricing:
-    for cb_name, tid in cb_types.items():
-        if not tid:
-            listed_maps[cb_name] = {}
-            continue
+    for d in window_days:
         try:
-            listed_maps[cb_name] = rates_for_type(property_id, tid, str(window_days[0]),
-                                                  str(window_days[-1] + timedelta(days=1)))
+            snap = room_type_snapshot(property_id, str(d))
         except Exception:
-            listed_maps[cb_name] = {}
+            snap = {}
+        for cb_name, info in snap.items():
+            rate = info.get("rate")
+            if rate is not None:
+                try:
+                    listed_maps.setdefault(cb_name, {})[str(d)] = round(float(rate))
+                except (TypeError, ValueError):
+                    pass
 
 # ===== Competitor analysis — per room type =====
 if view == "Competitor analysis":
