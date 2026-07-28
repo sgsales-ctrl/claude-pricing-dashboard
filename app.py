@@ -233,21 +233,54 @@ def availability_by_type(property_id: str, day: str) -> dict:
 
 @st.cache_data(ttl=300)
 def rates_for_type(property_id: str, room_type_id: str, start: str, end: str) -> dict:
-    """Listed rate per date for one room type, from getRate (keyed by roomTypeID so it
-    matches our room mapping). Quiet: returns {} on failure."""
+    """CB Rate per date for one room type = the LOWEST public rate-plan base rate
+    (getRatePlans) — matches the booking-engine 'Today's price'. Falls back to
+    getRate (default plan) if rate plans return nothing. Returns {date: rate}."""
+    # 1) getRatePlans — min base rate across public (non-promo) plans per date
+    try:
+        r = requests.get(f"{BASE_URL}/getRatePlans", headers=HEADERS, params={
+            "propertyIDs": property_id, "roomTypeID": room_type_id,
+            "startDate": start, "endDate": end,
+            "adults": 1, "detailedRates": "true", "includePromoCode": "false",
+        }, timeout=15)
+        body = r.json()
+        if body.get("success"):
+            out = {}
+            for plan in (body.get("data") or []):
+                if not isinstance(plan, dict):
+                    continue
+                for x in (plan.get("roomRateDetailed") or []):
+                    if not isinstance(x, dict) or x.get("blocked"):
+                        continue
+                    d = x.get("date")
+                    val = x.get("rateBase")
+                    if val is None:
+                        val = x.get("totalRate")
+                    if d is None or val is None:
+                        continue
+                    try:
+                        val = float(val)
+                    except (TypeError, ValueError):
+                        continue
+                    ds = str(d)
+                    if ds not in out or val < out[ds]:
+                        out[ds] = val
+            if out:
+                return {k: round(v) for k, v in out.items()}
+    except Exception:
+        pass
+    # 2) fallback — getRate default plan
     try:
         r = requests.get(f"{BASE_URL}/getRate", headers=HEADERS, params={
             "propertyID": property_id, "roomTypeID": room_type_id,
-            "startDate": start, "endDate": end,
-            "adults": 1, "detailedRates": "true",
+            "startDate": start, "endDate": end, "adults": 1, "detailedRates": "true",
         }, timeout=15)
         body = r.json()
         if not body.get("success", False):
             return {}
-        data = body.get("data") or {}
+        det = (body.get("data") or {}).get("roomRateDetailed") or []
     except Exception:
         return {}
-    det = data.get("roomRateDetailed") or [] if isinstance(data, dict) else []
     out = {}
     for x in det:
         if isinstance(x, dict) and x.get("date") is not None and x.get("rate") is not None:
