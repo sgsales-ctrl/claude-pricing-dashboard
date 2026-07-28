@@ -21,6 +21,16 @@
       "source": "https://www.token2049.com/singapore"
     },
     {
+      "name": "SuperReturn Asia 2026",
+      "dates": "2026-09-28 to 2026-10-01",
+      "venue": "Marina Bay Sands",
+      "attendees": "~3,000 private equity/VC professionals, predominantly international",
+      "demand": "High",
+      "rationale": "Asia's largest private capital conference; senior international finance delegates staying 3-4 nights in/near CBD with heavy side-meeting activity. Adult business travellers, strong rate tolerance.",
+      "best_fit": "The Quays and City Hall (CBD/finance district adjacency); Chinatown",
+      "source": "https://informaconnect.com/superreturn-asia/"
+    },
+    {
       "name": "BIGBANG 20th Anniversary World Tour <XX : COSMOS>",
       "dates": "2026-10-17",
       "venue": "National Stadium",
@@ -36,19 +46,19 @@
       "venue": "National Stadium",
       "attendees": "~50,000 per night, two nights, significant regional fly-in",
       "demand": "High",
-      "rationale": "Stadium-scale international act; past comparable stadium shows (Coldplay, Taylor Swift, Lady Gaga) drove regional fly-in fans staying 1-2 nights. Adult-skewing audience fits adults-only positioning.",
+      "rationale": "Stadium-scale international act (with Creepy Nuts support); past comparable stadium shows drove regional fly-in fans staying 1-2 nights. Adult-skewing audience fits adults-only positioning. Overlaps SuperReturn Asia tail — strong early-Oct compression.",
       "best_fit": "Kampong Glam and City Hall (closest to Kallang); The Quays",
       "source": "https://www.songkick.com/venues/4348806-national-stadium"
     },
     {
-      "name": "National Stadium concert weekend — Stray Kids / Post Malone",
+      "name": "National Stadium concert weekend — Post Malone (Big Ass World Tour) / Stray Kids",
       "dates": "2026-09-25 to 2026-09-26",
       "venue": "National Stadium",
       "attendees": "~50,000 per show, strong regional fly-in (K-pop + international touring act)",
       "demand": "High",
-      "rationale": "Two stadium-scale acts listed for the same weekend; K-pop stadium shows in Singapore reliably pull SEA fly-in fans who stay overnight. Mostly young adults — fits adults-only properties.",
+      "rationale": "Post Malone confirmed 25 Sep with Don Toliver (first solo SG show); Stray Kids listed same weekend. K-pop and stadium acts reliably pull SEA fly-in fans who stay overnight. Mostly young adults — fits adults-only properties.",
       "best_fit": "Kampong Glam and City Hall (closest to Kallang)",
-      "source": "https://www.songkick.com/metro-areas/32258-singapore-singapore/2026"
+      "source": "https://thehoneycombers.com/singapore/upcoming-concerts-shows-bands-singapore/"
     },
     {
       "name": "ITB Asia 2026 (with co-located travel-tech events)",
@@ -79,6 +89,16 @@
       "rationale": "Government-anchored professional conference; international delegates stay 2-3 nights but total room-night volume is modest versus flagship shows.",
       "best_fit": "City Hall and The Quays",
       "source": "https://www.ipweek2026.sg/"
+    },
+    {
+      "name": "ISPE Singapore Conference & Exhibition 2026",
+      "dates": "2026-08-19 to 2026-08-21",
+      "venue": "Suntec Singapore Convention Centre",
+      "attendees": "~1,500 pharma engineering professionals, regional/international mix",
+      "demand": "Moderate",
+      "rationale": "Established regional pharma/biotech conference at Suntec; international delegates stay 2-3 nights near City Hall/CBD, though total volume is modest.",
+      "best_fit": "City Hall and Kampong Glam (Suntec adjacency); The Quays",
+      "source": "https://ispe.org/singapore-affiliate/events/ispe-singapore-conference-exhibition-2026"
     },
     {
       "name": "Asian Actuarial Conference 2026",
