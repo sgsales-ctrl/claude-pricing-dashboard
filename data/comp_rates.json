@@ -1,150 +1,2992 @@
 {
-"_comment": "Lowest Booking.com rates per room category, SGD inclusive of all taxes & fees (base + quoted taxes line). units_left_total = sum of max selectable units across all room types shown. Category mapping: standard double/queen/twin = Studio, step-up king/executive/deluxe-double = Loft, suites = Suite. Kinn Habitat: rates from private rooms only, units include dorm capsules. Scraped via Booking.com property pages, 2 adults / 1 room. Dates sampled this run: 2026-07-28, 2026-07-29, 2026-08-01, 2026-08-08, 2026-09-26, 2026-10-03, 2026-10-07, 2026-10-10 (farther Wed/Sat samples and Sep-30/Oct-17 event dates skipped this run per priority rules).",
-"scraped_at": "2026-07-28",
-"rates": {
-"2026-07-28": {
-"The Quay Hotel": {"status": "sold_out"},
-"Kinn Habitat": {"status": "ok", "display_rate": null, "est_incl_taxes": null, "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)", "by_category": {}, "units_left_total": 4},
-"Hotel Clover The Arts": {"status": "sold_out"},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 217, "est_incl_taxes": 260, "room": "Deluxe Queen Room", "by_category": {"Studio": 260, "Loft": 293}, "units_left_total": 3},
-"Kinn Studios": {"status": "sold_out"},
-"Hotel Mono": {"status": "ok", "display_rate": 235, "est_incl_taxes": 282, "room": "Studio King with Sofa", "by_category": {"Studio": 282, "Loft": 323}, "units_left_total": 2},
-"Kesa": {"status": "sold_out"},
-"Bliss Hotel": {"status": "ok", "display_rate": 281, "est_incl_taxes": 337, "room": "Suite Double", "by_category": {"Suite": 337}, "units_left_total": 1},
-"Claude Hotel": {"status": "ok", "display_rate": 240, "est_incl_taxes": 288, "room": "Superior Double Room without Window", "by_category": {"Studio": 288, "Loft": 451}, "units_left_total": 4},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 204, "est_incl_taxes": 245, "room": "Quaint Queen", "by_category": {"Studio": 245, "Suite": 463}, "units_left_total": 2},
-"Rest Bugis Hotel": {"status": "sold_out"},
-"Coliwoo Kampong Glam": {"status": "sold_out"},
-"Hotel Clover 769": {"status": "sold_out"}
-},
-"2026-07-29": {
-"The Quay Hotel": {"status": "sold_out"},
-"Kinn Habitat": {"status": "ok", "display_rate": null, "est_incl_taxes": null, "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)", "by_category": {}, "units_left_total": 5},
-"Hotel Clover The Arts": {"status": "ok", "display_rate": 143, "est_incl_taxes": 171, "room": "Superior Queen Room without Window", "by_category": {"Studio": 171}, "units_left_total": 1},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 258, "est_incl_taxes": 309, "room": "Deluxe Queen Room", "by_category": {"Studio": 309}, "units_left_total": 1},
-"Kinn Studios": {"status": "sold_out"},
-"Hotel Mono": {"status": "ok", "display_rate": 256, "est_incl_taxes": 307, "room": "Studio Plus King", "by_category": {"Studio": 307, "Loft": 323}, "units_left_total": 3},
-"Kesa": {"status": "sold_out"},
-"Bliss Hotel": {"status": "ok", "display_rate": 202, "est_incl_taxes": 242, "room": "Deluxe Twin Room", "by_category": {"Studio": 242, "Suite": 345}, "units_left_total": 2},
-"Claude Hotel": {"status": "sold_out"},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 190, "est_incl_taxes": 228, "room": "Quaint Queen", "by_category": {"Studio": 228, "Loft": 255, "Suite": 450}, "units_left_total": 8},
-"Rest Bugis Hotel": {"status": "sold_out"},
-"Coliwoo Kampong Glam": {"status": "sold_out"},
-"Hotel Clover 769": {"status": "ok", "display_rate": 211, "est_incl_taxes": 253, "room": "Double Room with Hot Tub (Indoor)", "by_category": {"Studio": 253}, "units_left_total": 1}
-},
-"2026-08-01": {
-"The Quay Hotel": {"status": "ok", "display_rate": 171, "est_incl_taxes": 205, "room": "Deluxe Family Room", "by_category": {"Studio": 205}, "units_left_total": 1},
-"Kinn Habitat": {"status": "ok", "display_rate": null, "est_incl_taxes": null, "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)", "by_category": {}, "units_left_total": 13},
-"Hotel Clover The Arts": {"status": "sold_out"},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 206, "est_incl_taxes": 247, "room": "Deluxe Queen Room", "by_category": {"Studio": 247, "Loft": 277, "Suite": 470}, "units_left_total": 11},
-"Kinn Studios": {"status": "sold_out"},
-"Hotel Mono": {"status": "ok", "display_rate": 168, "est_incl_taxes": 201, "room": "Small Double Room", "by_category": {"Studio": 201, "Loft": 500}, "units_left_total": 2},
-"Kesa": {"status": "ok", "display_rate": 177, "est_incl_taxes": 212, "room": "Standard Room (No Window)", "by_category": {"Studio": 212, "Loft": 330}, "units_left_total": 15},
-"Bliss Hotel": {"status": "ok", "display_rate": 175, "est_incl_taxes": 210, "room": "Superior King Room - No Window", "by_category": {"Single": 173, "Studio": 210, "Loft": 235, "Suite": 381}, "units_left_total": 12},
-"Claude Hotel": {"status": "ok", "display_rate": 173, "est_incl_taxes": 207, "room": "Superior Double Room without Window", "by_category": {"Studio": 207, "Loft": 310}, "units_left_total": 10},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 206, "est_incl_taxes": 247, "room": "Quaint Queen", "by_category": {"Studio": 247, "Loft": 271, "Suite": 465}, "units_left_total": 7},
-"Rest Bugis Hotel": {"status": "sold_out"},
-"Coliwoo Kampong Glam": {"status": "sold_out"},
-"Hotel Clover 769": {"status": "ok", "display_rate": 215, "est_incl_taxes": 258, "room": "Double Room with Hot Tub (Outdoor)", "by_category": {"Studio": 258}, "units_left_total": 2}
-},
-"2026-08-08": {
-"The Quay Hotel": {"status": "ok", "display_rate": 191, "est_incl_taxes": 229, "room": "Deluxe Double Room", "by_category": {"Studio": 229}, "units_left_total": 2},
-"Kinn Habitat": {"status": "ok", "display_rate": 247, "est_incl_taxes": 296, "room": "Double Room with Private Bathroom", "by_category": {"Studio": 296}, "units_left_total": 26},
-"Hotel Clover The Arts": {"status": "sold_out"},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 164, "est_incl_taxes": 197, "room": "Standard Queen Room (Without Window)", "by_category": {"Single": 191, "Studio": 197, "Loft": 252, "Suite": 413}, "units_left_total": 38},
-"Kinn Studios": {"status": "ok", "display_rate": 210, "est_incl_taxes": 252, "room": "Twin Room", "by_category": {"Studio": 252, "Loft": 258}, "units_left_total": 2},
-"Hotel Mono": {"status": "ok", "display_rate": 196, "est_incl_taxes": 235, "room": "Deluxe Double Room", "by_category": {"Single": 290, "Loft": 235, "Suite": 586}, "units_left_total": 8},
-"Kesa": {"status": "ok", "display_rate": 217, "est_incl_taxes": 260, "room": "Standard Room (No Window)", "by_category": {"Studio": 260, "Loft": 290}, "units_left_total": 28},
-"Bliss Hotel": {"status": "ok", "display_rate": 180, "est_incl_taxes": 216, "room": "Superior Twin Room - No Window", "by_category": {"Studio": 216, "Loft": 251, "Suite": 372}, "units_left_total": 10},
-"Claude Hotel": {"status": "ok", "display_rate": 164, "est_incl_taxes": 197, "room": "Superior Double Room without Window", "by_category": {"Studio": 197, "Loft": 258, "Suite": 298}, "units_left_total": 20},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 201, "est_incl_taxes": 241, "room": "Quaint Queen", "by_category": {"Studio": 241, "Loft": 297, "Suite": 567}, "units_left_total": 11},
-"Rest Bugis Hotel": {"status": "ok", "display_rate": 179, "est_incl_taxes": 215, "room": "Superior Twin Room - No Window (Basement)", "by_category": {"Studio": 215, "Loft": 233}, "units_left_total": 4},
-"Coliwoo Kampong Glam": {"status": "ok", "display_rate": 232, "est_incl_taxes": 253, "room": "Premier Queen", "by_category": {"Loft": 253}, "units_left_total": 1},
-"Hotel Clover 769": {"status": "ok", "display_rate": 211, "est_incl_taxes": 253, "room": "Double Room with Hot Tub (Indoor)", "by_category": {"Studio": 253}, "units_left_total": 3}
-},
-"2026-09-26": {
-"The Quay Hotel": {"status": "ok", "display_rate": 135, "est_incl_taxes": 162, "room": "Superior Double Room - without windows", "by_category": {"Studio": 162, "Loft": 200}, "units_left_total": 23},
-"Kinn Habitat": {"status": "ok", "display_rate": 155, "est_incl_taxes": 186, "room": "Double Room with Private Bathroom", "by_category": {"Studio": 186}, "units_left_total": 36},
-"Hotel Clover The Arts": {"status": "sold_out"},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 124, "est_incl_taxes": 149, "room": "Standard Queen Room (Without Window)", "by_category": {"Single": 149, "Studio": 149, "Loft": 216, "Suite": 321}, "units_left_total": 56},
-"Kinn Studios": {"status": "ok", "display_rate": 141, "est_incl_taxes": 169, "room": "Superior Double Room", "by_category": {"Studio": 169, "Loft": 181}, "units_left_total": 12},
-"Hotel Mono": {"status": "ok", "display_rate": 148, "est_incl_taxes": 177, "room": "Small Double Room", "by_category": {"Single": 182, "Studio": 177, "Loft": 207, "Suite": 563}, "units_left_total": 39},
-"Kesa": {"status": "ok", "display_rate": 135, "est_incl_taxes": 162, "room": "Superior", "by_category": {"Studio": 162, "Loft": 183}, "units_left_total": 23},
-"Bliss Hotel": {"status": "ok", "display_rate": 140, "est_incl_taxes": 168, "room": "Superior King Room - No Window", "by_category": {"Studio": 168, "Loft": 218, "Suite": 374}, "units_left_total": 26},
-"Claude Hotel": {"status": "ok", "display_rate": 128, "est_incl_taxes": 154, "room": "Superior Double Room without Window", "by_category": {"Single": 215, "Studio": 154, "Loft": 230, "Suite": 269}, "units_left_total": 29},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 194, "est_incl_taxes": 233, "room": "Quaint Queen", "by_category": {"Studio": 233, "Loft": 315, "Suite": 534}, "units_left_total": 20},
-"Rest Bugis Hotel": {"status": "ok", "display_rate": 142, "est_incl_taxes": 173, "room": "Superior Queen Room - No Window (Basement)", "by_category": {"Single": 167, "Studio": 173, "Loft": 222}, "units_left_total": 62},
-"Coliwoo Kampong Glam": {"status": "ok", "display_rate": 164, "est_incl_taxes": 179, "room": "Standard Queen (No Window)", "by_category": {"Single": 160, "Studio": 179, "Loft": 197}, "units_left_total": 16},
-"Hotel Clover 769": {"status": "ok", "display_rate": 112, "est_incl_taxes": 134, "room": "Superior Double Room (No Windows)", "by_category": {"Studio": 134, "Loft": 154}, "units_left_total": 32}
-},
-"2026-10-03": {
-"The Quay Hotel": {"status": "ok", "display_rate": 158, "est_incl_taxes": 189, "room": "Superior Double Room - without windows", "by_category": {"Studio": 189, "Loft": 200}, "units_left_total": 3},
-"Kinn Habitat": {"status": "ok", "display_rate": 332, "est_incl_taxes": 398, "room": "Double Room with Private Bathroom", "by_category": {"Studio": 398}, "units_left_total": 31},
-"Hotel Clover The Arts": {"status": "sold_out"},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 142, "est_incl_taxes": 170, "room": "Standard Queen Room (Without Window)", "by_category": {"Single": 221, "Studio": 170, "Loft": 242, "Suite": 477}, "units_left_total": 56},
-"Kinn Studios": {"status": "ok", "display_rate": 180, "est_incl_taxes": 216, "room": "Superior Double Room", "by_category": {"Studio": 216, "Loft": 601}, "units_left_total": 3},
-"Hotel Mono": {"status": "ok", "display_rate": 160, "est_incl_taxes": 192, "room": "Small Double Room", "by_category": {"Single": 300, "Studio": 192, "Loft": 229, "Suite": 572}, "units_left_total": 25},
-"Kesa": {"status": "ok", "display_rate": 198, "est_incl_taxes": 237, "room": "Premier", "by_category": {"Loft": 237}, "units_left_total": 1},
-"Bliss Hotel": {"status": "ok", "display_rate": 173, "est_incl_taxes": 207, "room": "Superior King Room - No Window", "by_category": {"Studio": 207, "Loft": 233, "Suite": 354}, "units_left_total": 19},
-"Claude Hotel": {"status": "ok", "display_rate": 157, "est_incl_taxes": 188, "room": "Superior Double Room without Window", "by_category": {"Single": 255, "Studio": 188, "Loft": 278, "Suite": 308}, "units_left_total": 29},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 215, "est_incl_taxes": 258, "room": "Quaint Queen", "by_category": {"Studio": 258, "Loft": 315, "Suite": 486}, "units_left_total": 20},
-"Rest Bugis Hotel": {"status": "ok", "display_rate": 154, "est_incl_taxes": 187, "room": "Superior Queen Room - No Window (Basement)", "by_category": {"Single": 180, "Studio": 187, "Loft": 238}, "units_left_total": 52},
-"Coliwoo Kampong Glam": {"status": "ok", "display_rate": 239, "est_incl_taxes": 261, "room": "Standard Queen (No Window)", "by_category": {"Single": 233, "Studio": 261, "Loft": 289, "Suite": 385}, "units_left_total": 16},
-"Hotel Clover 769": {"status": "ok", "display_rate": 140, "est_incl_taxes": 168, "room": "Deluxe Double Room", "by_category": {"Studio": 168, "Loft": 218}, "units_left_total": 17}
-},
-"2026-10-07": {
-"The Quay Hotel": {"status": "ok", "display_rate": 141, "est_incl_taxes": 169, "room": "Superior Double Room - without windows", "by_category": {"Studio": 169, "Loft": 225}, "units_left_total": 11},
-"Kinn Habitat": {"status": "ok", "display_rate": 423, "est_incl_taxes": 507, "room": "Double Room with Private Bathroom", "by_category": {"Studio": 507}, "units_left_total": 32},
-"Hotel Clover The Arts": {"status": "sold_out"},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 262, "est_incl_taxes": 314, "room": "Standard Queen Room (Without Window)", "by_category": {"Single": 408, "Studio": 314, "Loft": 403, "Suite": 598}, "units_left_total": 53},
-"Kinn Studios": {"status": "ok", "display_rate": 625, "est_incl_taxes": 749, "room": "Deluxe Double Room", "by_category": {"Loft": 749}, "units_left_total": 1},
-"Hotel Mono": {"status": "ok", "display_rate": 165, "est_incl_taxes": 198, "room": "Small Double Room", "by_category": {"Single": 300, "Studio": 198, "Loft": 248, "Suite": 680}, "units_left_total": 27},
-"Kesa": {"status": "ok", "display_rate": 150, "est_incl_taxes": 180, "room": "Standard Room (No Window)", "by_category": {"Studio": 180, "Loft": 228}, "units_left_total": 24},
-"Bliss Hotel": {"status": "ok", "display_rate": 151, "est_incl_taxes": 181, "room": "Standard King Room - No Window", "by_category": {"Studio": 181, "Loft": 236, "Suite": 363}, "units_left_total": 26},
-"Claude Hotel": {"status": "ok", "display_rate": 166, "est_incl_taxes": 199, "room": "Superior Double Room without Window", "by_category": {"Single": 269, "Studio": 199, "Loft": 278, "Suite": 348}, "units_left_total": 28},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 308, "est_incl_taxes": 369, "room": "Quaint Queen", "by_category": {"Studio": 369, "Loft": 388, "Suite": 728}, "units_left_total": 13},
-"Rest Bugis Hotel": {"status": "ok", "display_rate": 261, "est_incl_taxes": 317, "room": "Superior Queen Room - No Window (Basement)", "by_category": {"Single": 281, "Studio": 317, "Loft": 390}, "units_left_total": 64},
-"Coliwoo Kampong Glam": {"status": "ok", "display_rate": 158, "est_incl_taxes": 189, "room": "Standard Queen", "by_category": {"Single": 211, "Studio": 189, "Loft": 209, "Suite": 348}, "units_left_total": 18},
-"Hotel Clover 769": {"status": "ok", "display_rate": 129, "est_incl_taxes": 155, "room": "Superior Double Room (No Windows)", "by_category": {"Studio": 155, "Loft": 174}, "units_left_total": 18}
-},
-"2026-10-10": {
-"The Quay Hotel": {"status": "ok", "display_rate": 367, "est_incl_taxes": 440, "room": "Superior Double Room - without windows", "by_category": {"Studio": 440}, "units_left_total": 3},
-"Kinn Habitat": {"status": "ok", "display_rate": null, "est_incl_taxes": null, "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)", "by_category": {}, "units_left_total": 15},
-"Hotel Clover The Arts": {"status": "sold_out"},
-"Hmlet Kada": {"status": "sold_out"},
-"Lyf Chinatown": {"status": "sold_out"},
-"Hmlet Chinatown": {"status": "sold_out"},
-"Hotel 1900": {"status": "ok", "display_rate": 558, "est_incl_taxes": 669, "room": "Standard Queen Room (Without Window)", "by_category": {"Single": 895, "Studio": 669, "Loft": 856, "Suite": 1271}, "units_left_total": 32},
-"Kinn Studios": {"status": "sold_out"},
-"Hotel Mono": {"status": "ok", "display_rate": 587, "est_incl_taxes": 704, "room": "Studio Plus King", "by_category": {"Studio": 704, "Loft": 1000}, "units_left_total": 2},
-"Kesa": {"status": "ok", "display_rate": 514, "est_incl_taxes": 616, "room": "Standard Room (No Window)", "by_category": {"Studio": 616, "Loft": 863}, "units_left_total": 20},
-"Bliss Hotel": {"status": "sold_out"},
-"Claude Hotel": {"status": "ok", "display_rate": 521, "est_incl_taxes": 625, "room": "Deluxe Window", "by_category": {"Single": 806, "Studio": 633, "Loft": 625, "Suite": 721}, "units_left_total": 22},
-"Hotel Nuve Heritage": {"status": "ok", "display_rate": 587, "est_incl_taxes": 704, "room": "Quaint Queen", "by_category": {"Studio": 704, "Loft": 777, "Suite": 971}, "units_left_total": 14},
-"Rest Bugis Hotel": {"status": "ok", "display_rate": 738, "est_incl_taxes": 898, "room": "Superior Queen Room - No Window (Basement)", "by_category": {"Single": 753, "Studio": 898, "Loft": 1188}, "units_left_total": 74},
-"Coliwoo Kampong Glam": {"status": "ok", "display_rate": 561, "est_incl_taxes": 683, "room": "Standard Queen (No Window)", "by_category": {"Single": 611, "Studio": 683, "Loft": 755, "Suite": 1007}, "units_left_total": 17},
-"Hotel Clover 769": {"status": "ok", "display_rate": 281, "est_incl_taxes": 337, "room": "Superior Double Room (No Windows)", "by_category": {"Studio": 337, "Loft": 519}, "units_left_total": 5}
-}
-}
+ "_comment": "Lowest Booking.com rates per room category, SGD inclusive of all taxes & fees (base + quoted taxes line). units_left_total = sum of max selectable units across all room types shown. Category mapping: standard double/queen/twin = Studio, step-up king/executive/deluxe-double = Loft, suites = Suite. Kinn Habitat: rates from private rooms only, units include dorm capsules. Scraped via Booking.com property pages, 2 adults / 1 room. Dates scraped this run (2026-07-29): today, tomorrow, and the Mondays of the next 12 weeks (2026-08-03 through 2026-10-19) - full priority coverage, no dates skipped. Earlier-scraped dates (2026-07-28, 08-01, 08-08, 09-26, 10-03, 10-07, 10-10) retained from previous runs.",
+ "scraped_at": "2026-07-29",
+ "rates": {
+  "2026-07-28": {
+   "The Quay Hotel": {
+    "status": "sold_out"
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": null,
+    "est_incl_taxes": null,
+    "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)",
+    "by_category": {},
+    "units_left_total": 4
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 217,
+    "est_incl_taxes": 260,
+    "room": "Deluxe Queen Room",
+    "by_category": {
+     "Studio": 260,
+     "Loft": 293
+    },
+    "units_left_total": 3
+   },
+   "Kinn Studios": {
+    "status": "sold_out"
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 235,
+    "est_incl_taxes": 282,
+    "room": "Studio King with Sofa",
+    "by_category": {
+     "Studio": 282,
+     "Loft": 323
+    },
+    "units_left_total": 2
+   },
+   "Kesa": {
+    "status": "sold_out"
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 281,
+    "est_incl_taxes": 337,
+    "room": "Suite Double",
+    "by_category": {
+     "Suite": 337
+    },
+    "units_left_total": 1
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 240,
+    "est_incl_taxes": 288,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Studio": 288,
+     "Loft": 451
+    },
+    "units_left_total": 4
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 204,
+    "est_incl_taxes": 245,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 245,
+     "Suite": 463
+    },
+    "units_left_total": 2
+   },
+   "Rest Bugis Hotel": {
+    "status": "sold_out"
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "sold_out"
+   },
+   "Hotel Clover 769": {
+    "status": "sold_out"
+   }
+  },
+  "2026-07-29": {
+   "The Quay Hotel": {
+    "status": "sold_out"
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": null,
+    "est_incl_taxes": null,
+    "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)",
+    "by_category": {},
+    "units_left_total": 2
+   },
+   "Hotel Clover The Arts": {
+    "status": "ok",
+    "display_rate": 143,
+    "est_incl_taxes": 171,
+    "room": "Superior Queen Room without Window",
+    "by_category": {
+     "Studio": 171
+    },
+    "units_left_total": 1
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "sold_out"
+   },
+   "Kinn Studios": {
+    "status": "sold_out"
+   },
+   "Hotel Mono": {
+    "status": "sold_out"
+   },
+   "Kesa": {
+    "status": "sold_out"
+   },
+   "Bliss Hotel": {
+    "status": "sold_out"
+   },
+   "Claude Hotel": {
+    "status": "sold_out"
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 214,
+    "est_incl_taxes": 257,
+    "room": "Deluxe King Room",
+    "by_category": {
+     "Loft": 257,
+     "Suite": 382
+    },
+    "units_left_total": 3
+   },
+   "Rest Bugis Hotel": {
+    "status": "sold_out"
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "sold_out"
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 211,
+    "est_incl_taxes": 253,
+    "room": "Double Room with Hot Tub (Indoor)",
+    "by_category": {
+     "Studio": 253
+    },
+    "units_left_total": 1
+   }
+  },
+  "2026-07-30": {
+   "The Quay Hotel": {
+    "status": "sold_out"
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": null,
+    "est_incl_taxes": null,
+    "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)",
+    "by_category": {},
+    "units_left_total": 3
+   },
+   "Hotel Clover The Arts": {
+    "status": "ok",
+    "display_rate": 113,
+    "est_incl_taxes": 135,
+    "room": "Superior Single Room without Window",
+    "by_category": {
+     "Single": 135,
+     "Studio": 171
+    },
+    "units_left_total": 2
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "sold_out"
+   },
+   "Kinn Studios": {
+    "status": "sold_out"
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 329,
+    "est_incl_taxes": 394,
+    "room": "Family Room",
+    "by_category": {
+     "Studio": 394,
+     "Loft": 458
+    },
+    "units_left_total": 2
+   },
+   "Kesa": {
+    "status": "sold_out"
+   },
+   "Bliss Hotel": {
+    "status": "sold_out"
+   },
+   "Claude Hotel": {
+    "status": "sold_out"
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 356,
+    "est_incl_taxes": 427,
+    "room": "Explorer Suite",
+    "by_category": {
+     "Suite": 427
+    },
+    "units_left_total": 2
+   },
+   "Rest Bugis Hotel": {
+    "status": "sold_out"
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "sold_out"
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 211,
+    "est_incl_taxes": 253,
+    "room": "Double Room with Hot Tub (Indoor)",
+    "by_category": {
+     "Studio": 253
+    },
+    "units_left_total": 1
+   }
+  },
+  "2026-08-01": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 171,
+    "est_incl_taxes": 205,
+    "room": "Deluxe Family Room",
+    "by_category": {
+     "Studio": 205
+    },
+    "units_left_total": 1
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": null,
+    "est_incl_taxes": null,
+    "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)",
+    "by_category": {},
+    "units_left_total": 13
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 206,
+    "est_incl_taxes": 247,
+    "room": "Deluxe Queen Room",
+    "by_category": {
+     "Studio": 247,
+     "Loft": 277,
+     "Suite": 470
+    },
+    "units_left_total": 11
+   },
+   "Kinn Studios": {
+    "status": "sold_out"
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 168,
+    "est_incl_taxes": 201,
+    "room": "Small Double Room",
+    "by_category": {
+     "Studio": 201,
+     "Loft": 500
+    },
+    "units_left_total": 2
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 177,
+    "est_incl_taxes": 212,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 212,
+     "Loft": 330
+    },
+    "units_left_total": 15
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 175,
+    "est_incl_taxes": 210,
+    "room": "Superior King Room - No Window",
+    "by_category": {
+     "Single": 173,
+     "Studio": 210,
+     "Loft": 235,
+     "Suite": 381
+    },
+    "units_left_total": 12
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 173,
+    "est_incl_taxes": 207,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Studio": 207,
+     "Loft": 310
+    },
+    "units_left_total": 10
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 206,
+    "est_incl_taxes": 247,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 247,
+     "Loft": 271,
+     "Suite": 465
+    },
+    "units_left_total": 7
+   },
+   "Rest Bugis Hotel": {
+    "status": "sold_out"
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "sold_out"
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 215,
+    "est_incl_taxes": 258,
+    "room": "Double Room with Hot Tub (Outdoor)",
+    "by_category": {
+     "Studio": 258
+    },
+    "units_left_total": 2
+   }
+  },
+  "2026-08-03": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Superior Twin room - without windows",
+    "by_category": {
+     "Studio": 162
+    },
+    "units_left_total": 1
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 132,
+    "est_incl_taxes": 158,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 158
+    },
+    "units_left_total": 22
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 138,
+    "est_incl_taxes": 165,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 165,
+     "Studio": 165,
+     "Loft": 188,
+     "Suite": 357
+    },
+    "units_left_total": 34
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 177,
+    "est_incl_taxes": 212,
+    "room": "Room Assigned on Arrival",
+    "by_category": {
+     "Studio": 212,
+     "Loft": 212
+    },
+    "units_left_total": 3
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 163,
+    "est_incl_taxes": 195,
+    "room": "Small Double Room",
+    "by_category": {
+     "Studio": 195,
+     "Loft": 225
+    },
+    "units_left_total": 4
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 245,
+    "est_incl_taxes": 294,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 294,
+     "Loft": 464
+    },
+    "units_left_total": 8
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 175,
+    "est_incl_taxes": 210,
+    "room": "Superior Twin Room - No Window",
+    "by_category": {
+     "Studio": 210,
+     "Suite": 336
+    },
+    "units_left_total": 7
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 159,
+    "est_incl_taxes": 191,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Studio": 191,
+     "Loft": 249,
+     "Suite": 288
+    },
+    "units_left_total": 13
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 175,
+    "est_incl_taxes": 210,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 210,
+     "Loft": 279,
+     "Suite": 465
+    },
+    "units_left_total": 15
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 190,
+    "est_incl_taxes": 228,
+    "room": "Deluxe Skylight",
+    "by_category": {
+     "Loft": 228,
+     "Single": 311
+    },
+    "units_left_total": 2
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 182,
+    "est_incl_taxes": 198,
+    "room": "Standard Queen (No Window)",
+    "by_category": {
+     "Studio": 198,
+     "Loft": 220
+    },
+    "units_left_total": 6
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 114,
+    "est_incl_taxes": 137,
+    "room": "Deluxe Twin Room",
+    "by_category": {
+     "Studio": 137,
+     "Loft": 137
+    },
+    "units_left_total": 15
+   }
+  },
+  "2026-08-08": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 191,
+    "est_incl_taxes": 229,
+    "room": "Deluxe Double Room",
+    "by_category": {
+     "Studio": 229
+    },
+    "units_left_total": 2
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 247,
+    "est_incl_taxes": 296,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 296
+    },
+    "units_left_total": 26
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 164,
+    "est_incl_taxes": 197,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 191,
+     "Studio": 197,
+     "Loft": 252,
+     "Suite": 413
+    },
+    "units_left_total": 38
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 210,
+    "est_incl_taxes": 252,
+    "room": "Twin Room",
+    "by_category": {
+     "Studio": 252,
+     "Loft": 258
+    },
+    "units_left_total": 2
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 196,
+    "est_incl_taxes": 235,
+    "room": "Deluxe Double Room",
+    "by_category": {
+     "Single": 290,
+     "Loft": 235,
+     "Suite": 586
+    },
+    "units_left_total": 8
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 217,
+    "est_incl_taxes": 260,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 260,
+     "Loft": 290
+    },
+    "units_left_total": 28
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 180,
+    "est_incl_taxes": 216,
+    "room": "Superior Twin Room - No Window",
+    "by_category": {
+     "Studio": 216,
+     "Loft": 251,
+     "Suite": 372
+    },
+    "units_left_total": 10
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 164,
+    "est_incl_taxes": 197,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Studio": 197,
+     "Loft": 258,
+     "Suite": 298
+    },
+    "units_left_total": 20
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 201,
+    "est_incl_taxes": 241,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 241,
+     "Loft": 297,
+     "Suite": 567
+    },
+    "units_left_total": 11
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 179,
+    "est_incl_taxes": 215,
+    "room": "Superior Twin Room - No Window (Basement)",
+    "by_category": {
+     "Studio": 215,
+     "Loft": 233
+    },
+    "units_left_total": 4
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 232,
+    "est_incl_taxes": 253,
+    "room": "Premier Queen",
+    "by_category": {
+     "Loft": 253
+    },
+    "units_left_total": 1
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 211,
+    "est_incl_taxes": 253,
+    "room": "Double Room with Hot Tub (Indoor)",
+    "by_category": {
+     "Studio": 253
+    },
+    "units_left_total": 3
+   }
+  },
+  "2026-08-10": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 114,
+    "est_incl_taxes": 137,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 137,
+     "Studio": 168,
+     "Loft": 188
+    },
+    "units_left_total": 10
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 131,
+    "est_incl_taxes": 157,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 157
+    },
+    "units_left_total": 33
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 125,
+    "est_incl_taxes": 150,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 150,
+     "Studio": 154,
+     "Loft": 174,
+     "Suite": 323
+    },
+    "units_left_total": 50
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 97,
+    "est_incl_taxes": 116,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 116,
+     "Loft": 148
+    },
+    "units_left_total": 9
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 132,
+    "est_incl_taxes": 158,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 245,
+     "Studio": 158,
+     "Loft": 186
+    },
+    "units_left_total": 28
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 155,
+    "est_incl_taxes": 186,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 186,
+     "Loft": 253
+    },
+    "units_left_total": 32
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 121,
+    "est_incl_taxes": 145,
+    "room": "Standard Single Room - No Window",
+    "by_category": {
+     "Single": 145,
+     "Studio": 181,
+     "Loft": 207,
+     "Suite": 300
+    },
+    "units_left_total": 23
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 146,
+    "est_incl_taxes": 175,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Studio": 175,
+     "Loft": 239,
+     "Suite": 278
+    },
+    "units_left_total": 21
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 186,
+    "est_incl_taxes": 223,
+    "room": "Double Room",
+    "by_category": {
+     "Studio": 223,
+     "Loft": 283,
+     "Suite": 516
+    },
+    "units_left_total": 15
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 172,
+    "est_incl_taxes": 206,
+    "room": "Superior Queen Room",
+    "by_category": {
+     "Studio": 206,
+     "Loft": 215,
+     "Single": 289
+    },
+    "units_left_total": 26
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 147,
+    "est_incl_taxes": 160,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 160,
+     "Studio": 168,
+     "Loft": 185,
+     "Suite": 264
+    },
+    "units_left_total": 17
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 114,
+    "est_incl_taxes": 137,
+    "room": "Deluxe Double Room",
+    "by_category": {
+     "Loft": 137,
+     "Studio": 275
+    },
+    "units_left_total": 13
+   }
+  },
+  "2026-08-17": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Superior Double Room - without windows ll",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 189
+    },
+    "units_left_total": 6
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 208,
+    "est_incl_taxes": 249,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 249
+    },
+    "units_left_total": 24
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 117,
+    "est_incl_taxes": 140,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 141,
+     "Studio": 140,
+     "Loft": 161,
+     "Suite": 305
+    },
+    "units_left_total": 53
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 140,
+    "est_incl_taxes": 168,
+    "room": "Deluxe Double Room",
+    "by_category": {
+     "Loft": 168
+    },
+    "units_left_total": 9
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 127,
+    "est_incl_taxes": 152,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 240,
+     "Studio": 152,
+     "Loft": 183
+    },
+    "units_left_total": 30
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 175,
+    "est_incl_taxes": 210,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 210,
+     "Loft": 282
+    },
+    "units_left_total": 32
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 121,
+    "est_incl_taxes": 145,
+    "room": "Standard Single Room - No Window",
+    "by_category": {
+     "Single": 145,
+     "Studio": 168,
+     "Loft": 193,
+     "Suite": 374
+    },
+    "units_left_total": 25
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 128,
+    "est_incl_taxes": 154,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 215,
+     "Studio": 154,
+     "Loft": 230,
+     "Suite": 269
+    },
+    "units_left_total": 28
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 180,
+    "est_incl_taxes": 216,
+    "room": "Double Room",
+    "by_category": {
+     "Studio": 216,
+     "Loft": 282,
+     "Suite": 486
+    },
+    "units_left_total": 22
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Superior Queen Room - No Window (Basement)",
+    "by_category": {
+     "Single": 173,
+     "Studio": 155,
+     "Loft": 181,
+     "Suite": 508
+    },
+    "units_left_total": 24
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 155,
+    "est_incl_taxes": 169,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 169,
+     "Studio": 181,
+     "Loft": 200
+    },
+    "units_left_total": 14
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 114,
+    "est_incl_taxes": 137,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 137,
+     "Loft": 156
+    },
+    "units_left_total": 19
+   }
+  },
+  "2026-08-24": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 150,
+    "est_incl_taxes": 180,
+    "room": "Superior Double Room - without windows ll",
+    "by_category": {
+     "Studio": 180
+    },
+    "units_left_total": 3
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 130,
+    "est_incl_taxes": 156,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 156
+    },
+    "units_left_total": 36
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 118,
+    "est_incl_taxes": 141,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 141,
+     "Studio": 145,
+     "Loft": 164,
+     "Suite": 305
+    },
+    "units_left_total": 53
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 116,
+    "est_incl_taxes": 139,
+    "room": "Standard Double Room",
+    "by_category": {
+     "Studio": 139,
+     "Loft": 183
+    },
+    "units_left_total": 11
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 245,
+     "Studio": 155,
+     "Loft": 186
+    },
+    "units_left_total": 30
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 173,
+    "est_incl_taxes": 207,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 207,
+     "Loft": 241
+    },
+    "units_left_total": 39
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 121,
+    "est_incl_taxes": 145,
+    "room": "Standard Single Room - No Window",
+    "by_category": {
+     "Single": 145,
+     "Studio": 173,
+     "Loft": 199,
+     "Suite": 374
+    },
+    "units_left_total": 27
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 108,
+    "est_incl_taxes": 129,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Studio": 129,
+     "Loft": 209,
+     "Suite": 239
+    },
+    "units_left_total": 27
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 188,
+    "est_incl_taxes": 225,
+    "room": "Double Room",
+    "by_category": {
+     "Studio": 225,
+     "Loft": 291,
+     "Suite": 486
+    },
+    "units_left_total": 21
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 176,
+    "est_incl_taxes": 211,
+    "room": "Superior Twin Room - No Window (Basement)",
+    "by_category": {
+     "Studio": 211,
+     "Loft": 213,
+     "Single": 213,
+     "Suite": 559
+    },
+    "units_left_total": 30
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 155,
+    "est_incl_taxes": 169,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 169,
+     "Studio": 189,
+     "Loft": 209,
+     "Suite": 278
+    },
+    "units_left_total": 14
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 97,
+    "est_incl_taxes": 116,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 116,
+     "Loft": 138
+    },
+    "units_left_total": 21
+   }
+  },
+  "2026-08-31": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Superior Double Room - without windows ll",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 181
+    },
+    "units_left_total": 12
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 179,
+    "est_incl_taxes": 215,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 215
+    },
+    "units_left_total": 34
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 120,
+    "est_incl_taxes": 144,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 144,
+     "Studio": 144,
+     "Loft": 164,
+     "Suite": 312
+    },
+    "units_left_total": 55
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 111,
+    "est_incl_taxes": 133,
+    "room": "Standard Double Room",
+    "by_category": {
+     "Studio": 133,
+     "Loft": 191
+    },
+    "units_left_total": 11
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 130,
+    "est_incl_taxes": 156,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 240,
+     "Studio": 156,
+     "Loft": 183
+    },
+    "units_left_total": 33
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 286,
+    "est_incl_taxes": 343,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 343,
+     "Loft": 372
+    },
+    "units_left_total": 37
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 154,
+    "est_incl_taxes": 185,
+    "room": "Superior King Room - No Window",
+    "by_category": {
+     "Studio": 185,
+     "Loft": 211,
+     "Suite": 326
+    },
+    "units_left_total": 22
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 112,
+    "est_incl_taxes": 134,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 188,
+     "Studio": 134,
+     "Loft": 221,
+     "Suite": 249
+    },
+    "units_left_total": 29
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 198,
+    "est_incl_taxes": 237,
+    "room": "Quaint Queen without Window",
+    "by_category": {
+     "Studio": 237,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 21
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 179,
+    "est_incl_taxes": 215,
+    "room": "Superior Twin Room - No Window (Basement)",
+    "by_category": {
+     "Studio": 215,
+     "Loft": 217,
+     "Single": 224,
+     "Suite": 568
+    },
+    "units_left_total": 56
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Standard Queen",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 179,
+     "Suite": 249
+    },
+    "units_left_total": 17
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 96,
+    "est_incl_taxes": 115,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 115,
+     "Loft": 130
+    },
+    "units_left_total": 32
+   }
+  },
+  "2026-09-07": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 103,
+    "est_incl_taxes": 123,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 123,
+     "Studio": 159,
+     "Loft": 189
+    },
+    "units_left_total": 13
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 180,
+    "est_incl_taxes": 216,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 216
+    },
+    "units_left_total": 34
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 115,
+    "est_incl_taxes": 138,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 138,
+     "Studio": 142,
+     "Loft": 162,
+     "Suite": 297
+    },
+    "units_left_total": 56
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 109,
+    "est_incl_taxes": 131,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 131,
+     "Loft": 165
+    },
+    "units_left_total": 13
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 156,
+     "Studio": 155,
+     "Loft": 195
+    },
+    "units_left_total": 37
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 117,
+    "est_incl_taxes": 140,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 140,
+     "Loft": 183
+    },
+    "units_left_total": 23
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 151,
+    "est_incl_taxes": 181,
+    "room": "Superior Twin Room - No Window",
+    "by_category": {
+     "Studio": 181,
+     "Loft": 227,
+     "Suite": 363
+    },
+    "units_left_total": 19
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 108,
+    "est_incl_taxes": 129,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 175,
+     "Studio": 129,
+     "Loft": 209,
+     "Suite": 239
+    },
+    "units_left_total": 28
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 198,
+    "est_incl_taxes": 237,
+    "room": "Quaint Queen without Window",
+    "by_category": {
+     "Studio": 237,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 21
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 125,
+    "est_incl_taxes": 150,
+    "room": "Cinematic Single Room without Window",
+    "by_category": {
+     "Single": 150,
+     "Studio": 179,
+     "Loft": 180,
+     "Suite": 518
+    },
+    "units_left_total": 62
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 131,
+    "est_incl_taxes": 143,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 143,
+     "Studio": 159,
+     "Loft": 176,
+     "Suite": 234
+    },
+    "units_left_total": 16
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 92,
+    "est_incl_taxes": 110,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 110,
+     "Loft": 128
+    },
+    "units_left_total": 31
+   }
+  },
+  "2026-09-14": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 127,
+    "est_incl_taxes": 152,
+    "room": "Superior Double Room - without windows ll",
+    "by_category": {
+     "Studio": 152,
+     "Loft": 181
+    },
+    "units_left_total": 20
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 137,
+    "est_incl_taxes": 164,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 164
+    },
+    "units_left_total": 37
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 115,
+    "est_incl_taxes": 138,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 138,
+     "Studio": 138,
+     "Loft": 157,
+     "Suite": 297
+    },
+    "units_left_total": 55
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 106,
+    "est_incl_taxes": 127,
+    "room": "Standard Double Room",
+    "by_category": {
+     "Studio": 127,
+     "Loft": 172
+    },
+    "units_left_total": 14
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 127,
+    "est_incl_taxes": 152,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 156,
+     "Studio": 152,
+     "Loft": 183
+    },
+    "units_left_total": 40
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 117,
+    "est_incl_taxes": 140,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 140,
+     "Loft": 183
+    },
+    "units_left_total": 28
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 133,
+    "est_incl_taxes": 160,
+    "room": "Superior King Room - No Window",
+    "by_category": {
+     "Studio": 160,
+     "Loft": 209,
+     "Suite": 352
+    },
+    "units_left_total": 25
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 104,
+    "est_incl_taxes": 125,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 175,
+     "Studio": 125,
+     "Loft": 202,
+     "Suite": 230
+    },
+    "units_left_total": 29
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 198,
+    "est_incl_taxes": 237,
+    "room": "Quaint Queen without Window",
+    "by_category": {
+     "Studio": 237,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 21
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 131,
+    "est_incl_taxes": 157,
+    "room": "Superior Twin Room - No Window (Basement)",
+    "by_category": {
+     "Single": 157,
+     "Studio": 179,
+     "Loft": 180,
+     "Suite": 518
+    },
+    "units_left_total": 70
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 139,
+    "est_incl_taxes": 151,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 151,
+     "Studio": 169,
+     "Loft": 186,
+     "Suite": 249
+    },
+    "units_left_total": 17
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 96,
+    "est_incl_taxes": 115,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 115,
+     "Loft": 134
+    },
+    "units_left_total": 32
+   }
+  },
+  "2026-09-21": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 133,
+    "est_incl_taxes": 159,
+    "room": "Superior Twin room - without windows",
+    "by_category": {
+     "Studio": 159,
+     "Loft": 189
+    },
+    "units_left_total": 19
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 162
+    },
+    "units_left_total": 37
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 115,
+    "est_incl_taxes": 138,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 138,
+     "Studio": 142,
+     "Loft": 162,
+     "Suite": 297
+    },
+    "units_left_total": 55
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 113,
+    "est_incl_taxes": 136,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 136,
+     "Loft": 169
+    },
+    "units_left_total": 14
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 156,
+     "Studio": 155,
+     "Loft": 186
+    },
+    "units_left_total": 40
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 117,
+    "est_incl_taxes": 140,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 140,
+     "Loft": 183
+    },
+    "units_left_total": 31
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 130,
+    "est_incl_taxes": 156,
+    "room": "Standard King Room - No Window",
+    "by_category": {
+     "Studio": 156,
+     "Loft": 218,
+     "Suite": 363
+    },
+    "units_left_total": 19
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 108,
+    "est_incl_taxes": 129,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 175,
+     "Studio": 129,
+     "Loft": 209,
+     "Suite": 239
+    },
+    "units_left_total": 29
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 188,
+    "est_incl_taxes": 225,
+    "room": "Double Room",
+    "by_category": {
+     "Studio": 225,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 22
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 125,
+    "est_incl_taxes": 150,
+    "room": "Cinematic Single Room without Window",
+    "by_category": {
+     "Single": 150,
+     "Studio": 179,
+     "Loft": 180,
+     "Suite": 518
+    },
+    "units_left_total": 58
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 131,
+    "est_incl_taxes": 143,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 143,
+     "Studio": 159,
+     "Loft": 176,
+     "Suite": 234
+    },
+    "units_left_total": 16
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 97,
+    "est_incl_taxes": 116,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 116,
+     "Loft": 131
+    },
+    "units_left_total": 31
+   }
+  },
+  "2026-09-26": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Superior Double Room - without windows",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 200
+    },
+    "units_left_total": 23
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 155,
+    "est_incl_taxes": 186,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 186
+    },
+    "units_left_total": 36
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 124,
+    "est_incl_taxes": 149,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 149,
+     "Studio": 149,
+     "Loft": 216,
+     "Suite": 321
+    },
+    "units_left_total": 56
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 141,
+    "est_incl_taxes": 169,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 169,
+     "Loft": 181
+    },
+    "units_left_total": 12
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 148,
+    "est_incl_taxes": 177,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 182,
+     "Studio": 177,
+     "Loft": 207,
+     "Suite": 563
+    },
+    "units_left_total": 39
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Superior",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 183
+    },
+    "units_left_total": 23
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 140,
+    "est_incl_taxes": 168,
+    "room": "Superior King Room - No Window",
+    "by_category": {
+     "Studio": 168,
+     "Loft": 218,
+     "Suite": 374
+    },
+    "units_left_total": 26
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 128,
+    "est_incl_taxes": 154,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 215,
+     "Studio": 154,
+     "Loft": 230,
+     "Suite": 269
+    },
+    "units_left_total": 29
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 194,
+    "est_incl_taxes": 233,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 233,
+     "Loft": 315,
+     "Suite": 534
+    },
+    "units_left_total": 20
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 142,
+    "est_incl_taxes": 173,
+    "room": "Superior Queen Room - No Window (Basement)",
+    "by_category": {
+     "Single": 167,
+     "Studio": 173,
+     "Loft": 222
+    },
+    "units_left_total": 62
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 164,
+    "est_incl_taxes": 179,
+    "room": "Standard Queen (No Window)",
+    "by_category": {
+     "Single": 160,
+     "Studio": 179,
+     "Loft": 197
+    },
+    "units_left_total": 16
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 112,
+    "est_incl_taxes": 134,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 134,
+     "Loft": 154
+    },
+    "units_left_total": 32
+   }
+  },
+  "2026-09-28": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 103,
+    "est_incl_taxes": 123,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 123,
+     "Studio": 152,
+     "Loft": 189
+    },
+    "units_left_total": 19
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 140,
+    "est_incl_taxes": 168,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 168
+    },
+    "units_left_total": 37
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 115,
+    "est_incl_taxes": 138,
+    "room": "Standard Single Room",
+    "by_category": {
+     "Single": 138,
+     "Studio": 144,
+     "Loft": 164,
+     "Suite": 297
+    },
+    "units_left_total": 55
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 128,
+    "est_incl_taxes": 153,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 153,
+     "Loft": 186
+    },
+    "units_left_total": 12
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 127,
+    "est_incl_taxes": 152,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 156,
+     "Studio": 152,
+     "Loft": 183
+    },
+    "units_left_total": 36
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 117,
+    "est_incl_taxes": 140,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 140,
+     "Loft": 183
+    },
+    "units_left_total": 26
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 119,
+    "est_incl_taxes": 143,
+    "room": "Standard King Room - No Window",
+    "by_category": {
+     "Studio": 143,
+     "Loft": 209
+    },
+    "units_left_total": 25
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 104,
+    "est_incl_taxes": 125,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Studio": 125,
+     "Loft": 202,
+     "Suite": 230
+    },
+    "units_left_total": 28
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 198,
+    "est_incl_taxes": 237,
+    "room": "Quaint Queen without Window",
+    "by_category": {
+     "Studio": 237,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 21
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 131,
+    "est_incl_taxes": 157,
+    "room": "Superior Twin Room - No Window (Basement)",
+    "by_category": {
+     "Single": 157,
+     "Studio": 179,
+     "Loft": 180,
+     "Suite": 518
+    },
+    "units_left_total": 68
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 139,
+    "est_incl_taxes": 151,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 151,
+     "Studio": 169,
+     "Loft": 186
+    },
+    "units_left_total": 16
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 96,
+    "est_incl_taxes": 115,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 115,
+     "Loft": 130
+    },
+    "units_left_total": 31
+   }
+  },
+  "2026-10-03": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 158,
+    "est_incl_taxes": 189,
+    "room": "Superior Double Room - without windows",
+    "by_category": {
+     "Studio": 189,
+     "Loft": 200
+    },
+    "units_left_total": 3
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 332,
+    "est_incl_taxes": 398,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 398
+    },
+    "units_left_total": 31
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 142,
+    "est_incl_taxes": 170,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 221,
+     "Studio": 170,
+     "Loft": 242,
+     "Suite": 477
+    },
+    "units_left_total": 56
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 180,
+    "est_incl_taxes": 216,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 216,
+     "Loft": 601
+    },
+    "units_left_total": 3
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 160,
+    "est_incl_taxes": 192,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 300,
+     "Studio": 192,
+     "Loft": 229,
+     "Suite": 572
+    },
+    "units_left_total": 25
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 198,
+    "est_incl_taxes": 237,
+    "room": "Premier",
+    "by_category": {
+     "Loft": 237
+    },
+    "units_left_total": 1
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 173,
+    "est_incl_taxes": 207,
+    "room": "Superior King Room - No Window",
+    "by_category": {
+     "Studio": 207,
+     "Loft": 233,
+     "Suite": 354
+    },
+    "units_left_total": 19
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 157,
+    "est_incl_taxes": 188,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 255,
+     "Studio": 188,
+     "Loft": 278,
+     "Suite": 308
+    },
+    "units_left_total": 29
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 215,
+    "est_incl_taxes": 258,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 258,
+     "Loft": 315,
+     "Suite": 486
+    },
+    "units_left_total": 20
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 154,
+    "est_incl_taxes": 187,
+    "room": "Superior Queen Room - No Window (Basement)",
+    "by_category": {
+     "Single": 180,
+     "Studio": 187,
+     "Loft": 238
+    },
+    "units_left_total": 52
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 239,
+    "est_incl_taxes": 261,
+    "room": "Standard Queen (No Window)",
+    "by_category": {
+     "Single": 233,
+     "Studio": 261,
+     "Loft": 289,
+     "Suite": 385
+    },
+    "units_left_total": 16
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 140,
+    "est_incl_taxes": 168,
+    "room": "Deluxe Double Room",
+    "by_category": {
+     "Studio": 168,
+     "Loft": 218
+    },
+    "units_left_total": 17
+   }
+  },
+  "2026-10-05": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 124,
+    "est_incl_taxes": 149,
+    "room": "Superior Double Room - without windows ll",
+    "by_category": {
+     "Studio": 149,
+     "Loft": 189
+    },
+    "units_left_total": 11
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 196,
+    "est_incl_taxes": 235,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 235
+    },
+    "units_left_total": 33
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 133,
+    "est_incl_taxes": 159,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 206,
+     "Studio": 159,
+     "Loft": 181,
+     "Suite": 445
+    },
+    "units_left_total": 56
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 165,
+    "est_incl_taxes": 198,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 198,
+     "Loft": 216
+    },
+    "units_left_total": 7
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 240,
+     "Studio": 155,
+     "Loft": 186
+    },
+    "units_left_total": 39
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 205
+    },
+    "units_left_total": 21
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 136,
+    "est_incl_taxes": 163,
+    "room": "Standard Single Room - No Window",
+    "by_category": {
+     "Single": 163,
+     "Studio": 173,
+     "Loft": 227,
+     "Suite": 395
+    },
+    "units_left_total": 30
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 149,
+    "est_incl_taxes": 179,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 242,
+     "Studio": 179,
+     "Loft": 259,
+     "Suite": 299
+    },
+    "units_left_total": 28
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 198,
+    "est_incl_taxes": 237,
+    "room": "Quaint Queen without Window",
+    "by_category": {
+     "Studio": 237,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 19
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 167,
+    "est_incl_taxes": 200,
+    "room": "Cinematic Single Room without Window",
+    "by_category": {
+     "Single": 200,
+     "Studio": 230,
+     "Loft": 240,
+     "Suite": 610
+    },
+    "units_left_total": 63
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 194,
+    "est_incl_taxes": 211,
+    "room": "Single Cabin (No Window)",
+    "by_category": {
+     "Single": 211,
+     "Studio": 236,
+     "Loft": 261,
+     "Suite": 348
+    },
+    "units_left_total": 17
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 124,
+    "est_incl_taxes": 149,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 149,
+     "Loft": 167
+    },
+    "units_left_total": 27
+   }
+  },
+  "2026-10-07": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 141,
+    "est_incl_taxes": 169,
+    "room": "Superior Double Room - without windows",
+    "by_category": {
+     "Studio": 169,
+     "Loft": 225
+    },
+    "units_left_total": 11
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 423,
+    "est_incl_taxes": 507,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 507
+    },
+    "units_left_total": 32
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 262,
+    "est_incl_taxes": 314,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 408,
+     "Studio": 314,
+     "Loft": 403,
+     "Suite": 598
+    },
+    "units_left_total": 53
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 625,
+    "est_incl_taxes": 749,
+    "room": "Deluxe Double Room",
+    "by_category": {
+     "Loft": 749
+    },
+    "units_left_total": 1
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 165,
+    "est_incl_taxes": 198,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 300,
+     "Studio": 198,
+     "Loft": 248,
+     "Suite": 680
+    },
+    "units_left_total": 27
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 150,
+    "est_incl_taxes": 180,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 180,
+     "Loft": 228
+    },
+    "units_left_total": 24
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 151,
+    "est_incl_taxes": 181,
+    "room": "Standard King Room - No Window",
+    "by_category": {
+     "Studio": 181,
+     "Loft": 236,
+     "Suite": 363
+    },
+    "units_left_total": 26
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 166,
+    "est_incl_taxes": 199,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 269,
+     "Studio": 199,
+     "Loft": 278,
+     "Suite": 348
+    },
+    "units_left_total": 28
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 308,
+    "est_incl_taxes": 369,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 369,
+     "Loft": 388,
+     "Suite": 728
+    },
+    "units_left_total": 13
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 261,
+    "est_incl_taxes": 317,
+    "room": "Superior Queen Room - No Window (Basement)",
+    "by_category": {
+     "Single": 281,
+     "Studio": 317,
+     "Loft": 390
+    },
+    "units_left_total": 64
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 158,
+    "est_incl_taxes": 189,
+    "room": "Standard Queen",
+    "by_category": {
+     "Single": 211,
+     "Studio": 189,
+     "Loft": 209,
+     "Suite": 348
+    },
+    "units_left_total": 18
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 155,
+     "Loft": 174
+    },
+    "units_left_total": 18
+   }
+  },
+  "2026-10-10": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 367,
+    "est_incl_taxes": 440,
+    "room": "Superior Double Room - without windows",
+    "by_category": {
+     "Studio": 440
+    },
+    "units_left_total": 3
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": null,
+    "est_incl_taxes": null,
+    "room": "Private rooms sold out - only dorm capsule beds left (dorm rates excluded per policy)",
+    "by_category": {},
+    "units_left_total": 15
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 558,
+    "est_incl_taxes": 669,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 895,
+     "Studio": 669,
+     "Loft": 856,
+     "Suite": 1271
+    },
+    "units_left_total": 32
+   },
+   "Kinn Studios": {
+    "status": "sold_out"
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 587,
+    "est_incl_taxes": 704,
+    "room": "Studio Plus King",
+    "by_category": {
+     "Studio": 704,
+     "Loft": 1000
+    },
+    "units_left_total": 2
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 514,
+    "est_incl_taxes": 616,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 616,
+     "Loft": 863
+    },
+    "units_left_total": 20
+   },
+   "Bliss Hotel": {
+    "status": "sold_out"
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 521,
+    "est_incl_taxes": 625,
+    "room": "Deluxe Window",
+    "by_category": {
+     "Single": 806,
+     "Studio": 633,
+     "Loft": 625,
+     "Suite": 721
+    },
+    "units_left_total": 22
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 587,
+    "est_incl_taxes": 704,
+    "room": "Quaint Queen",
+    "by_category": {
+     "Studio": 704,
+     "Loft": 777,
+     "Suite": 971
+    },
+    "units_left_total": 14
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 738,
+    "est_incl_taxes": 898,
+    "room": "Superior Queen Room - No Window (Basement)",
+    "by_category": {
+     "Single": 753,
+     "Studio": 898,
+     "Loft": 1188
+    },
+    "units_left_total": 74
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 561,
+    "est_incl_taxes": 683,
+    "room": "Standard Queen (No Window)",
+    "by_category": {
+     "Single": 611,
+     "Studio": 683,
+     "Loft": 755,
+     "Suite": 1007
+    },
+    "units_left_total": 17
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 281,
+    "est_incl_taxes": 337,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 337,
+     "Loft": 519
+    },
+    "units_left_total": 5
+   }
+  },
+  "2026-10-12": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 118,
+    "est_incl_taxes": 142,
+    "room": "Superior Double Room - without windows ll",
+    "by_category": {
+     "Studio": 142,
+     "Loft": 181,
+     "Single": 154
+    },
+    "units_left_total": 16
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 430,
+    "est_incl_taxes": 515,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 515
+    },
+    "units_left_total": 35
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 124,
+    "est_incl_taxes": 149,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 198,
+     "Studio": 149,
+     "Loft": 169,
+     "Suite": 428
+    },
+    "units_left_total": 55
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 149,
+    "est_incl_taxes": 179,
+    "room": "Superior Double Room",
+    "by_category": {
+     "Studio": 179,
+     "Loft": 219
+    },
+    "units_left_total": 8
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 132,
+    "est_incl_taxes": 158,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 245,
+     "Studio": 158,
+     "Loft": 189
+    },
+    "units_left_total": 30
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 205
+    },
+    "units_left_total": 25
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 113,
+    "est_incl_taxes": 136,
+    "room": "Standard Single Room - No Window",
+    "by_category": {
+     "Single": 136,
+     "Studio": 151,
+     "Loft": 209
+    },
+    "units_left_total": 31
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 152,
+    "est_incl_taxes": 182,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 255,
+     "Studio": 182,
+     "Loft": 269,
+     "Suite": 297
+    },
+    "units_left_total": 28
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 192,
+    "est_incl_taxes": 230,
+    "room": "Double Room",
+    "by_category": {
+     "Studio": 230,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 22
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 167,
+    "est_incl_taxes": 200,
+    "room": "Cinematic Single Room without Window",
+    "by_category": {
+     "Single": 200,
+     "Studio": 230,
+     "Loft": 240,
+     "Suite": 610
+    },
+    "units_left_total": 74
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 127,
+    "est_incl_taxes": 152,
+    "room": "Standard Queen",
+    "by_category": {
+     "Studio": 152,
+     "Loft": 169,
+     "Suite": 293
+    },
+    "units_left_total": 17
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 128,
+    "est_incl_taxes": 154,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 154,
+     "Loft": 173
+    },
+    "units_left_total": 22
+   }
+  },
+  "2026-10-19": {
+   "The Quay Hotel": {
+    "status": "ok",
+    "display_rate": 124,
+    "est_incl_taxes": 149,
+    "room": "Superior Double Room - without windows ll",
+    "by_category": {
+     "Studio": 149,
+     "Loft": 189
+    },
+    "units_left_total": 22
+   },
+   "Kinn Habitat": {
+    "status": "ok",
+    "display_rate": 147,
+    "est_incl_taxes": 176,
+    "room": "Double Room with Private Bathroom",
+    "by_category": {
+     "Studio": 176
+    },
+    "units_left_total": 36
+   },
+   "Hotel Clover The Arts": {
+    "status": "sold_out"
+   },
+   "Hmlet Kada": {
+    "status": "sold_out"
+   },
+   "Lyf Chinatown": {
+    "status": "sold_out"
+   },
+   "Hmlet Chinatown": {
+    "status": "sold_out"
+   },
+   "Hotel 1900": {
+    "status": "ok",
+    "display_rate": 139,
+    "est_incl_taxes": 167,
+    "room": "Standard Queen Room (Without Window)",
+    "by_category": {
+     "Single": 216,
+     "Studio": 167,
+     "Loft": 189,
+     "Suite": 465
+    },
+    "units_left_total": 56
+   },
+   "Kinn Studios": {
+    "status": "ok",
+    "display_rate": 124,
+    "est_incl_taxes": 149,
+    "room": "Standard Double Room",
+    "by_category": {
+     "Studio": 149,
+     "Loft": 194
+    },
+    "units_left_total": 15
+   },
+   "Hotel Mono": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Small Double Room",
+    "by_category": {
+     "Single": 240,
+     "Studio": 155,
+     "Loft": 186
+    },
+    "units_left_total": 40
+   },
+   "Kesa": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Standard Room (No Window)",
+    "by_category": {
+     "Studio": 162,
+     "Loft": 205
+    },
+    "units_left_total": 37
+   },
+   "Bliss Hotel": {
+    "status": "ok",
+    "display_rate": 98,
+    "est_incl_taxes": 118,
+    "room": "Standard Single Room - No Window",
+    "by_category": {
+     "Single": 118,
+     "Studio": 138,
+     "Loft": 191,
+     "Suite": 336
+    },
+    "units_left_total": 30
+   },
+   "Claude Hotel": {
+    "status": "ok",
+    "display_rate": 133,
+    "est_incl_taxes": 159,
+    "room": "Superior Double Room without Window",
+    "by_category": {
+     "Single": 215,
+     "Studio": 159,
+     "Loft": 239,
+     "Suite": 278
+    },
+    "units_left_total": 29
+   },
+   "Hotel Nuve Heritage": {
+    "status": "ok",
+    "display_rate": 198,
+    "est_incl_taxes": 237,
+    "room": "Quaint Queen without Window",
+    "by_category": {
+     "Studio": 237,
+     "Loft": 301,
+     "Suite": 486
+    },
+    "units_left_total": 21
+   },
+   "Rest Bugis Hotel": {
+    "status": "ok",
+    "display_rate": 135,
+    "est_incl_taxes": 162,
+    "room": "Cinematic Single Room without Window",
+    "by_category": {
+     "Single": 162,
+     "Studio": 191,
+     "Loft": 193,
+     "Suite": 541
+    },
+    "units_left_total": 72
+   },
+   "Coliwoo Kampong Glam": {
+    "status": "ok",
+    "display_rate": 133,
+    "est_incl_taxes": 159,
+    "room": "Standard Queen",
+    "by_category": {
+     "Studio": 159,
+     "Loft": 175,
+     "Single": 178,
+     "Suite": 293
+    },
+    "units_left_total": 19
+   },
+   "Hotel Clover 769": {
+    "status": "ok",
+    "display_rate": 129,
+    "est_incl_taxes": 155,
+    "room": "Superior Double Room (No Windows)",
+    "by_category": {
+     "Studio": 155,
+     "Loft": 174
+    },
+    "units_left_total": 32
+   }
+  }
+ }
 }
