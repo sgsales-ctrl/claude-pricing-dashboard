@@ -6,9 +6,9 @@
    "venue": "Marina Bay Street Circuit",
    "attendees": "260,000+ over race weekend, large international share",
    "demand": "Very High",
-   "rationale": "Night race plus Singapore's first F1 Sprint; concerts by The Killers (Sat) and Lana Del Rey (Sun). Grand Prix Season Singapore runs 2-11 Oct citywide. Historically the strongest citywide compression weekend of the year — international adults staying 3-5 nights in/near CBD. Comp scrape 10 Oct confirms: most comps 2-4x normal ADR, several sold out.",
-   "best_fit": "All sectors — The Quays and City Hall closest to circuit; Chinatown and Kampong Glam overflow",
-   "source": "https://www.formula1.com/en/racing/2026/singapore"
+   "rationale": "Night race plus Singapore's first F1 Sprint (final Sprint round of the season). Padang Stage line-up confirmed: CORTIS and JJ Lin (Fri 9 Oct), The Killers (Sat 10 Oct), Lana Del Rey closing Sun 11 Oct, plus Janet Jackson, Mark Ronson, Zara Larsson and DJ Snake. Grand Prix Season Singapore runs 2-11 Oct citywide. Historically the strongest citywide compression weekend of the year - international adults staying 3-5 nights in/near CBD. Comp scrape for 10 Oct confirms: most comps 2-4x normal ADR, several sold out.",
+   "best_fit": "All sectors - The Quays and City Hall closest to circuit; Chinatown and Kampong Glam overflow",
+   "source": "https://www.visitsingapore.com/whats-happening/all-happenings/events/singapore-grand-prix-season/"
   },
   {
    "name": "TOKEN2049 Singapore",
@@ -26,7 +26,7 @@
    "venue": "Marina Bay Sands",
    "attendees": "~3,000 private equity/VC professionals, predominantly international",
    "demand": "High",
-   "rationale": "Asia's largest private capital conference; senior international finance delegates staying 3-4 nights in/near CBD with heavy side-meeting activity. Adult business travellers, strong rate tolerance.",
+   "rationale": "Asia's largest private capital conference; senior international finance delegates staying 3-4 nights in/near CBD with heavy side-meeting activity. Adult business travellers, strong rate tolerance. Comp scrape for Mon 28 Sep shows comps still at base rates - pricing opportunity if delegates book late.",
    "best_fit": "The Quays and City Hall (CBD/finance district adjacency); Chinatown",
    "source": "https://informaconnect.com/superreturn-asia/"
   },
@@ -38,27 +38,27 @@
    "demand": "High",
    "rationale": "First full BIGBANG reunion tour in a decade; K-pop stadium shows in Singapore reliably sell out and pull regional fly-in fans staying 1-2 nights. Adult fanbase (20s-40s) fits adults-only positioning.",
    "best_fit": "Kampong Glam and City Hall (closest to Kallang); The Quays",
-   "source": "https://artist.ygfamily.com/ARTISTS/BIGBANG/concert/worldtour/index.html"
+   "source": "https://www.livenation.sg/national-stadium-tickets-vdp909644"
   },
   {
-   "name": "The Weeknd — After Hours Til Dawn Tour",
+   "name": "The Weeknd - After Hours Til Dawn Tour",
    "dates": "2026-10-02 to 2026-10-03",
    "venue": "National Stadium",
    "attendees": "~50,000 per night, two nights, significant regional fly-in",
    "demand": "High",
-   "rationale": "Stadium-scale international act (with Creepy Nuts support); past comparable stadium shows drove regional fly-in fans staying 1-2 nights. Adult-skewing audience fits adults-only positioning. Overlaps SuperReturn Asia tail — strong early-Oct compression.",
+   "rationale": "Stadium-scale international act across two nights, landing on the opening weekend of Grand Prix Season Singapore. Past comparable stadium shows drove regional fly-in fans staying 1-2 nights. Adult-skewing audience fits adults-only positioning. Overlaps the SuperReturn Asia tail and stacks with ITZY at Indoor Stadium on 3 Oct - strong early-Oct compression.",
    "best_fit": "Kampong Glam and City Hall (closest to Kallang); The Quays",
-   "source": "https://www.songkick.com/venues/4348806-national-stadium"
+   "source": "https://www.livenation.sg/national-stadium-tickets-vdp909644"
   },
   {
-   "name": "National Stadium concert weekend — Post Malone (Big Ass World Tour) / Stray Kids",
-   "dates": "2026-09-25 to 2026-09-26",
+   "name": "Post Malone - The BIG ASS Stadium World Tour (two shows)",
+   "dates": "2026-09-25 to 2026-09-27",
    "venue": "National Stadium",
-   "attendees": "~50,000 per show, strong regional fly-in (K-pop + international touring act)",
+   "attendees": "~50,000 per show across two nights, strong regional fly-in",
    "demand": "High",
-   "rationale": "Post Malone confirmed 25 Sep with Don Toliver (first solo SG show); Stray Kids listed same weekend. K-pop and stadium acts reliably pull SEA fly-in fans who stay overnight. Mostly young adults — fits adults-only properties.",
-   "best_fit": "Kampong Glam and City Hall (closest to Kallang)",
-   "source": "https://thehoneycombers.com/singapore/upcoming-concerts-shows-bands-singapore/"
+   "rationale": "Two National Stadium dates now confirmed (Fri 25 and Sun 27 Sep) rather than a single show - a three-night demand window rather than a weekend spike, with Don Toliver supporting. Stadium acts of this scale reliably pull SEA fly-in fans who stay overnight. Mostly young adults, fits adults-only properties. Note: second date is an upgrade on last run's single-show assumption.",
+   "best_fit": "Kampong Glam and City Hall (closest to Kallang); The Quays",
+   "source": "https://www.livenation.sg/national-stadium-tickets-vdp909644"
   },
   {
    "name": "ITB Asia 2026 (with co-located travel-tech events)",
@@ -81,12 +81,12 @@
    "source": "https://www.clocate.com/conferences-in+marina-bay-sands-sands-expo-and-convention-centre/dmUtMTg4MA==/"
   },
   {
-   "name": "Mariah Carey — The Celebration of Mimi",
+   "name": "Mariah Carey - The Celebration of Mimi",
    "dates": "2026-10-08",
    "venue": "ARENA @ EXPO",
    "attendees": "~10,000, regional fly-in share (arena show)",
    "demand": "Medium",
-   "rationale": "Legacy international act landing mid TOKEN2049/F1 week — adds to an already compressed Oct 6-12 block. Adult 30s-50s audience fits adults-only positioning; arena scale caps room-night volume.",
+   "rationale": "Legacy international act landing mid TOKEN2049/F1 week - adds to an already compressed Oct 6-12 block. Adult 30s-50s audience fits adults-only positioning; arena scale caps room-night volume.",
    "best_fit": "City Hall and Kampong Glam; The Quays",
    "source": "https://www.harpersbazaar.com.sg/lifestyle/upcoming-concerts-and-music-festivals-singapore-dates-and-tickets"
   },
@@ -94,11 +94,11 @@
    "name": "Singapore Night Festival 2026 ('Myths and Legends')",
    "dates": "2026-08-21 to 2026-09-05",
    "venue": "Bras Basah.Bugis precinct",
-   "attendees": "500,000+ across two weeks, mostly locals/day visitors with a tourist share",
+   "attendees": "500,000+ across three weekends, mostly locals/day visitors with a tourist share",
    "demand": "Medium",
-   "rationale": "Free night festival on the doorstep of Kampong Glam/City Hall properties; audience is heavily local so room-night conversion is modest, but it lifts weekend leisure demand and ADR tolerance in the precinct across two weekends.",
+   "rationale": "17th edition confirmed for three weekends, 21 Aug to 5 Sep, 7.30pm-11pm nightly (to midnight Fri/Sat), free admission. Projection mapping across the National Museum, Peranakan Museum, Capitol and Cathay Green - literally on the doorstep of the Kampong Glam/City Hall properties. Audience is heavily local so room-night conversion is modest, but it lifts weekend leisure demand and ADR tolerance in the precinct.",
    "best_fit": "Kampong Glam and City Hall (festival precinct adjacency)",
-   "source": "https://www.theurbanlist.com/singapore/a-list/singapore-events"
+   "source": "https://www.sassymamasg.com/event/singapore-night-festival-bras-basah-bugis/"
   },
   {
    "name": "Singapore IP Week 2026",
@@ -144,11 +144,11 @@
    "name": "Submarine Networks World 2026",
    "dates": "2026-09-23 to 2026-09-24",
    "venue": "Sands Expo and Convention Centre",
-   "attendees": "~3,000 senior executives, international telecom/subsea community",
+   "attendees": "3,000+ senior executives from the global subsea community",
    "demand": "Moderate",
-   "rationale": "Highly international two-day conference; delegates fly in and stay near CBD. Attendee estimate revised up to ~3,000 senior executives per organiser materials; still moderate room-night volume.",
+   "rationale": "Highly international two-day conference, re-confirmed at 3,000+ senior executives; delegates fly in and stay near CBD. Falls in the same week as the Post Malone stadium dates, so mid-to-late Sep firms up. Still moderate room-night volume on its own.",
    "best_fit": "The Quays and City Hall",
-   "source": "https://www.tradeindia.com/tradeshows/venue/marina-bay-sands-sands-expo-convention-center/1399/"
+   "source": "https://www.tradeindia.com/tradeshows/venue/marina-bay-sands-expo-convention-centre/7296/"
   },
   {
    "name": "ITZY 3rd World Tour <TUNNEL VISION>",
@@ -156,9 +156,19 @@
    "venue": "Singapore Indoor Stadium",
    "attendees": "~10,000-12,000, strong SEA regional fly-in (final Asia stop of tour)",
    "demand": "Medium",
-   "rationale": "K-pop arena show, final Asia stop - reliably pulls regional fly-in fans staying 1-2 nights. Young-adult fanbase fits adults-only positioning. Lands the same weekend as The Weeknd's stadium shows (Oct 2-3), stacking Kallang-area demand.",
+   "rationale": "K-pop arena show, final Asia stop - reliably pulls regional fly-in fans staying 1-2 nights. Young-adult fanbase fits adults-only positioning. Lands the same night as The Weeknd's second stadium show, stacking Kallang-area demand on Sat 3 Oct.",
    "best_fit": "Kampong Glam and City Hall (closest to Kallang); The Quays",
    "source": "https://www.livenation.sg/event/itzy-3rd-world-tour-tunnel-vision-in-singapore-singapore-tickets-edp1682922"
+  },
+  {
+   "name": "Belle and Sebastian",
+   "dates": "2026-09-20",
+   "venue": "Singapore Indoor Stadium",
+   "attendees": "~8,000, adult indie audience with a regional fly-in share",
+   "demand": "Medium",
+   "rationale": "New addition this run. Long-running international indie act with a 30s-50s adult following - good fit for adults-only shophouse product. Sunday show so the room-night window is Sat-Sun; audience skews local/regional rather than long-haul, which caps volume.",
+   "best_fit": "Kampong Glam and City Hall (closest to Kallang); The Quays",
+   "source": "https://www.songkick.com/venues/1466343-singapore-indoor-stadium"
   },
   {
    "name": "Firdhaus - Flat Earth Theory Concert Tour 2026",
