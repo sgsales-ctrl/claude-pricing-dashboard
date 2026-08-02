@@ -18,7 +18,9 @@ so it is compared against competitors' Single rooms — not their studios.
 1. **Own occupancy / event rate** first:
    - High / Very High event → price **above** IA using the event's suggested markup (default +10% / +20%).
    - Moderate event → hold IA (small 5% cut only if occupancy <70%).
-   - Occupancy ≥95% → small premium; ≥80% → hold; <80% → 10% cut. Never below floor.
+   - Occupancy ≥95% → **+10% lift** on max(ladder, IA); ≥85% → **+5% lift** on max(ladder, IA)
+     (a busy night is never priced below the IA rate by the booking-window step-down);
+     80–85% → hold; <80% → 10% cut. Never below floor.
 2. **Competitor blend** (equivalent category, sector competitors, latest scrape):
    - Target **~5% below** the competitor median for that category (`COMP_UNDERCUT = 0.95`).
    - If our occupancy **≥85%** → **take the higher** of (own-occupancy rate, competitor-anchored rate) — capture ADR when both signals are strong.
@@ -34,6 +36,8 @@ a fallback proxy. Competitor rates for future dates use the latest scraped snaps
 
 ## Parameters (in app.py)
 - `OCC_TARGET = 0.80` — discount threshold.
+- `HIGH_OCC = 0.85` — lift threshold: at/above, the price is lifted, never lowered.
+- `HIGH_OCC_PREMIUM = 1.05` / `VERY_HIGH_OCC_PREMIUM = 1.10` — lifts at ≥85% / ≥95%.
 - `COMP_UNDERCUT = 0.95` — target position vs competitor equivalent-category median.
 - `PEAK_MONTHS = {7, 8}` — Jul/Aug peak; the 5%-below-competitor step applies only when occupancy <80%; at ≥80% take the higher of own rate vs competitor (never undercut).
 - `GAP_MIN_NIGHTS = 6` — long-stay gap threshold (Ann Siang, BQ South Bridge, Smith, Boon Tat).

@@ -17,8 +17,11 @@ HEADERS = {"x-api-key": API_KEY}
 DATA_DIR = Path(__file__).parent / "data"
 
 OCC_TARGET = 0.80          # below this, recommend discounting; at/above: hold or lift
-SOFT_DISCOUNT = 0.90       # 10% cut when occupancy < 85%
-HIGH_OCC_PREMIUM = 1.05    # small lift when nearly full
+HIGH_OCC = 0.85            # at/above this, LIFT the price (never lower it)
+SOFT_DISCOUNT = 0.90       # 10% cut when occupancy < 80%
+HIGH_OCC_PREMIUM = 1.05    # +5% lift at occ >= HIGH_OCC
+VERY_HIGH_OCC_PREMIUM = 1.10  # +10% lift at occ >= 95%
+PEAK_MONTHS = {7, 8}       # Jul/Aug: at occ >= OCC_TARGET never undercut the comp median
 
 # Some Cloudbeds properties contain rooms that belong to other entities.
 # Map: property name -> substring that must appear in the ROOM NAME to count.
@@ -551,7 +554,9 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
     elif occ is None:
         occ_rate, occ_reason = base, "No occ data — IA/window rate"
     elif occ >= 0.95:
-        occ_rate, occ_reason = base * HIGH_OCC_PREMIUM, "occ ≥95% — premium"
+        occ_rate, occ_reason = max(base, rates["ia"]) * VERY_HIGH_OCC_PREMIUM, "occ ≥95% — +10% lift"
+    elif occ >= HIGH_OCC:
+        occ_rate, occ_reason = max(base, rates["ia"]) * HIGH_OCC_PREMIUM, f"occ ≥{HIGH_OCC:.0%} — +5% lift"
     elif occ >= OCC_TARGET:
         occ_rate, occ_reason = base, f"occ ≥{OCC_TARGET:.0%} — hold"
     else:
@@ -562,12 +567,15 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
         rec, note = occ_rate, "no comp rate"
     else:
         anchor = comp_median * COMP_UNDERCUT  # ~5% below competitor
-        if occ is not None and occ >= 0.85:
+        if occ is not None and occ >= HIGH_OCC:
             rec = max(occ_rate, anchor)
-            note = f"≥85% occ — take higher of own vs comp (comp S${comp_median:.0f})"
+            note = f"≥{HIGH_OCC:.0%} occ — take higher of own vs comp (comp S${comp_median:.0f})"
         elif occ is not None and occ < OCC_TARGET:
             rec = min(occ_rate, anchor)
             note = f"soft occ — ~5% below comp S${comp_median:.0f} to win share"
+        elif (date.today() + timedelta(days=max(days_out, 0))).month in PEAK_MONTHS:
+            rec = max(occ_rate, anchor)  # peak season: never undercut when occ >= target
+            note = f"peak month, occ ≥{OCC_TARGET:.0%} — higher of own vs comp (comp S${comp_median:.0f})"
         else:
             rec = anchor
             note = f"~5% below comp median S${comp_median:.0f}"
