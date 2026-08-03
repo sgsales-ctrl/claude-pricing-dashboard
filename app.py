@@ -17,11 +17,8 @@ HEADERS = {"x-api-key": API_KEY}
 DATA_DIR = Path(__file__).parent / "data"
 
 OCC_TARGET = 0.80          # below this, recommend discounting; at/above: hold or lift
-HIGH_OCC = 0.85            # at/above this, LIFT the price (never lower it)
-SOFT_DISCOUNT = 0.90       # 10% cut when occupancy < 80%
-HIGH_OCC_PREMIUM = 1.05    # +5% lift at occ >= HIGH_OCC
-VERY_HIGH_OCC_PREMIUM = 1.10  # +10% lift at occ >= 95%
-PEAK_MONTHS = {7, 8}       # Jul/Aug: at occ >= OCC_TARGET never undercut the comp median
+SOFT_DISCOUNT = 0.90       # 10% cut when occupancy < 85%
+HIGH_OCC_PREMIUM = 1.05    # small lift when nearly full
 
 # Some Cloudbeds properties contain rooms that belong to other entities.
 # Map: property name -> substring that must appear in the ROOM NAME to count.
@@ -443,7 +440,21 @@ def event_for(d: date):
     return best
 
 
-COMP_UNDERCUT = 0.95  # target ~5% below competitor equivalent-category rate
+COMP_UNDERCUT = 0.95  # default: target ~5% below competitor equivalent-category rate
+
+# Properties that outperform their comp set: peg AT the competitor median (no undercut),
+# and during peak months never price below the competitor anchor even if occupancy is soft.
+PEG_TO_COMP = {
+    "Heritage Collection on Clarke Quay": {"position": 1.00, "peak_months": [8]},
+}
+
+
+def comp_positioning(pname: str, d: date) -> tuple[float, bool]:
+    """(position multiplier vs comp median, peak_hold) for a property on a date."""
+    cfg = next((v for k, v in PEG_TO_COMP.items() if k.casefold() == pname.casefold()), None)
+    if not cfg:
+        return COMP_UNDERCUT, False
+    return cfg.get("position", 1.0), d.month in cfg.get("peak_months", [])
 
 
 # Display buckets for our rooms (tabs) and the competitor category each maps to
@@ -536,7 +547,8 @@ def sector_comp_occupancy(sector_comps: list, scraped_day: dict):
 
 
 def recommend(rates: dict, days_out: int, occ: float | None, ev,
-              comp_median: float | None = None, comp_occ: float | None = None) -> tuple[float, str]:
+              comp_median: float | None = None, comp_occ: float | None = None,
+              comp_position: float = COMP_UNDERCUT, peak_hold: bool = False) -> tuple[float, str]:
     base = ladder_rate(rates, days_out)
     floor = rates["floor"]
     demand = (ev or {}).get("demand", "")
@@ -554,9 +566,7 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
     elif occ is None:
         occ_rate, occ_reason = base, "No occ data — IA/window rate"
     elif occ >= 0.95:
-        occ_rate, occ_reason = max(base, rates["ia"]) * VERY_HIGH_OCC_PREMIUM, "occ ≥95% — +10% lift"
-    elif occ >= HIGH_OCC:
-        occ_rate, occ_reason = max(base, rates["ia"]) * HIGH_OCC_PREMIUM, f"occ ≥{HIGH_OCC:.0%} — +5% lift"
+        occ_rate, occ_reason = base * HIGH_OCC_PREMIUM, "occ ≥95% — premium"
     elif occ >= OCC_TARGET:
         occ_rate, occ_reason = base, f"occ ≥{OCC_TARGET:.0%} — hold"
     else:
@@ -565,20 +575,25 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
     # ---- Step 2: blend with competitor equivalent-category rate ----
     if not comp_median:
         rec, note = occ_rate, "no comp rate"
+        if peak_hold and occ is not None and occ < OCC_TARGET:
+            # peak: don't discount below the IA/window rate even when occupancy is soft
+            rec = max(rec, base)
+            note = "peak month — hold IA, no discount"
     else:
-        anchor = comp_median * COMP_UNDERCUT  # ~5% below competitor
-        if occ is not None and occ >= HIGH_OCC:
+        anchor = comp_median * comp_position
+        pos_txt = ("pegged to" if comp_position >= 1.0 else "~5% below")
+        if peak_hold:
             rec = max(occ_rate, anchor)
-            note = f"≥{HIGH_OCC:.0%} occ — take higher of own vs comp (comp S${comp_median:.0f})"
+            note = f"peak month — {pos_txt} comp S${comp_median:.0f}, no discounting"
+        elif occ is not None and occ >= 0.85:
+            rec = max(occ_rate, anchor)
+            note = f"≥85% occ — take higher of own vs comp (comp S${comp_median:.0f})"
         elif occ is not None and occ < OCC_TARGET:
             rec = min(occ_rate, anchor)
-            note = f"soft occ — ~5% below comp S${comp_median:.0f} to win share"
-        elif (date.today() + timedelta(days=max(days_out, 0))).month in PEAK_MONTHS:
-            rec = max(occ_rate, anchor)  # peak season: never undercut when occ >= target
-            note = f"peak month, occ ≥{OCC_TARGET:.0%} — higher of own vs comp (comp S${comp_median:.0f})"
+            note = f"soft occ — {pos_txt} comp S${comp_median:.0f} to win share"
         else:
             rec = anchor
-            note = f"~5% below comp median S${comp_median:.0f}"
+            note = f"{pos_txt} comp median S${comp_median:.0f}"
         if demand in ("High", "Very High"):
             rec = max(rec, occ_rate)  # never undercut an event uplift
     # ---- Step 3: competitor occupancy (area compression) ----
@@ -644,7 +659,9 @@ def overview_pricing(pname: str, rd: list, booked: list, allowed_types: frozense
                 run += 1; dd += timedelta(days=1)
             if run < GAP_MIN_NIGHTS:
                 continue
-        rec, why = recommend(rates, days_out, occ_pct, ev)
+        _pos, _peak = comp_positioning(pname, target)
+        rec, why = recommend(rates, days_out, occ_pct, ev,
+                             comp_position=_pos, peak_hold=_peak)
         rooms_out.append(guide_room)
         prices_out.append(f"S${rec}")
         reason = why
@@ -977,8 +994,10 @@ if view == "Competitor analysis":
                     present = [v for v in comp_vals.values() if v is not None]
                     cheapest = min(present) if present else None
                     comp_med = comp_category_median(sector_comps, day_snap, cat)
+                    _pos, _peak = comp_positioning(property_name, d)
                     rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med,
-                                       sector_comp_occupancy(sector_comps, day_snap))
+                                       sector_comp_occupancy(sector_comps, day_snap),
+                                       comp_position=_pos, peak_hold=_peak)
                     row = {
                         "Date": d.strftime("%m-%d"), "DOW": d.strftime("%a"),
                         "CB Rate": f"${listed:.0f}" if listed is not None else "None",
@@ -1108,7 +1127,9 @@ if prop_pricing:
                 if run < GAP_MIN_NIGHTS:
                     vac_label = f"Gap ({run} night{'s' if run != 1 else ''})"
             cat, comp_med = comp_med_for(room)
-            rec, why = recommend(rates, days_out, occ_pct, ev, comp_med, d_comp_occ)
+            _pos, _peak = comp_positioning(property_name, d)
+            rec, why = recommend(rates, days_out, occ_pct, ev, comp_med, d_comp_occ,
+                                 comp_position=_pos, peak_hold=_peak)
             listed = (listed_maps.get(cb_name) or {}).get(str(d)) if cb_name else None
             rec_rows.append({
                 "Date": str(d), "Day": d.strftime("%a"),

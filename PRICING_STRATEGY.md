@@ -18,9 +18,7 @@ so it is compared against competitors' Single rooms — not their studios.
 1. **Own occupancy / event rate** first:
    - High / Very High event → price **above** IA using the event's suggested markup (default +10% / +20%).
    - Moderate event → hold IA (small 5% cut only if occupancy <70%).
-   - Occupancy ≥95% → **+10% lift** on max(ladder, IA); ≥85% → **+5% lift** on max(ladder, IA)
-     (a busy night is never priced below the IA rate by the booking-window step-down);
-     80–85% → hold; <80% → 10% cut. Never below floor.
+   - Occupancy ≥95% → small premium; ≥80% → hold; <80% → 10% cut. Never below floor.
 2. **Competitor blend** (equivalent category, sector competitors, latest scrape):
    - Target **~5% below** the competitor median for that category (`COMP_UNDERCUT = 0.95`).
    - If our occupancy **≥85%** → **take the higher** of (own-occupancy rate, competitor-anchored rate) — capture ADR when both signals are strong.
@@ -29,6 +27,16 @@ so it is compared against competitors' Single rooms — not their studios.
    - High/Very High event uplift is never undercut by the competitor step.
    - Never below the breakeven floor.
 
+## Property overrides — peg to competitors (Clarke Quay)
+Clarke Quay outperforms Boat Quay (Quayside Wing), so it earns a stronger price position:
+- **Peg AT the competitor median** (The Quay Hotel & other QUAYS competitors' equivalent
+  category) — no 5% undercut (`position = 1.00` in `PEG_TO_COMP`).
+- **August is peak**: no aggressive discounting. During peak months the recommendation is
+  the **higher** of the own-occupancy rate and the competitor peg, even when occupancy is
+  below 80% (the 10% soft-occupancy cut never pulls it below the competitor anchor / IA).
+- Breakeven floor and event uplifts still apply as usual.
+Configured in `PEG_TO_COMP` in app.py; add other properties there if they earn the same treatment.
+
 ## Data note
 Competitor rates come from the daily Booking.com scrape. The scrape captures each competitor's rate
 **by room category** (Single / Studio / Loft / Suite) when visible, plus the cheapest available rate as
@@ -36,17 +44,6 @@ a fallback proxy. Competitor rates for future dates use the latest scraped snaps
 
 ## Parameters (in app.py)
 - `OCC_TARGET = 0.80` — discount threshold.
-- `HIGH_OCC = 0.85` — lift threshold: at/above, the price is lifted, never lowered.
-- `HIGH_OCC_PREMIUM = 1.05` / `VERY_HIGH_OCC_PREMIUM = 1.10` — lifts at ≥85% / ≥95%.
-- `COMP_UNDERCUT = 0.95` — target position vs competitor equivalent-category median.
-- `PEAK_MONTHS = {7, 8}` — Jul/Aug peak; the 5%-below-competitor step applies only when occupancy <80%; at ≥80% take the higher of own rate vs competitor (never undercut).
+- `COMP_UNDERCUT = 0.95` — default position vs competitor equivalent-category median.
+- `PEG_TO_COMP = {"Heritage Collection on Clarke Quay": {"position": 1.00, "peak_months": [8]}}` — Clarke Quay pegs AT comp median; August = peak, no soft-occupancy discounting.
 - `GAP_MIN_NIGHTS = 6` — long-stay gap threshold (Ann Siang, BQ South Bridge, Smith, Boon Tat).
-
-## Peak season (July & August)
-Singapore peak months. In **July and August** the competitor step is gated by our own occupancy:
-- **Occupancy < 80%** → price **~5% below** the competitor median for that category (undercut to win share while we still have rooms to fill).
-- **Occupancy ≥ 80%** → **take the higher of our own rate and the competitor rate** — never price below the competitor when we are already busy.
-- The breakeven floor still applies, and a High / Very High event uplift is never undercut.
-- Outside July / August, the general competitor rule above applies unchanged.
-
-Controlled by `PEAK_MONTHS = {7, 8}` in `app.py`; the Competitor Analysis Rationale column shows which branch applied on each date.
