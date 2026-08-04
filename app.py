@@ -606,6 +606,32 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
     return round(rec), occ_reason + " · " + note
 
 
+def rate_rationale(why: str, rec: float, cheapest: float | None, comp_med: float | None) -> str:
+    """Turn the recommend() reasoning + comp numbers into a plain-English cell explaining
+    the rate AND how it stacks up against competitors, for the Competitor Analysis table."""
+    bits = [why]
+    if comp_med:
+        diff_med = rec - comp_med
+        pct = abs(diff_med) / comp_med * 100
+        if diff_med < -0.5:
+            bits.append(f"{pct:.0f}% below the sector median (S${comp_med:.0f}) — reads as the better deal at a glance")
+        elif diff_med > 0.5:
+            bits.append(f"{pct:.0f}% above the sector median (S${comp_med:.0f}), backed by our own demand/positioning")
+        else:
+            bits.append(f"in line with the sector median (S${comp_med:.0f})")
+    if cheapest is not None:
+        diff = rec - cheapest
+        if diff < -0.5:
+            bits.append(f"S${abs(diff):.0f} cheaper than the lowest competitor — gives shoppers a clear reason to book us")
+        elif diff > 0.5:
+            bits.append(f"S${diff:.0f} above the lowest competitor")
+        else:
+            bits.append("matches the lowest competitor rate")
+    elif not comp_med:
+        bits.append("no competitor rate scraped yet for this date")
+    return "; ".join(bits)
+
+
 def overview_pricing(pname: str, rd: list, booked: list, allowed_types: frozenset | None,
                      target: date, occ_pct: float | None, is_gap: bool):
     """For the overview: available (sellable) room types with recommended price,
@@ -995,7 +1021,7 @@ if view == "Competitor analysis":
                     cheapest = min(present) if present else None
                     comp_med = comp_category_median(sector_comps, day_snap, cat)
                     _pos, _peak = comp_positioning(property_name, d)
-                    rec, _ = recommend(rates, days_out, occ_pct, ev, comp_med,
+                    rec, why = recommend(rates, days_out, occ_pct, ev, comp_med,
                                        sector_comp_occupancy(sector_comps, day_snap),
                                        comp_position=_pos, peak_hold=_peak)
                     row = {
@@ -1012,6 +1038,7 @@ if view == "Competitor analysis":
                         row["Our rec vs cheapest"] = f"${'+' if diff >= 0 else '-'}{abs(diff):.0f}"
                     else:
                         row["Our rec vs cheapest"] = "None"
+                    row["Why this rate"] = rate_rationale(why, rec, cheapest, comp_med)
                     rows.append(row)
                 if not rows:
                     continue  # this room type is fully booked across the whole window
@@ -1020,14 +1047,18 @@ if view == "Competitor analysis":
                 _cadf = pd.DataFrame(rows)
                 _casty = _cadf.style.set_properties(
                     subset=["Our rec"], **{"background-color": "#FFF3B0", "font-weight": "bold"})
-                st.dataframe(_casty, use_container_width=True, hide_index=True)
+                st.dataframe(_casty, use_container_width=True, hide_index=True,
+                             column_config={"Why this rate": st.column_config.TextColumn(width="large")})
             if not shown_any:
                 st.caption(f"All {cat} room types are fully booked across the selected window.")
     st.caption("Only dates where the room is genuinely vacant/sellable are shown (fully-booked dates are hidden; "
                "for long-stay properties, gap-only nights are excluded). "
                "Competitor rates come from the daily Booking.com scrape (by category, incl. taxes & fees); "
                "dates not yet scraped show None; sold-out competitors are excluded. "
-               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85%.")
+               "Our rec targets ~5% below the competitor median, taking the higher of own-rate vs competitor when occupancy ≥85% "
+               "(Clarke Quay pegs to the comp median with no August discounting — see 'Why this rate'). "
+               "'Why this rate' explains the driver (occupancy/event/peg) and how the rate compares to the sector so you can see "
+               "at a glance whether we're positioned to win the booking.")
     st.stop()
 
 # ===== Tonight at a glance =====
