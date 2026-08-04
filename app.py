@@ -559,8 +559,8 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
         occ_rate = max(base, rates["ia"]) * (1 + up)
         occ_reason = f"{demand} event +{up:.0%} vs IA"
     elif demand == "Moderate":
-        if occ is None or occ >= 0.70:
-            occ_rate, occ_reason = base, "Moderate event — hold"
+        if occ is None or occ >= 0.70 or peak_hold:
+            occ_rate, occ_reason = base, "Moderate event — hold" + (" (peak month)" if peak_hold and occ is not None and occ < 0.70 else "")
         else:
             occ_rate, occ_reason = base * 0.95, "Moderate event, occ<70% — 5% cut"
     elif occ is None:
@@ -569,16 +569,15 @@ def recommend(rates: dict, days_out: int, occ: float | None, ev,
         occ_rate, occ_reason = base * HIGH_OCC_PREMIUM, "occ ≥95% — premium"
     elif occ >= OCC_TARGET:
         occ_rate, occ_reason = base, f"occ ≥{OCC_TARGET:.0%} — hold"
+    elif peak_hold:
+        # peak month override: never apply the soft-occupancy discount, regardless of how low occ is
+        occ_rate, occ_reason = base, "peak month — hold IA, no soft-occupancy discount"
     else:
         occ_rate, occ_reason = base * SOFT_DISCOUNT, f"occ <{OCC_TARGET:.0%} — 10% cut"
     occ_rate = max(occ_rate, floor)
     # ---- Step 2: blend with competitor equivalent-category rate ----
     if not comp_median:
         rec, note = occ_rate, "no comp rate"
-        if peak_hold and occ is not None and occ < OCC_TARGET:
-            # peak: don't discount below the IA/window rate even when occupancy is soft
-            rec = max(rec, base)
-            note = "peak month — hold IA, no discount"
     else:
         anchor = comp_median * comp_position
         pos_txt = ("pegged to" if comp_position >= 1.0 else "~5% below")
